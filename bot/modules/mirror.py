@@ -165,6 +165,8 @@ class MirrorListener:
         else:
             cuntxi = 0
             for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
+                for subdir_ in subdir:
+                    rename(path.join(dirpath,subdir_),path.join(dirpath,'.'.join(subdir_.replace('',''))))
                 for file_ in files:
                     f_path = ospath.join(dirpath, file_)
                     rename(f_path,ospath.join(dirpath, '.'.join(file_[:-5].replace(' ',''))+file_[-5:].replace(' ','')))
