@@ -2,7 +2,7 @@ from base64 import b64encode
 from requests import utils as rutils
 from re import match as re_match, search as re_search, split as re_split
 from time import sleep, time
-from os import path as ospath, remove as osremove, listdir, walk
+from os import path as ospath, remove as osremove, listdir, walk,rename
 from shutil import rmtree
 from threading import Thread
 from subprocess import run as srun
