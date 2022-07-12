@@ -169,21 +169,24 @@ class MirrorListener:
         else:
             for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
                 for subdir_ in subdir:
-                    rename(ospath.join(dirpath,subdir_),ospath.join(dirpath,'.'.join(subdir_.replace(' ',''))))
+                    rename(ospath.join(dirpath,subdir_),ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.',''))))
                 for file_ in files:
                     f_path = ospath.join(dirpath, file_)
                     fxi , fnamexi = ospath.splitext(f_path)
                     fname_len = -(len(fnamexi))
-                    rename(f_path,ospath.join(dirpath, '.'.join(file_[:fname_len].replace(' ',''))+file_[fname_len:].replace(' ','')))
+                    rename(f_path,ospath.join(dirpath, '.'.join(file_[:fname_len].replace(' ','').replace('.',''))+file_[fname_len:]
             if isfilexi == True:
                 LOGGER.info(f"Torrent/Download is : File , {up_path}")
                 up_name = PurePath(path).name
-                up_name = '.'.join(up_name[:fname_len].replace(' ',''))+up_name[fname_len:].replace(' ','')
+                up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+                fxi , fnamexi = ospath.splitext(up_path)
+                fname_len = -(len(fnamexi))
+                up_name = '.'.join(up_name[:fname_len].replace(' ','').replace('.',''))+up_name[fname_len:]
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
             else:
                 LOGGER.info(f"Torrent/Download is : Folder, {up_path}")
                 up_name = PurePath(path).name
-                up_name = '.'.join(up_name.replace(' ',''))
+                up_name = '.'.join(up_name.replace(' ','').replace('.',''))
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
             size = get_path_size(up_path)
             LOGGER.info(f"Upload Name: {up_name}")
