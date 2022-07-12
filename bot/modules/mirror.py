@@ -163,15 +163,13 @@ class MirrorListener:
             update_all_messages()
             tg.upload()
         else:
-            cuntxi = 0
             for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
                 for subdir_ in subdir:
                     rename(ospath.join(dirpath,subdir_),ospath.join(dirpath,'.'.join(subdir_.replace(' ',''))))
                 for file_ in files:
                     f_path = ospath.join(dirpath, file_)
                     rename(f_path,ospath.join(dirpath, '.'.join(file_[:-5].replace(' ',''))+file_[-5:].replace(' ','')))
-                    cuntxi += 1
-            if cuntxi == 1:
+            if ospath.isfile(up_path):
                 up_name = PurePath(path).name
                 up_name = '.'.join(up_name[:-5].replace(' ',''))+up_name[-5:].replace(' ','')
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
