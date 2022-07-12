@@ -178,7 +178,7 @@ class MirrorListener:
             if isfilexi == True:
                 LOGGER.info(f"Torrent/Download is : File , {up_path}")
                 up_name = PurePath(path).name
-                up_name = '.'.join(up_name[:-5].replace(' ',''))+up_name[-5:].replace(' ','')
+                up_name = '.'.join(up_name[:fname_len].replace(' ',''))+up_name[fname_len:].replace(' ','')
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
             else:
                 LOGGER.info(f"Torrent/Download is : Folder, {up_path}")
