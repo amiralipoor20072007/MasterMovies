@@ -139,6 +139,10 @@ class MirrorListener:
             path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         up_name = PurePath(path).name
         up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+        if ospath.isfile(up_path):
+            isfilexi = True
+        else:
+            isfilexi = False
         if self.isLeech and not self.isZip:
             checked = False
             for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
@@ -169,7 +173,7 @@ class MirrorListener:
                 for file_ in files:
                     f_path = ospath.join(dirpath, file_)
                     rename(f_path,ospath.join(dirpath, '.'.join(file_[:-5].replace(' ',''))+file_[-5:].replace(' ','')))
-            if ospath.isfile(up_name):
+            if isfilexi == True:
                 LOGGER.info(f"Torrent/Download is : File , {up_path}")
                 up_name = PurePath(path).name
                 up_name = '.'.join(up_name[:-5].replace(' ',''))+up_name[-5:].replace(' ','')
