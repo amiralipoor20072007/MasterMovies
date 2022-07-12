@@ -170,10 +170,12 @@ class MirrorListener:
                     f_path = ospath.join(dirpath, file_)
                     rename(f_path,ospath.join(dirpath, '.'.join(file_[:-5].replace(' ',''))+file_[-5:].replace(' ','')))
             if ospath.isfile(up_path):
+                LOGGER.info(f"Torrent/Download is : File")
                 up_name = PurePath(path).name
                 up_name = '.'.join(up_name[:-5].replace(' ',''))+up_name[-5:].replace(' ','')
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
             else:
+                LOGGER.info(f"Torrent/Download is : Folder")
                 up_name = PurePath(path).name
                 up_name = '.'.join(up_name.replace(' ',''))
                 up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
