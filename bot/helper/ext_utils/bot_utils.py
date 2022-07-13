@@ -109,7 +109,7 @@ def get_progress_bar_string(status):
     p_str = '🌕' * (cFull)
     if cfull != 0:
         p_str = '🌕' * (cFull-1)+'🌗'
-    p_str += '🌚' * (12 - cFull)
+    p_str += '🌑' * (12 - cFull)
     p_str = f"{{p_str}}"
     return p_str
 
