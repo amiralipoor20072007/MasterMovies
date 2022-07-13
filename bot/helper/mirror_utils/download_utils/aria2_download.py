@@ -28,7 +28,7 @@ def __onDownloadStarted(api, gid):
             sname = download.name
             snamesxi = []
             snamesxi.append('.'.join(sname.replace(' ','').replace('.','')))
-            snamesxi.append('.'.join(ospath.splitext(sname)[0])+ospath.splitext(sname)[1])
+            snamesxi.append('.'.join(ospath.splitext(sname)[0].replace(' ','').replace('.',''))+ospath.splitext(sname)[1])
             for sname in snamesxi:
                 if dl.getListener().isZip:
                     sname = sname + ".zip"
