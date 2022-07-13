@@ -106,7 +106,6 @@ def get_progress_bar_string(status):
     p = 0 if total == 0 else round(completed * 100 / total)
     p = min(max(p, 0), 100)
     cFull = p // 8
-    LOGGER.info(f'{cFull},{type(cFull)}')
     p_str = '🌕' * (cFull-1)+'🌗' if cFull != 0 else '🌕' * (cFull)
     p_str += '🌑' * (12 - cFull)
     p_str = f"<>{p_str}<>"
