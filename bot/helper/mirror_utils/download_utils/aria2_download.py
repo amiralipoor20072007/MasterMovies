@@ -24,6 +24,7 @@ def __onDownloadStarted(api, gid):
             if not dl or dl.getListener().isLeech:
                 return
             LOGGER.info('Checking File/Folder if already in Drive...')
+            LOGGER.info(f'{download}')
             sname = download.name
             if dl.getListener().isZip:
                 sname = sname + ".zip"
