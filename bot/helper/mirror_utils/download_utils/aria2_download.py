@@ -6,7 +6,7 @@ from bot.helper.ext_utils.bot_utils import is_magnet, getDownloadByGid, new_thre
 from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendMarkup, sendStatusMessage, sendMessage
 from bot.helper.ext_utils.fs_utils import get_base_name
-
+from os import path as ospath
 
 @new_thread
 def __onDownloadStarted(api, gid):
@@ -26,19 +26,23 @@ def __onDownloadStarted(api, gid):
             LOGGER.info('Checking File/Folder if already in Drive...')
             LOGGER.info(f'{download} , {download.name}')
             sname = download.name
-            if dl.getListener().isZip:
-                sname = sname + ".zip"
-            elif dl.getListener().extract:
-                try:
-                    sname = get_base_name(sname)
-                except:
-                    sname = None
-            if sname is not None:
-                smsg, button = GoogleDriveHelper().drive_list(sname, True)
-                if smsg:
-                    dl.getListener().onDownloadError('File/Folder already available in Drive.\n\n')
-                    api.remove([download], force=True, files=True)
-                    return sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
+            snamesxi = []
+            snamesxi.append('.'.join(sname.replace(' ','').replace('.','')))
+            snamesxi.append('.'.join(ospath.splitext(sname)[0])+ospath.splitext(sname)[1])
+            for sname in snamesxi:
+                if dl.getListener().isZip:
+                    sname = sname + ".zip"
+                elif dl.getListener().extract:
+                    try:
+                        sname = get_base_name(sname)
+                    except:
+                        sname = None
+                if sname is not None:
+                    smsg, button = GoogleDriveHelper().drive_list(sname, True)
+                    if smsg:
+                        dl.getListener().onDownloadError('File/Folder already available in Drive.\n\n')
+                        api.remove([download], force=True, files=True)
+                        return sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
     except Exception as e:
         LOGGER.error(f"{e} onDownloadStart: {gid} stop duplicate didn't pass")
 
