@@ -117,18 +117,22 @@ class QbDownloader:
                     LOGGER.info(f'qbname = {qbname}')
                     if qbname.endswith('.!qB'):
                         qbname = ospath.splitext(qbname)[0]
-                    if self.__listener.isZip:
-                        qbname = qbname + ".zip"
-                    elif self.__listener.extract:
-                        try:
-                           qbname = get_base_name(qbname)
-                        except:
-                            qbname = None
-                    if qbname is not None:
-                        qbmsg, button = GoogleDriveHelper().drive_list(qbname, True)
-                        if qbmsg:
-                            self.__onDownloadError("File/Folder is already available in Drive.")
-                            sendMarkup("Here are the search results:", self.__listener.bot, self.__listener.message, button)
+                    qbnamesxi = []
+                    qbnamesxi.append('.'.join(qbname.replace(' ','').replace('.','')))
+                    qbnamesxi.append('.'.join(ospath.splitext(qbname)[0].replace(' ','').replace('.',''))+ospath.splitext(qbname)[1])
+                    for qbname in qbnamesxi:
+                        if self.__listener.isZip:
+                            qbname = qbname + ".zip"
+                        elif self.__listener.extract:
+                            try:
+                               qbname = get_base_name(qbname)
+                            except:
+                                qbname = None
+                        if qbname is not None:
+                            qbmsg, button = GoogleDriveHelper().drive_list(qbname, True)
+                            if qbmsg:
+                                self.__onDownloadError("File/Folder is already available in Drive.")
+                                sendMarkup("Here are the search results:", self.__listener.bot, self.__listener.message, button)
                     self.__dupChecked = True
             elif tor_info.state == "stalledDL":
                 if not self.__rechecked and 0.99989999999999999 < tor_info.progress < 1:
