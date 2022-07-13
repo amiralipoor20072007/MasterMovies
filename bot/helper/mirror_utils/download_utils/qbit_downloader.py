@@ -114,6 +114,7 @@ class QbDownloader:
                 if not self.__dupChecked and STOP_DUPLICATE and ospath.isdir(f'{self.__path}') and not self.__listener.isLeech and not self.select:
                     LOGGER.info('Checking File/Folder if already in Drive')
                     qbname = str(listdir(f'{self.__path}')[-1])
+                    LOGGER.info(f'qbname = {qbname}')
                     if qbname.endswith('.!qB'):
                         qbname = ospath.splitext(qbname)[0]
                     if self.__listener.isZip:
