@@ -149,7 +149,8 @@ def get_readable_message():
                 except:
                     pass
                 xi = dir(download)
-                msg += f"\n{download.message.link}\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
+                msg += f'Source ::: <a href='{download.message.link}'>'{download.tag}'</a>'
+                msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n<b>Size: </b>{download.size()}"
                 msg += f"\n<b>Speed: </b>{get_readable_file_size(download.torrent_info().upspeed)}/s"
