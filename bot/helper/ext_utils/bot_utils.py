@@ -149,7 +149,7 @@ def get_readable_message():
                 except:
                     pass
                 xi = dir(download)
-                msg += f'Source ::: <a href='{download.message.link}'>'{download.tag}'</a>'
+                msg += f"\nSource ::: <a href='{download.message.link}'>'{download.tag}'</a>"
                 msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n<b>Size: </b>{download.size()}"
