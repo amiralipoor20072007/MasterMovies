@@ -251,9 +251,13 @@ class MirrorListener:
                 share_url = f'{INDEX_URL}/{url_path}'
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
-                    buttons.buildbutton("⚡ Index Link", share_url)
+                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
+                    iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
-                    buttons.buildbutton("⚡ Index Link", share_url)
+                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
+                    iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                     if VIEW_LINK:
                         share_urls = f'{INDEX_URL}/{url_path}?a=view'
                         buttons.buildbutton("🌐 View Link", share_urls)
