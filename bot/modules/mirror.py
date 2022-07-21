@@ -446,7 +446,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 if str(e).startswith('ERROR:'):
                     return sendMessage(str(e), bot, message)
 
-    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
+    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd,softsub, tag, qbsd)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
