@@ -37,7 +37,7 @@ from bot.helper.ext_utils.db_handler import DbManger
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, seed=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,softsub=None, tag=None, seed=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -46,6 +46,7 @@ class MirrorListener:
         self.isQbit = isQbit
         self.isLeech = isLeech
         self.pswd = pswd
+        self.softsub = softsub
         self.tag = tag
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
@@ -73,6 +74,26 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
+        
+        video_formats = ['.webm', '.mkv', '.flv', '.flv', '.vob',
+        '.ogv', '.ogg', '.drc', '.gif', '.gifv', '.mng', '.avi',
+        '.mov', '.qt', '.wmv', '.yuv', '.rm', '.rmvb', '.viv',
+        '.asf', '.amv', '.mp4', '.m4p', '.m4v', '.mpg',
+        '.mp2', '.mpeg', '.mpe', '.mpv', '.mpg', '.mpeg', '.m2v', '.m4v',
+        '.svi', '.3gp', '.3g2', '.mxf', '.roq', '.nsv']
+        if self.softsub is not None and ospath.isfile(m_path) and ospath.splitext(m_path)[1] in video_formats and not self.isZip and not self.extract:
+            softsub_url = self.softsub
+            srun(['wget','-O', f'{DOWNLOAD_DIR}{self.uid}/subtitlexi.srt',softsub_url])
+            basenamexi , formatxi = ospath.splitext(m_path)
+            path = basenamexi+'.SoftSub'+formatxi
+            LOGGER.info(f'Subtitled Video Path : {path}')
+            result = srun(['ffmpeg','-i',m_path,'-i',f'{DOWNLOAD_DIR}{self.uid}/subtitlexi.srt','-map', '0' ,'-map', '1','-c' ,'copy',path])
+            if result.returncode == 0:
+                LOGGER.info(f"Subtitled Path: {path}")
+                osremove(m_path)
+            else:
+                LOGGER.error('Unable to Subtitle Video! Uploading anyway')
+                path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         if self.isZip:
             try:
                 with download_dict_lock:
