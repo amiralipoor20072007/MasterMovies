@@ -82,6 +82,7 @@ class MirrorListener:
         '.mp2', '.mpeg', '.mpe', '.mpv', '.mpg', '.mpeg', '.m2v', '.m4v',
         '.svi', '.3gp', '.3g2', '.mxf', '.roq', '.nsv']
         if self.softsub is not None and ospath.isfile(m_path) and ospath.splitext(m_path)[1] in video_formats and not self.isZip and not self.extract:
+            LOGGER.info('Started Subtitle Process')
             softsub_url = self.softsub
             path_to_sub = list(softsub_url)
             path_to_sub.reverse()
