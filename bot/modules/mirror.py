@@ -349,7 +349,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             if link.isdigit():
                 multi = int(link)
                 link = ''
-            elif link.startswith(("|", "pswd:")):
+            elif link.startswith(("|", "sub:")):
                 link = ''
         else:
             link = ''
@@ -358,7 +358,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if len(name_args) > 1:
         name = name_args[1]
-        name = name.split(' pswd:')[0]
+        name = name.split(' sub:')[0]
         name = name.strip()
     else:
         name = ''
