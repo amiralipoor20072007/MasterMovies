@@ -83,13 +83,18 @@ class MirrorListener:
         '.svi', '.3gp', '.3g2', '.mxf', '.roq', '.nsv']
         if self.softsub is not None and ospath.isfile(m_path) and ospath.splitext(m_path)[1] in video_formats and not self.isZip and not self.extract:
             softsub_url = self.softsub
-            result = srun(['wget','-O', f'{DOWNLOAD_DIR}{self.uid}/subtitlexi.srt',softsub_url])
+            path_to_sub = list(softsub_url)
+            path_to_sub.reverse()
+            path_to_sub = path_to_sub[:path_to_sub.index('/')]
+            path_to_sub.reverse()
+            path_to_sub = f'{DOWNLOAD_DIR}{self.uid}/'+''.join(path_to_sub)
+            result = srun(['wget','-P', f'{DOWNLOAD_DIR}{self.uid}',softsub_url])
             if result.returncode == 0:
                 LOGGER.info(f"Downloaded Subtitle: {softsub_url}")
             basenamexi , formatxi = ospath.splitext(m_path)
             path = basenamexi+'.SoftSub'+formatxi
             LOGGER.info(f'Subtitled Video Path : {path}')
-            result = srun(['ffmpeg','-i',m_path,'-i',f'{DOWNLOAD_DIR}{self.uid}/subtitlexi.srt','-map', '0' ,'-map', '1','-c' ,'copy',path])
+            result = srun(['ffmpeg','-i',m_path,'-i',path_to_sub,'-map', '0' ,'-map', '1','-c' ,'copy',path])
             if result.returncode == 0:
                 LOGGER.info(f"Subtitled Path: {path}")
                 osremove(m_path)
