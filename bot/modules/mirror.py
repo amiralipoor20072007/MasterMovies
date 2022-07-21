@@ -369,10 +369,13 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
     
     softsub_arg = mesg[0].split(' sub: ')
     LOGGER.info(f'softsub_arg : {softsub_arg}')
+    
     if len(softsub_arg) > 1:
         softsub_arg = softsub_arg[1].split(' pswd:')[0]
         softsub = softsub_arg
         LOGGER.info(f'softsub : {softsub}')
+    else:
+        softsub = None
 
     if message.from_user.username:
         tag = f"@{message.from_user.username}"
