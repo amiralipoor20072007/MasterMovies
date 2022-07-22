@@ -46,7 +46,6 @@ class MirrorListener:
         self.isQbit = isQbit
         self.isLeech = isLeech
         self.pswd = pswd
-        self.softsub = softsub
         self.tag = tag
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
@@ -322,7 +321,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             if link.isdigit():
                 multi = int(link)
                 link = ''
-            elif link.startswith(("|", "sub:")):
+            elif link.startswith(("|", "pswd:")):
                 link = ''
         else:
             link = ''
