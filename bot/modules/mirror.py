@@ -37,7 +37,7 @@ from bot.helper.ext_utils.db_handler import DbManger
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,softsub=None, tag=None, seed=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -331,7 +331,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if len(name_args) > 1:
         name = name_args[1]
-        name = name.split(' sub:')[0]
+        name = name.split(' pswd:')[0]
         name = name.strip()
     else:
         name = ''
@@ -340,21 +340,9 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
     link = link.strip()
 
     pswd_arg = mesg[0].split(' pswd: ')
-    LOGGER.info(f'pswd_arg : {pswd_arg}')
     if len(pswd_arg) > 1:
         pswd = pswd_arg[1]
-        LOGGER.info(f'pswd : {pswd}')
     
-    softsub_arg = mesg[0].split(' sub: ')
-    LOGGER.info(f'softsub_arg : {softsub_arg}')
-    
-    if len(softsub_arg) > 1:
-        softsub_arg = softsub_arg[1].split(' pswd:')[0]
-        softsub = softsub_arg
-        LOGGER.info(f'softsub : {softsub}')
-    else:
-        softsub = None
-
     if message.from_user.username:
         tag = f"@{message.from_user.username}"
     else:
@@ -427,7 +415,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 if str(e).startswith('ERROR:'):
                     return sendMessage(str(e), bot, message)
 
-    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd,softsub, tag, qbsd)
+    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
