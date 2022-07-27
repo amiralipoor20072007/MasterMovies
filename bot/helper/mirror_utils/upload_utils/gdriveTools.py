@@ -356,7 +356,9 @@ class GoogleDriveHelper:
                 if INDEX_URL is not None:
                     url_path = rquote(f'{meta.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}/'
-                    buttons.buildbutton("⚡ Index Link", url)
+                    url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    buttons.buildbutton("⚡ Server (🇩🇪)", url)
+                    buttons.buildbutton("🇮🇷 نیم بها", url_irani)
             else:
                 file = self.__copyFile(meta.get('id'), parent_id)
                 msg += f'<b>Name: </b><code>{file.get("name")}</code>'
@@ -370,7 +372,9 @@ class GoogleDriveHelper:
                 if INDEX_URL is not None:
                     url_path = rquote(f'{file.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}'
-                    buttons.buildbutton("⚡ Index Link", url)
+                    url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    buttons.buildbutton("⚡ Server (🇩🇪)", url)
+                    buttons.buildbutton("🇮🇷 نیم بها", url_irani)
                     if VIEW_LINK:
                         urlv = f'{INDEX_URL}/{url_path}?a=view'
                         buttons.buildbutton("🌐 View Link", urlv)
@@ -615,6 +619,8 @@ class GoogleDriveHelper:
                         else:
                             url_path = rquote(f'{file.get("name")}', safe='')
                         url = f'{INDEX_URLS[index]}/{url_path}/'
+                        url_irani = url.replace(INDEX_URLS[index],'https://dl.mxfile-irani.ga/0:')
+                        msg += f' <b>| <a href="{url_irani}">Link NimBaha</a></b>'
                         msg += f' <b>| <a href="{url}">Index Link</a></b>'
                 elif mime_type == 'application/vnd.google-apps.shortcut':
                     msg += f"⁍<a href='https://drive.google.com/drive/folders/{file.get('id')}'>{file.get('name')}" \
@@ -634,6 +640,8 @@ class GoogleDriveHelper:
                         else:
                             url_path = rquote(f'{file.get("name")}')
                         url = f'{INDEX_URLS[index]}/{url_path}'
+                        url_irani = url.replace(INDEX_URLS[index],'https://dl.mxfile-irani.ga/0:')
+                        msg += f' <b>| <a href="{url_irani}">Link NimBaha</a></b>'
                         msg += f' <b>| <a href="{url}">Index Link</a></b>'
                         if VIEW_LINK:
                             urlv = f'{INDEX_URLS[index]}/{url_path}?a=view'
