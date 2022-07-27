@@ -254,7 +254,6 @@ class MirrorListener:
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 msg += f'\n<b>SubFolders: </b>{folders}'
                 msg += f'\n<b>Files: </b>{files}'
-            msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
             buttons = ButtonMaker()
             buttons.buildbutton("☁️ Drive Link", link)
             LOGGER.info(f'Done Uploading {name}')
@@ -263,12 +262,16 @@ class MirrorListener:
                 share_url = f'{INDEX_URL}/{url_path}'
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
-                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n<code>{share_url}</code>\n<b>🇮🇷 نیم بها</b>\n<code>{iran_url}</code>'
+                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
-                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n<code>{share_url}</code>\n<b>🇮🇷 نیم بها</b>\n<code>{iran_url}</code>'
+                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                    buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                     if VIEW_LINK:
                         share_urls = f'{INDEX_URL}/{url_path}?a=view'
