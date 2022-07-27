@@ -263,13 +263,13 @@ class MirrorListener:
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n<code>{share_url}</code>\n<b>🇮🇷 نیم بها</b>\n<code>{iran_url}</code>'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n<code>{share_url}</code>\n\n<b>🇮🇷 نیم بها</b>\n\n<code>{iran_url}</code>'
                     msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n<code>{share_url}</code>\n<b>🇮🇷 نیم بها</b>\n<code>{iran_url}</code>'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n<code>{share_url}</code>\n\n<b>🇮🇷 نیم بها</b>\n\n<code>{iran_url}</code>'
                     msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
