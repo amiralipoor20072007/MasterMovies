@@ -11,7 +11,7 @@ from html import escape
 from telegram.ext import CommandHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import Interval, INDEX_URL, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
+from bot import Interval, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download
@@ -228,7 +228,7 @@ class MirrorListener:
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
-    def onUploadComplete(self, link: str, size, files, folders, typ, name: str):
+    def onUploadComplete(self, link, size, files, folders, typ, name: str):
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
         msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
@@ -255,7 +255,7 @@ class MirrorListener:
                 msg += f'\n<b>SubFolders: </b>{folders}'
                 msg += f'\n<b>Files: </b>{files}'
             buttons = ButtonMaker()
-            buttons.buildbutton("☁️ Drive Link", link)
+            buttons.buildbutton("☁️ Drive Link", link[0])
             LOGGER.info(f'Done Uploading {name}')
             if INDEX_URL is not None:
                 url_path = rutils.quote(f'{name}')
@@ -263,13 +263,31 @@ class MirrorListener:
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n<code>{share_url}</code>\n\n<b>🇮🇷 نیم بها</b>\n\n<code>{iran_url}</code>'
+                    backup_links = f'Main Drive : <code>{share_url}</code>'
+                    iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
+                    for i in range(1,len(link)):
+                        if 'drive.google' in link[i]:
+                            backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
+                            iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                        else :
+                            backup_links += f'\nDrive {i} : Error!'
+                            iran_backup_links += f'\nDrive {i} : Error!'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
                     msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
                     iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n<code>{share_url}</code>\n\n<b>🇮🇷 نیم بها</b>\n\n<code>{iran_url}</code>'
+                    iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
+                    backup_links = f'Main Drive : <code>{share_url}</code>'
+                    for i in range(1,len(link)):
+                        if 'drive.google' in link[i]:
+                            backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
+                            iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                        else :
+                            backup_links += f'\nDrive {i} : Error!'
+                            iran_backup_links += f'\nDrive {i} : Error!'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
                     msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)

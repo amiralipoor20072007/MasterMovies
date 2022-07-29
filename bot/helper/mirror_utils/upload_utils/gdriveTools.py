@@ -16,7 +16,7 @@ from telegram import InlineKeyboardMarkup
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, RetryError
 
 from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot import parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, USE_SERVICE_ACCOUNTS, VIEW_LINK, \
+from bot import parent_id,backup_id_list, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, USE_SERVICE_ACCOUNTS, VIEW_LINK, \
                 DRIVES_NAMES, DRIVES_IDS, INDEX_URLS, EXTENSION_FILTER
 from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
@@ -156,11 +156,11 @@ class GoogleDriveHelper:
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
            retry=(retry_if_exception_type(GCError) | retry_if_exception_type(IOError)))
-    def __upload_file(self, file_path, file_name, mime_type, parent_id):
+    def __upload_file(self, file_path, file_name, mime_type, parent_id,IdOfDownloader):
         # File body description
         file_metadata = {
             'name': file_name,
-            'description': 'Uploaded by Mirror-leech-telegram-bot',
+            'description': IdOfDownloader,
             'mimeType': mime_type,
         }
         if parent_id is not None:
@@ -204,7 +204,7 @@ class GoogleDriveHelper:
                     if USE_SERVICE_ACCOUNTS:
                         self.__switchServiceAccount()
                         LOGGER.info(f"Got: {reason}, Trying Again.")
-                        return self.__upload_file(file_path, file_name, mime_type, parent_id)
+                        return self.__upload_file(file_path, file_name, mime_type, parent_id,IdOfDownloader)
                     else:
                         LOGGER.error(f"Got: {reason}")
                         raise err
@@ -224,13 +224,14 @@ class GoogleDriveHelper:
         self.is_uploading = True
         file_dir = f"{DOWNLOAD_DIR}{self.__listener.message.message_id}"
         file_path = f"{file_dir}/{file_name}"
+        IdOfDownloader = self.__listener.message.from_user.id
         size = get_readable_file_size(get_path_size(file_path))
         LOGGER.info("Uploading File: " + file_path)
         self.updater = setInterval(self.update_interval, self._on_upload_progress)
         try:
             if ospath.isfile(file_path):
                 mime_type = get_mime_type(file_path)
-                link = self.__upload_file(file_path, file_name, mime_type, parent_id)
+                link = self.__upload_file(file_path, file_name, mime_type, parent_id,IdOfDownloader)
                 if self.is_cancelled:
                     return
                 if link is None:
@@ -238,7 +239,7 @@ class GoogleDriveHelper:
                 LOGGER.info("Uploaded To G-Drive: " + file_path)
             else:
                 mime_type = 'Folder'
-                dir_id = self.__create_directory(ospath.basename(ospath.abspath(file_name)), parent_id)
+                dir_id = self.__create_directory(ospath.basename(ospath.abspath(file_name)), parent_id,IdOfDownloader)
                 result = self.__upload_dir(file_path, dir_id)
                 if result is None:
                     raise Exception('Upload has been manually cancelled!')
@@ -262,6 +263,9 @@ class GoogleDriveHelper:
                 return
             elif self.is_errored:
                 return
+        Download_Urls_XI = self.clone(link,CloneXi=True)
+        link = [link]
+        link.extend(Download_Urls_XI)
         self.__listener.onUploadComplete(link, size, self.__total_files, self.__total_folders, mime_type, self.name)
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
@@ -323,7 +327,7 @@ class GoogleDriveHelper:
                 break
         return files
 
-    def clone(self, link):
+    def clone(self, link,CloneXi=False):
         self.is_cloning = True
         self.start_time = time()
         self.__total_files = 0
@@ -335,77 +339,117 @@ class GoogleDriveHelper:
             return msg
         msg = ""
         LOGGER.info(f"File ID: {file_id}")
-        try:
-            meta = self.__getFileMetadata(file_id)
-            mime_type = meta.get("mimeType")
-            if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
-                dir_id = self.__create_directory(meta.get('name'), parent_id)
-                self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id)
-                durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
-                if self.is_cancelled:
-                    LOGGER.info("Deleting cloned data from Drive...")
-                    self.deletefile(durl)
-                    return "your clone has been stopped and cloned data has been deleted!", "cancelled"
-                msg += f'<b>Name: </b><code>{meta.get("name")}</code>'
-                msg += f'\n\n<b>Size: </b>{get_readable_file_size(self.transferred_size)}'
-                msg += '\n\n<b>Type: </b>Folder'
-                msg += f'\n<b>SubFolders: </b>{self.__total_folders}'
-                msg += f'\n<b>Files: </b>{self.__total_files}'
-                buttons = ButtonMaker()
-                buttons.buildbutton("☁️ Drive Link", durl)
-                if INDEX_URL is not None:
-                    url_path = rquote(f'{meta.get("name")}', safe='')
-                    url = f'{INDEX_URL}/{url_path}/'
-                    url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    buttons.buildbutton("⚡ Server (🇩🇪)", url)
-                    buttons.buildbutton("🇮🇷 نیم بها", url_irani)
-            else:
-                file = self.__copyFile(meta.get('id'), parent_id)
-                msg += f'<b>Name: </b><code>{file.get("name")}</code>'
-                durl = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))
-                buttons = ButtonMaker()
-                buttons.buildbutton("☁️ Drive Link", durl)
-                if mime_type is None:
-                    mime_type = 'File'
-                msg += f'\n\n<b>Size: </b>{get_readable_file_size(int(meta.get("size", 0)))}'
-                msg += f'\n\n<b>Type: </b>{mime_type}'
-                if INDEX_URL is not None:
-                    url_path = rquote(f'{file.get("name")}', safe='')
-                    url = f'{INDEX_URL}/{url_path}'
-                    url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
-                    buttons.buildbutton("⚡ Server (🇩🇪)", url)
-                    buttons.buildbutton("🇮🇷 نیم بها", url_irani)
-                    if VIEW_LINK:
-                        urlv = f'{INDEX_URL}/{url_path}?a=view'
-                        buttons.buildbutton("🌐 View Link", urlv)
-        except Exception as err:
-            if isinstance(err, RetryError):
-                LOGGER.info(f"Total Attempts: {err.last_attempt.attempt_number}")
-                err = err.last_attempt.exception()
-            err = str(err).replace('>', '').replace('<', '')
-            if "User rate limit exceeded" in str(err):
-                msg = "User rate limit exceeded."
-            elif "File not found" in str(err):
-                token_service = self.__alt_authorize()
-                if token_service is not None:
-                    self.__service = token_service
-                    return self.clone(link)
-                msg = "File not found."
-            else:
-                msg = f"Error.\n{err}"
-            return msg, ""
-        return msg, InlineKeyboardMarkup(buttons.build_menu(2))
+        if CloneXi == True:
+            Download_Urls_XI = []
+            for parent_id in backup_id_list:
+                try:
+                    meta = self.__getFileMetadata(file_id)
+                    IdOfDownloader = self.__listener.message.from_user.id
+                    mime_type = meta.get("mimeType")
+                    if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
+                        dir_id = self.__create_directory(meta.get('name'), parent_id,IdOfDownloader)
+                        self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id)
+                        durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
+                        Download_Urls_XI.append(durl)
+                    else:
+                        file = self.__copyFile(meta.get('id'), parent_id)
+                        durl = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))
+                        Download_Urls_XI.append(durl)
+                except Exception as err:
+                    if isinstance(err, RetryError):
+                        LOGGER.info(f"Total Attempts: {err.last_attempt.attempt_number}")
+                        err = err.last_attempt.exception()
+                    err = str(err).replace('>', '').replace('<', '')
+                    if "User rate limit exceeded" in str(err):
+                        msg = "User rate limit exceeded."
+                    elif "File not found" in str(err):
+                        token_service = self.__alt_authorize()
+                        if token_service is not None:
+                            self.__service = token_service
+                            return self.clone(link,CloneXi=True)
+                        msg = "File not found."
+                    else:
+                        msg = f"Error.\n{err}"
+                    Download_Urls_XI.append(msg)
+            return Download_Urls_XI
+        if CloneXi == False:
+            try:
+                meta = self.__getFileMetadata(file_id)
+                IdOfDownloader = self.__listener.message.from_user.id
+                mime_type = meta.get("mimeType")
+                if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
+                    dir_id = self.__create_directory(meta.get('name'), parent_id,IdOfDownloader)
+                    self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id)
+                    durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
+                    if self.is_cancelled:
+                        LOGGER.info("Deleting cloned data from Drive...")
+                        self.deletefile(durl)
+                        return "your clone has been stopped and cloned data has been deleted!", "cancelled"
+                    msg += f'<b>Name: </b><code>{meta.get("name")}</code>'
+                    msg += f'\n\n<b>Size: </b>{get_readable_file_size(self.transferred_size)}'
+                    msg += '\n\n<b>Type: </b>Folder'
+                    msg += f'\n<b>SubFolders: </b>{self.__total_folders}'
+                    msg += f'\n<b>Files: </b>{self.__total_files}'
+                    buttons = ButtonMaker()
+                    buttons.buildbutton("☁️ Drive Link", durl)
+                    if INDEX_URL is not None:
+                        url_path = rquote(f'{meta.get("name")}', safe='')
+                        url = f'{INDEX_URL}/{url_path}/'
+                        url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                        buttons.buildbutton("⚡ Server (🇩🇪)", url)
+                        buttons.buildbutton("🇮🇷 نیم بها", url_irani)
+                else:
+                    file = self.__copyFile(meta.get('id'), parent_id)
+                    if self.is_cancelled:
+                        LOGGER.info("Deleting cloned data from Drive...")
+                        self.deletefile(durl)
+                        return "your clone has been stopped and cloned data has been deleted!", "cancelled"
+                    msg += f'<b>Name: </b><code>{file.get("name")}</code>'
+                    durl = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))
+                    buttons = ButtonMaker()
+                    buttons.buildbutton("☁️ Drive Link", durl)
+                    if mime_type is None:
+                        mime_type = 'File'
+                    msg += f'\n\n<b>Size: </b>{get_readable_file_size(int(meta.get("size", 0)))}'
+                    msg += f'\n\n<b>Type: </b>{mime_type}'
+                    if INDEX_URL is not None:
+                        url_path = rquote(f'{file.get("name")}', safe='')
+                        url = f'{INDEX_URL}/{url_path}'
+                        url_irani = url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                        buttons.buildbutton("⚡ Server (🇩🇪)", url)
+                        buttons.buildbutton("🇮🇷 نیم بها", url_irani)
+                        if VIEW_LINK:
+                            urlv = f'{INDEX_URL}/{url_path}?a=view'
+                            buttons.buildbutton("🌐 View Link", urlv)
+            except Exception as err:
+                if isinstance(err, RetryError):
+                    LOGGER.info(f"Total Attempts: {err.last_attempt.attempt_number}")
+                    err = err.last_attempt.exception()
+                err = str(err).replace('>', '').replace('<', '')
+                if "User rate limit exceeded" in str(err):
+                    msg = "User rate limit exceeded."
+                elif "File not found" in str(err):
+                    token_service = self.__alt_authorize()
+                    if token_service is not None:
+                        self.__service = token_service
+                        return self.clone(link,CloneXi=False)
+                    msg = "File not found."
+                else:
+                    msg = f"Error.\n{err}"
+                return msg, ""
+            return msg, InlineKeyboardMarkup(buttons.build_menu(2))
 
     def __cloneFolder(self, name, local_path, folder_id, parent_id):
         LOGGER.info(f"Syncing: {local_path}")
         files = self.__getFilesByFolderId(folder_id)
+        IdOfDownloader = self.__listener.message.from_user.id
         if len(files) == 0:
             return parent_id
         for file in files:
             if file.get('mimeType') == self.__G_DRIVE_DIR_MIME_TYPE:
                 self.__total_folders += 1
                 file_path = ospath.join(local_path, file.get('name'))
-                current_dir_id = self.__create_directory(file.get('name'), parent_id)
+                current_dir_id = self.__create_directory(file.get('name'), parent_id,IdOfDownloader)
                 self.__cloneFolder(file.get('name'), file_path, file.get('id'), current_dir_id)
             elif not file.get('name').lower().endswith(tuple(EXTENSION_FILTER)):
                 self.__total_files += 1
@@ -416,10 +460,10 @@ class GoogleDriveHelper:
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
            retry=retry_if_exception_type(GCError))
-    def __create_directory(self, directory_name, parent_id):
+    def __create_directory(self, directory_name, parent_id,IdOfDownloader):
         file_metadata = {
             "name": directory_name,
-            "description": "Uploaded by Mirror-leech-telegram-bot",
+            "description": IdOfDownloader,
             "mimeType": self.__G_DRIVE_DIR_MIME_TYPE
         }
         if parent_id is not None:
@@ -437,16 +481,17 @@ class GoogleDriveHelper:
             return parent_id
         new_id = None
         for item in list_dirs:
+            IdOfDownloader = self.__listener.message.from_user.id
             current_file_name = ospath.join(input_directory, item)
             if ospath.isdir(current_file_name):
-                current_dir_id = self.__create_directory(item, parent_id)
+                current_dir_id = self.__create_directory(item, parent_id,IdOfDownloader)
                 new_id = self.__upload_dir(current_file_name, current_dir_id)
                 self.__total_folders += 1
             elif not item.lower().endswith(tuple(EXTENSION_FILTER)):
                 mime_type = get_mime_type(current_file_name)
                 file_name = current_file_name.split("/")[-1]
                 # current_file_name will have the full path
-                self.__upload_file(current_file_name, file_name, mime_type, parent_id)
+                self.__upload_file(current_file_name, file_name, mime_type, parent_id,IdOfDownloader)
                 self.__total_files += 1
                 new_id = parent_id
             if self.is_cancelled:

@@ -54,7 +54,7 @@ def _clone(message, bot, multi=0):
             Thread(target=_clone, args=(nextmsg, bot, multi)).start()
         if files <= 20:
             msg = sendMessage(f"Cloning: <code>{link}</code>", bot, message)
-            result, button = gd.clone(link)
+            result, button = drive.clone(link,CloneXi=False)
             deleteMessage(bot, msg)
         else:
             drive = GoogleDriveHelper(name)
@@ -63,7 +63,7 @@ def _clone(message, bot, multi=0):
             with download_dict_lock:
                 download_dict[message.message_id] = clone_status
             sendStatusMessage(message, bot)
-            result, button = drive.clone(link)
+            result, button = drive.clone(link,CloneXi=False)
             with download_dict_lock:
                 del download_dict[message.message_id]
                 count = len(download_dict)

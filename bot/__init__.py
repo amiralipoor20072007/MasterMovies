@@ -144,6 +144,8 @@ except:
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
+    backup_id_list = getConfig('GDRIVE_MULTI_XI')
+    backup_id_list = backup_id_list.split()
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
@@ -245,6 +247,8 @@ except:
     UPTOBOX_TOKEN = None
 try:
     INDEX_URL = getConfig('INDEX_URL').rstrip("/")
+    INDEX_BACKUP = getConfig('INDEX_BACKUP').split()
+    IRAN_INDEX_BACKUP = getConfig('IRAN_INDEX_BACKUP').split()
     if len(INDEX_URL) == 0:
         raise KeyError
     INDEX_URLS.append(INDEX_URL)
