@@ -342,6 +342,7 @@ class GoogleDriveHelper:
         if CloneXi == True:
             Download_Urls_XI = []
             for parent_id in backup_id_list:
+                LOGGER.info(f'parent_id : {parent_id}')
                 try:
                     meta = self.__getFileMetadata(file_id)
                     IdOfDownloader = self.__listener.message.from_user.id
