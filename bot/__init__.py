@@ -145,7 +145,7 @@ try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     backup_id_list = getConfig('GDRIVE_MULTI_XI')
-    backup_id_list = backup_id_list.split()
+    backup_id_list = backup_id_list.split(',')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
