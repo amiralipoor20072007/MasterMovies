@@ -247,8 +247,8 @@ except:
     UPTOBOX_TOKEN = None
 try:
     INDEX_URL = getConfig('INDEX_URL').rstrip("/")
-    INDEX_BACKUP = getConfig('INDEX_BACKUP').split()
-    IRAN_INDEX_BACKUP = getConfig('IRAN_INDEX_BACKUP').split()
+    INDEX_BACKUP = getConfig('INDEX_BACKUP').split(',')
+    IRAN_INDEX_BACKUP = getConfig('IRAN_INDEX_BACKUP').split(',')
     if len(INDEX_URL) == 0:
         raise KeyError
     INDEX_URLS.append(INDEX_URL)
