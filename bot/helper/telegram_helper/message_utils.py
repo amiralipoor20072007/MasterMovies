@@ -22,6 +22,18 @@ def sendMessage(text: str, bot, message: Message):
         LOGGER.error(str(e))
         return
 
+def sendMessageToPv(text: str, bot, message: Message):
+    try:
+        return bot.sendMessage(message.from_user.id,
+                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return sendMessageToPv
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
+
 def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
     try:
         return bot.sendMessage(message.chat_id,
@@ -32,6 +44,19 @@ def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMar
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
         return sendMarkup(text, bot, message, reply_markup)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
+
+def sendMarkupToPv(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
+    try:
+        return bot.sendMessage(message.from_user.id,
+                            text=text, reply_markup=reply_markup, allow_sending_without_reply=True,
+                            parse_mode='HTMl', disable_web_page_preview=True)
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return sendMarkupToPv(text, bot, message, reply_markup)
     except Exception as e:
         LOGGER.error(str(e))
         return
