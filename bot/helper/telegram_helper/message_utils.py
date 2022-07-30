@@ -76,7 +76,7 @@ def editMessage(text: str, message: Message, reply_markup=None):
 
 def copyMessageToPv(bot, message: Message,original):
     try:
-        return bot.copyMessage(message.from_user.id,from_chat_id = -(original[-2]),
+        return bot.copyMessage(message.from_user.id,from_chat_id = int('-100'+str(original[-2])),
                             message_id = original[-1],
                             allow_sending_without_reply=True, parse_mode='HTMl',
                             disable_web_page_preview=True)
