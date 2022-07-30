@@ -245,6 +245,8 @@ class MirrorListener:
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
                     #Copy Them to PV
                     original = link.split('/')
+                    LOGGER.info(('-100'+str(original[-2])))
+                    LOGGER.info(original[-1])
                     copyMessageToPv(self.bot, self.message,original)
                 for index, (link, name) in enumerate(files.items(), start=1):
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
