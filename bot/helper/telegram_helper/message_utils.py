@@ -78,8 +78,7 @@ def copyMessageToPv(bot, message: Message,original):
     try:
         return bot.copyMessage(message.from_user.id,from_chat_id = int('-100'+str(original[-2])),
                             message_id = int(original[-1]),
-                            allow_sending_without_reply=True, parse_mode='HTMl',
-                            disable_web_page_preview=True)
+                            allow_sending_without_reply=True, parse_mode='HTMl')
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
