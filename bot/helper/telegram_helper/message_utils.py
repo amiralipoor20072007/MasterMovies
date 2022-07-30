@@ -29,7 +29,7 @@ def sendMessageToPv(text: str, bot, message: Message):
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
-        return sendMessageToPv
+        return sendMessageToPv(text, bot, message)
     except Exception as e:
         LOGGER.error(str(e))
         return
@@ -73,6 +73,20 @@ def editMessage(text: str, message: Message, reply_markup=None):
     except Exception as e:
         LOGGER.error(str(e))
         return str(e)
+
+def copyMessageToPv(bot, message: Message,original):
+    try:
+        return bot.copyMessage(message.from_user.id,from_chat_id = -(original[-2]),
+                            message_id = original[-1],
+                            allow_sending_without_reply=True, parse_mode='HTMl',
+                            disable_web_page_preview=True)
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return copyMessageToPv(bot, message,original)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
 
 def sendRss(text: str, bot):
     if rss_session is None:

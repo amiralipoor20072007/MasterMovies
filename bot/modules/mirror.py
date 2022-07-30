@@ -31,7 +31,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup,sendMarkupToPv, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage,sendMessageToPv, sendMarkup,sendMarkupToPv,copyMessageToPv, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 
@@ -243,12 +243,21 @@ class MirrorListener:
                 fmsg = ''
                 for index, (link, name) in enumerate(files.items(), start=1):
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
+                    #Copy Them to PV
+                    original = link.split('/')
+                    copyMessageToPv(self.bot, self.message,original)
+                for index, (link, name) in enumerate(files.items(), start=1):
+                    fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
                         sendMessage(msg + fmsg, self.bot, self.message)
+                        #Send Complete Message To PV
+                        sendMessageToPv(msg + fmsg, self.bot, self.message)
                         sleep(1)
                         fmsg = ''
                 if fmsg != '':
                     sendMessage(msg + fmsg, self.bot, self.message)
+                    #Send Complete Message To PV
+                    sendMessageToPv(msg + fmsg, self.bot, self.message)
         else:
             msg += f'\n\n<b>Type: </b>{typ}'
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
