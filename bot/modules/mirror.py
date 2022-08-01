@@ -31,7 +31,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage,sendMessageToPv, sendMarkup,sendMarkupToPv,copyMessageToPv, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage,LogXi,LogXi_S,sendMessageToPv, sendMarkup,sendMarkupLog,copyMessageToPv, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 
@@ -47,6 +47,7 @@ class MirrorListener:
         self.isLeech = isLeech
         self.pswd = pswd
         self.tag = tag
+        self.logxi = None
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
 
@@ -62,6 +63,8 @@ class MirrorListener:
     def onDownloadStart(self):
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().add_incomplete_task(self.message.chat.id, self.message.link, self.tag)
+        msg = f"{self.tag} : <code>{self.message.from_user.id}</code> \nStarted Mirroring..."
+        self.logxi = LogXi(msg,self.bot)
 
     def onDownloadComplete(self):
         with download_dict_lock:
@@ -73,7 +76,8 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-        
+        msg = f"Download Completed"
+        self.logxi = LogXi_S(msg,self.bot,self.logxi)
         if self.isZip:
             try:
                 with download_dict_lock:
@@ -231,6 +235,8 @@ class MirrorListener:
     def onUploadComplete(self, link, size, files, folders, typ, name: str):
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
+        msg = f"Upload Completed"
+        self.logxi = LogXi_S(msg,self.bot,self.logxi)
         msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.isLeech:
             msg += f'\n<b>Total Files: </b>{folders}'
@@ -305,7 +311,7 @@ class MirrorListener:
                         share_urls = f'{INDEX_URL}/{url_path}?a=view'
                         buttons.buildbutton("🌐 View Link", share_urls)
             sendMarkup(msg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
-            sendMarkupToPv(msg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
+            sendMarkupLog(msg, self.bot, self.logxi, InlineKeyboardMarkup(buttons.build_menu(2)))
             if self.isQbit and self.seed and not self.extract:
                 if self.isZip:
                     try:
@@ -540,17 +546,23 @@ def qb_zip_leech(update, context):
     _mirror(context.bot, update.message, True, isQbit=True, isLeech=True)
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 zip_mirror_handler = CommandHandler(BotCommands.ZipMirrorCommand, zip_mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 qb_mirror_handler = CommandHandler(BotCommands.QbMirrorCommand, qb_mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 qb_unzip_mirror_handler = CommandHandler(BotCommands.QbUnzipMirrorCommand, qb_unzip_mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 qb_zip_mirror_handler = CommandHandler(BotCommands.QbZipMirrorCommand, qb_zip_mirror,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                filters=CustomFilters.mebmer_in_group,
+                                run_async=True)
 leech_handler = CommandHandler(BotCommands.LeechCommand, leech,
                                 filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 unzip_leech_handler = CommandHandler(BotCommands.UnzipLeechCommand, unzip_leech,

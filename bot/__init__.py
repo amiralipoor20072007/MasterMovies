@@ -124,6 +124,7 @@ try:
     aid = aid.split()
     for _id in aid:
         AUTHORIZED_CHATS.add(int(_id.strip()))
+    LOGGING_CHAT = getConfig('LOGGING_CHAT')
 except:
     pass
 try:

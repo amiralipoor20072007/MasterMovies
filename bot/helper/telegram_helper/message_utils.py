@@ -4,7 +4,7 @@ from telegram.message import Message
 from telegram.error import RetryAfter
 from pyrogram.errors import FloodWait
 
-from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER, status_reply_dict, status_reply_dict_lock, \
+from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER,LOGGING_CHAT, status_reply_dict, status_reply_dict_lock, \
                 Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, RSS_CHAT_ID, bot, rss_session
 from bot.helper.ext_utils.bot_utils import get_readable_message, setInterval
 
@@ -18,6 +18,31 @@ def sendMessage(text: str, bot, message: Message):
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
         return sendMessage(text, bot, message)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
+
+def LogXi(text: str, bot):
+    try:
+        return bot.sendMessage(LOGGING_CHAT,
+                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return LogXi(text, bot)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
+
+def LogXi_S(text: str, bot, message: Message):
+    try:
+        return bot.sendMessage(LOGGING_CHAT,
+                            reply_to_message_id=message.message_id,
+                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return LogXi_S(text, bot, message)
     except Exception as e:
         LOGGER.error(str(e))
         return
@@ -48,15 +73,15 @@ def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMar
         LOGGER.error(str(e))
         return
 
-def sendMarkupToPv(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
+def sendMarkupLog(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
     try:
-        return bot.sendMessage(message.from_user.id,
+        return bot.sendMessage(LOGGING_CHAT,
                             text=text, reply_markup=reply_markup, allow_sending_without_reply=True,
-                            parse_mode='HTMl', disable_web_page_preview=True)
+                            reply_to_message_id=message.message_id,parse_mode='HTMl', disable_web_page_preview=True)
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
-        return sendMarkupToPv(text, bot, message, reply_markup)
+        return sendMarkupLog(text, bot, message, reply_markup)
     except Exception as e:
         LOGGER.error(str(e))
         return
