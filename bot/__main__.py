@@ -68,7 +68,7 @@ def start(update, context):
     buttons.buildbutton("Group", "https://t.me/MX_TR_Official")
     buttons.buildbutton("Owner", "https://t.me/MahdiXi021")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
-    if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
+    if CustomFilters.mebmer_in_group(update):
         start_string = f'''
 This bot can mirror all your links to Google Drive or to telegram!
 Type /{BotCommands.HelpCommand} to get a list of available commands
