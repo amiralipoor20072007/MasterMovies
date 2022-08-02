@@ -65,7 +65,8 @@ def stats(update, context):
 
 def start(update, context):
     buttons = ButtonMaker()
-    buttons.buildbutton("Group", "https://t.me/MX_TR_Official")
+    buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
+    buttons.buildbutton("Group", "https://t.me/+xNDVQdjEoOpmYTRk")
     buttons.buildbutton("Owner", "https://t.me/MahdiXi021")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
     if CustomFilters.mebmer_in_group(update):

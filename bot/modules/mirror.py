@@ -364,7 +364,6 @@ def mustjoin(idmustjoin):
 def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
-        LOGGER.info('Joined')
         mesg = message.text.split('\n')
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
@@ -523,7 +522,6 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             sleep(4)
             Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
     elif mustjoin(idmustjoin) == False:
-        LOGGER.info('Not Joined')
         buttons = ButtonMaker()
         buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
         buttons.buildbutton("Group", "https://t.me/+xNDVQdjEoOpmYTRk")
