@@ -259,7 +259,7 @@ def _plugin_buttons(user_id):
     return InlineKeyboardMarkup(buttons.build_menu(2))
 
 
-torser_handler = CommandHandler(BotCommands.SearchCommand, torser, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+torser_handler = CommandHandler(BotCommands.SearchCommand, torser,  run_async=True)
 torserbut_handler = CallbackQueryHandler(torserbut, pattern="torser", run_async=True)
 
 dispatcher.add_handler(torser_handler)

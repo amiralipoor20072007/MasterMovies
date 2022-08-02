@@ -87,8 +87,7 @@ def get_confirm(update, context):
         query.message.delete()
 
 
-select_handler = CommandHandler(BotCommands.QbSelectCommand, select,
-                                filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True)
+select_handler = CommandHandler(BotCommands.QbSelectCommand, select, run_async=True)
 qbs_handler = CallbackQueryHandler(get_confirm, pattern="qbs", run_async=True)
 dispatcher.add_handler(select_handler)
 dispatcher.add_handler(qbs_handler)

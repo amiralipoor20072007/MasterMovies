@@ -245,13 +245,13 @@ def main():
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,
-                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                   run_async=True)
     restart_handler = CommandHandler(BotCommands.RestartCommand, restart,
                                      filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
     help_handler = CommandHandler(BotCommands.HelpCommand,
-                                  bot_help, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                  bot_help,  run_async=True)
     stats_handler = CommandHandler(BotCommands.StatsCommand,
-                                   stats, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+                                   stats,  run_async=True)
     log_handler = CommandHandler(BotCommands.LogCommand, log, filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(ping_handler)
