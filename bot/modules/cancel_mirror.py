@@ -79,7 +79,7 @@ def cancel_all_update(update, context):
 
 
 cancel_mirror_handler = CommandHandler(BotCommands.CancelMirror, cancel_mirror,
-                                       filters=(CustomFilters.mebmer_in_group), run_async=True)
+                                       filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True)
 
 cancel_all_handler = CommandHandler(BotCommands.CancelAllCommand, cancell_all_buttons,
                                     filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)

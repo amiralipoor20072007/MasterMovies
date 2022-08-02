@@ -88,7 +88,7 @@ def get_confirm(update, context):
 
 
 select_handler = CommandHandler(BotCommands.QbSelectCommand, select,
-                                filters=(CustomFilters.mebmer_in_group), run_async=True)
+                                filters=(CustomFilters.authorized_chat | CustomFilters.authorized_user), run_async=True)
 qbs_handler = CallbackQueryHandler(get_confirm, pattern="qbs", run_async=True)
 dispatcher.add_handler(select_handler)
 dispatcher.add_handler(qbs_handler)
