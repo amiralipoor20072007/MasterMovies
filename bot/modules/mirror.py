@@ -354,7 +354,6 @@ def mustjoin(idmustjoin):
     for Memberin in app.get_chat_members('@MX_TR_Official'):
         if idmustjoin == Memberin.user.id:
             Flag = True
-            break
     if Flag == True:
         for AuthorizedChat in AUTHORIZED_CHATS:
             for Memberin in app.get_chat_members(AuthorizedChat):
