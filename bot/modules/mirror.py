@@ -522,7 +522,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             multi -= 1
             sleep(4)
             Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
-    if mustjoin(idmustjoin) == False:
+    elif mustjoin(idmustjoin) == False:
         LOGGER.info('Not Joined')
         buttons = ButtonMaker()
         buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
