@@ -100,15 +100,15 @@ def copyLeechToPv(bot, message: Message,original):
         LOGGER.error(str(e))
         return
 
-def copyMessageToPv(bot, message: Message):
+def copyMessageToPv(bot, message: Message,original: Message):
     try:
-        return bot.copyMessage(message.from_user.id,from_chat_id = message.chat.id ,
-                            message_id = message.message_id,
+        return bot.copyMessage(message.from_user.id,from_chat_id = original.chat.id ,
+                            message_id = original.message_id,
                             allow_sending_without_reply=True, parse_mode='HTMl')
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
-        return copyLeechToPv(bot, message)
+        return copyLeechToPv(bot, message,original)
     except Exception as e:
         LOGGER.error(str(e))
         return
