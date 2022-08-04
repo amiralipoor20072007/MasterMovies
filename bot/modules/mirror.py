@@ -254,13 +254,13 @@ class MirrorListener:
                     if len(fmsg.encode() + msg.encode()) > 4000:
                         copy = sendMessage(msg + fmsg, self.bot, self.message)
                         #Send Complete Message To PV
-                        copyMessageToPv(msg + fmsg, self.bot, copy)
+                        copyMessageToPv(self.bot, copy)
                         sleep(1)
                         fmsg = ''
                 if fmsg != '':
                     copy = sendMessage(msg + fmsg, self.bot, self.message)
                     #Send Complete Message To PV
-                    copyMessageToPv(msg + fmsg, self.bot, copy)
+                    copyMessageToPv(self.bot, copy)
         else:
             msg += f'\n\n<b>Type: </b>{typ}'
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
