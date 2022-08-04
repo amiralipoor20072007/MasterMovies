@@ -31,7 +31,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage,LogXi,LogXi_S,sendMessageToPv, sendMarkup,sendMarkupLog,copyMessageToPv, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage,LogXi,LogXi_S,copyMessageToPv, sendMarkup,sendMarkupLog,copyLeechToPv, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 
@@ -76,8 +76,6 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-        msg = f"Download Completed"
-        self.logxi = LogXi_S(msg,self.bot,self.logxi)
         if self.isZip:
             try:
                 with download_dict_lock:
@@ -235,8 +233,6 @@ class MirrorListener:
     def onUploadComplete(self, link, size, files, folders, typ, name: str):
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
-        msg = f"Upload Completed"
-        self.logxi = LogXi_S(msg,self.bot,self.logxi)
         msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.isLeech:
             msg += f'\n<b>Total Files: </b>{folders}'
@@ -251,20 +247,20 @@ class MirrorListener:
                     original = link.split('/')
                     LOGGER.info(('-100'+str(original[-2])))
                     LOGGER.info(original[-1])
-                    copyMessageToPv(self.bot, self.message,original)
+                    copyLeechToPv(self.bot, self.message,original)
                 fmsg = ''
                 for index, (link, name) in enumerate(files.items(), start=1):
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
-                        sendMessage(msg + fmsg, self.bot, self.message)
+                        copy = sendMessage(msg + fmsg, self.bot, self.message)
                         #Send Complete Message To PV
-                        sendMessageToPv(msg + fmsg, self.bot, self.message)
+                        copyMessageToPv(msg + fmsg, self.bot, copy)
                         sleep(1)
                         fmsg = ''
                 if fmsg != '':
-                    sendMessage(msg + fmsg, self.bot, self.message)
+                    copy = sendMessage(msg + fmsg, self.bot, self.message)
                     #Send Complete Message To PV
-                    sendMessageToPv(msg + fmsg, self.bot, self.message)
+                    copyMessageToPv(msg + fmsg, self.bot, copy)
         else:
             msg += f'\n\n<b>Type: </b>{typ}'
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):

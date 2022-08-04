@@ -47,18 +47,6 @@ def LogXi_S(text: str, bot, message: Message):
         LOGGER.error(str(e))
         return
 
-def sendMessageToPv(text: str, bot, message: Message):
-    try:
-        return bot.sendMessage(message.from_user.id,
-                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return sendMessageToPv(text, bot, message)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
 def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
     try:
         return bot.sendMessage(message.chat_id,
@@ -99,7 +87,7 @@ def editMessage(text: str, message: Message, reply_markup=None):
         LOGGER.error(str(e))
         return str(e)
 
-def copyMessageToPv(bot, message: Message,original):
+def copyLeechToPv(bot, message: Message,original):
     try:
         return bot.copyMessage(message.from_user.id,from_chat_id = int('-100'+str(original[-2])),
                             message_id = int(original[-1]),
@@ -107,7 +95,20 @@ def copyMessageToPv(bot, message: Message,original):
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
-        return copyMessageToPv(bot, message,original)
+        return copyLeechToPv(bot, message,original)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
+
+def copyMessageToPv(bot, message: Message):
+    try:
+        return bot.copyMessage(message.from_user.id,from_chat_id = message.chat.id ,
+                            message_id = message.message_id,
+                            allow_sending_without_reply=True, parse_mode='HTMl')
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return copyLeechToPv(bot, message)
     except Exception as e:
         LOGGER.error(str(e))
         return
