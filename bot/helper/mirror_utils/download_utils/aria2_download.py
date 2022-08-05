@@ -46,22 +46,20 @@ def __onDownloadStarted(api, gid):
 @new_thread
 def __onDownloadComplete(api, gid):
     LOGGER.info(f"onDownloadComplete: {gid}")
+    urls_text_path = dl.getListener().MultiZip[2]
+    LOGGER.info(f'urls_text_path : {urls_text_path}')
+    with open(urls_text_path,'r+') as f:
+        Remained = int(f.read())-1
+        f.close()
+    with open(urls_text_path,'w') as f:
+        f.write(str(Remained))
+        f.close()
     dl = getDownloadByGid(gid)
     download = api.get_download(gid)
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
     elif dl:
-        #Count Until All File
-        urls_text_path = dl.getListener().MultiZip[2]
-        LOGGER.info(f'urls_text_path : {urls_text_path}')
-        with open(urls_text_path,'r+') as f:
-            Remained = int(f.read())-1
-            f.close()
-        with open(urls_text_path,'w') as f:
-            f.write(str(Remained))
-            f.close()
-        #Count Until All File
         LOGGER.info(f'Remained : {Remained}')
         if Remained == 0:
             LOGGER.info(f'Going To Zip')
