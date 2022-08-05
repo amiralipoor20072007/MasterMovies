@@ -39,7 +39,7 @@ from bot.helper.ext_utils.db_handler import DbManger
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZipFlag=False,MultiZip=[[],0]):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -49,6 +49,8 @@ class MirrorListener:
         self.isLeech = isLeech
         self.pswd = pswd
         self.tag = tag
+        self.MultiZip = MultiZip
+        self.MultiZipFlag = MultiZipFlag
         self.logxi = None
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
@@ -78,6 +80,32 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
+        if self.MultiZipFlag:
+            m_path = f'{DOWNLOAD_DIR}{self.uid}'
+            try:
+                with download_dict_lock:
+                    download_dict[self.uid] = ZipStatus(name, m_path, size)
+                random_name = ''.join(random.choices(string.ascii_lowercase,k=5))
+                path = m_path +' '+random_name+' '+ ".zip"
+                LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
+                if self.pswd is not None:
+                    if self.isLeech and int(size) > TG_SPLIT_SIZE:
+                        srun(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", f"-p{self.pswd}", path, m_path])
+                    else:
+                        srun(["7z", "a", "-mx=0", f"-p{self.pswd}", path, m_path])
+                elif self.isLeech and int(size) > TG_SPLIT_SIZE:
+                    srun(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", path, m_path])
+                else:
+                    srun(["7z", "a", "-mx=0", path, m_path])
+            except FileNotFoundError:
+                LOGGER.info('File to archive not found!')
+                self.onUploadError('Internal error occurred!!')
+                return
+            if not self.isQbit or not self.seed or self.isLeech:
+                try:
+                    rmtree(m_path)
+                except:
+                    osremove(m_path)
         if self.isZip:
             try:
                 with download_dict_lock:
@@ -359,10 +387,12 @@ def mustjoin(idmustjoin):
                     return True
     return False
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
+        if MultiZipFlag == True :
+            MultiZip = [mesg[1:],len(mesg)+1]
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -475,7 +505,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if str(e).startswith('ERROR:'):
                         return sendMessage(str(e), bot, message)
 
-        listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
+        listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd,MultiZipFlag,MultiZip)
 
         if is_gdrive_link(link):
             if not isZip and not extract and not isLeech:
@@ -493,149 +523,24 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         elif isQbit:
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
         else:
-            if len(mesg) > 1:
-                try:
-                    ussr = mesg[1]
-                except:
-                    ussr = ''
-                try:
-                    pssw = mesg[2]
-                except:
-                    pssw = ''
-                auth = f"{ussr}:{pssw}"
-                auth = "Basic " + b64encode(auth.encode()).decode('ascii')
-            else:
-                auth = ''
-            Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
-
-        if multi > 1:
-            sleep(4)
-            nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-            msg = message_args[0]
-            if len(mesg) > 2:
-                msg += '\n' + mesg[1] + '\n' + mesg[2]
-            nextmsg = sendMessage(msg, bot, nextmsg)
-            nextmsg.from_user.id = message.from_user.id
-            multi -= 1
-            sleep(4)
-            Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
-    elif mustjoin(idmustjoin) == False:
-        buttons = ButtonMaker()
-        buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
-        buttons.buildbutton("Group", "https://t.me/+xNDVQdjEoOpmYTRk")
-        buttons.buildbutton("Owner", "https://t.me/MahdiXi021")
-        reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
-        sendMarkup('شما در گروه و چنل ربات عضو نیستید\nبرای استفاده از ربات در هردو عضو شوید :)', bot,message, reply_markup)
-
-def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
-    idmustjoin = message.from_user.id
-    if mustjoin(idmustjoin) == True:
-        mesg = message.text.split('\n')
-        links = mesg[1:]
-        LOGGER.info(f'{links}')
-        message_args = mesg[0].split(maxsplit=1)
-        name_args = mesg[0].split('|', maxsplit=1)
-        qbsel = False
-        index = 1
-
-        if len(message_args) > 1:
-            args = mesg[0].split(maxsplit=3)
-            if "s" in [x.strip() for x in args]:
-                qbsel = True
-                index += 1
-            if "d" in [x.strip() for x in args]:
-                qbsd = True
-                index += 1
-            message_args = mesg[0].split(maxsplit=index)
-            if len(message_args) > index:
-                link = message_args[index].strip()
-                if link.isdigit():
-                    multi = int(link)
-                    link = ''
-                elif link.startswith(("|", "pswd:")):
-                    link = ''
-            else:
-                link = ''
-        else:
-            link = ''
-
-        if len(name_args) > 1:
-            name = name_args[1]
-            name = name.split(' pswd:')[0]
-            name = name.strip()
-        else:
-            name = ''
-
-        link = re_split(r"pswd:|\|", link)[0]
-        link = link.strip()
-
-        pswd_arg = mesg[0].split(' pswd: ')
-        if len(pswd_arg) > 1:
-            pswd = pswd_arg[1]
-        
-        if message.from_user.username:
-            tag = f"@{message.from_user.username}"
-        else:
-            tag = message.from_user.mention_html(message.from_user.first_name)
-
-        reply_to = message.reply_to_message
-        if reply_to is not None:
-            file = None
-            media_array = [reply_to.document, reply_to.video, reply_to.audio]
-            for i in media_array:
-                if i is not None:
-                    file = i
-                    break
-
-            if not reply_to.from_user.is_bot:
-                if reply_to.from_user.username:
-                    tag = f"@{reply_to.from_user.username}"
+            if MultiZipFlag == False:
+                if len(mesg) > 1:
+                    try:
+                        ussr = mesg[1]
+                    except:
+                        ussr = ''
+                    try:
+                        pssw = mesg[2]
+                    except:
+                        pssw = ''
+                    auth = f"{ussr}:{pssw}"
+                    auth = "Basic " + b64encode(auth.encode()).decode('ascii')
                 else:
-                    tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-
-        listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
-
-        if is_gdrive_link(link):
-            if not isZip and not extract and not isLeech:
-                gmsg = f"Use /{BotCommands.CloneCommand} to clone Google Drive file/folder\n\n"
-                gmsg += f"Use /{BotCommands.ZipMirrorCommand} to make zip of Google Drive folder\n\n"
-                gmsg += f"Use /{BotCommands.UnzipMirrorCommand} to extracts Google Drive archive file"
-                sendMessage(gmsg, bot, message)
-            else:
-                Thread(target=add_gd_download, args=(link, listener)).start()
-        elif is_mega_link(link):
-            if MEGA_KEY is not None:
-                Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
-            else:
-                sendMessage('MEGA_API_KEY not Provided!', bot, message)
-        elif isQbit:
-            Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
-        else:
-            if len(mesg) > 1:
-                try:
-                    ussr = mesg[1]
-                except:
-                    ussr = ''
-                try:
-                    pssw = mesg[2]
-                except:
-                    pssw = ''
-                auth = f"{ussr}:{pssw}"
-                auth = "Basic " + b64encode(auth.encode()).decode('ascii')
-            else:
+                    auth = ''
+            if MultiZipFlag == True:
                 auth = ''
-            random_name = 'multi'+''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase,k=24))+'.txt'
-            LOGGER.info(f'{random_name}')
-            with open(f'{DOWNLOAD_DIR}/{random_name}','w') as f:
-                for i in range(len(links)-1):
-                    links[i]=str(links[i])+'\n'
-                f.writelines(links)
-                f.close()
-            multi = True
-            multiurlspath = f'{DOWNLOAD_DIR}{random_name}'
-            LOGGER.info(f'{multiurlspath}')
-            LOGGER.info(f'Thread Aria2c Multi')
-            Thread(target=add_aria2c_download_multi, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth,multiurlspath)).start()
+                MultiZip[0].append(link)
+            Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
 
         if multi > 1:
             sleep(4)
@@ -658,9 +563,6 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
 
 def mirror(update, context):
     _mirror(context.bot, update.message)
-
-def multimirror(update, context):
-    _mirror_mulit(context.bot, update.message)
 
 def unzip_mirror(update, context):
     _mirror(context.bot, update.message, extract=True)
@@ -697,8 +599,6 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
-multimirror_handler = CommandHandler('multimirror', multimirror,
-                                run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
                                 run_async=True)
 zip_mirror_handler = CommandHandler(BotCommands.ZipMirrorCommand, zip_mirror,
@@ -723,7 +623,6 @@ qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leec
                                  run_async=True)
 
 dispatcher.add_handler(mirror_handler)
-dispatcher.add_handler(multimirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)
 dispatcher.add_handler(zip_mirror_handler)
 dispatcher.add_handler(qb_mirror_handler)

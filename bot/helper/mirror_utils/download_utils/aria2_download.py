@@ -48,11 +48,13 @@ def __onDownloadComplete(api, gid):
     LOGGER.info(f"onDownloadComplete: {gid}")
     dl = getDownloadByGid(gid)
     download = api.get_download(gid)
+    dl.getListener().MultiZip[1] -= 1
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
     elif dl:
-        dl.getListener().onDownloadComplete()
+        if dl.getListener().MultiZip[1] != 0:
+            dl.getListener().onDownloadComplete()
 
 @new_thread
 def __onDownloadStopped(api, gid):
@@ -83,40 +85,34 @@ def start_listener():
                                   timeout=20)
 
 def add_aria2c_download(link: str, path, listener, filename, auth):
-    LOGGER.info('Single Aria')
-    if is_magnet(link):
-        download = aria2.add_magnet(link, {'dir': path})
+    if listener.MultiZip[1] >= 2:
+        for link in listener.MultiZip[0]:
+            if is_magnet(link):
+                download = aria2.add_magnet(link, {'dir': path})
+            else:
+                download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+            if download.error_message:
+                error = str(download.error_message).replace('<', ' ').replace('>', ' ')
+                LOGGER.info(f"Download Error: {error}")
+                return sendMessage(error, listener.bot, listener.message)
+            with download_dict_lock:
+                download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
+                LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
+            listener.onDownloadStart()
+            sendStatusMessage(listener.message, listener.bot)
     else:
-        download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-    if download.error_message:
-        error = str(download.error_message).replace('<', ' ').replace('>', ' ')
-        LOGGER.info(f"Download Error: {error}")
-        return sendMessage(error, listener.bot, listener.message)
-    with download_dict_lock:
-        download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
-        LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
-    listener.onDownloadStart()
-    sendStatusMessage(listener.message, listener.bot)
-
-def add_aria2c_download_multi(link: str, path, listener, filename, auth,multiurls):
-    LOGGER.info(f'Multi Aria')
-    with open(multiurls,'r') as ff:
-        xmulti = ff.read()
-        ff.close()
-    xmulti = xmulti.split('\n')
-    for linkk in xmulti:
-        sendMessage('Downloading First One', listener.bot, listener.message)
-        srun(['wget','-P',str(path),linkk])
-    download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-    LOGGER.info(f'{download}')
-    if download.error_message:
-        error = str(download.error_message).replace('<', ' ').replace('>', ' ')
-        LOGGER.info(f"Download Error: {error}")
-        return sendMessage(error, listener.bot, listener.message)
-    with download_dict_lock:
-        download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
-        LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
-    listener.onDownloadStart()
-    sendStatusMessage(listener.message, listener.bot)
+        if is_magnet(link):
+            download = aria2.add_magnet(link, {'dir': path})
+        else:
+            download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+        if download.error_message:
+            error = str(download.error_message).replace('<', ' ').replace('>', ' ')
+            LOGGER.info(f"Download Error: {error}")
+            return sendMessage(error, listener.bot, listener.message)
+        with download_dict_lock:
+            download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
+            LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
+        listener.onDownloadStart()
+        sendStatusMessage(listener.message, listener.bot)
 
 start_listener()
