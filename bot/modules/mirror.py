@@ -18,7 +18,7 @@ from bot import Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BAC
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
-from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
+from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download,Multi_Zip_Function
 from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
 from bot.helper.mirror_utils.download_utils.qbit_downloader import QbDownloader
 from bot.helper.mirror_utils.download_utils.mega_downloader import MegaDownloader
@@ -86,8 +86,8 @@ class MirrorListener:
             try:
                 with download_dict_lock:
                     download_dict[self.uid] = ZipStatus(name, m_path, size)
-                random_name = ''.join(random.choices(string.ascii_lowercase,k=5))
-                path = m_path +' '+random_name+' '+ ".zip"
+                random_name = ''.join(random.choices(string.ascii_lowercase,k=12))
+                path = f'{m_path}/'+random_name+".zip"
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
                 if self.pswd is not None:
                     if self.isLeech and int(size) > TG_SPLIT_SIZE:
@@ -102,11 +102,6 @@ class MirrorListener:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
-            if not self.isQbit or not self.seed or self.isLeech:
-                try:
-                    rmtree(m_path)
-                except:
-                    osremove(m_path)
         if self.isZip:
             try:
                 with download_dict_lock:
@@ -543,10 +538,11 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     auth = "Basic " + b64encode(auth.encode()).decode('ascii')
                 else:
                     auth = ''
-            if MultiZipFlag == True:
-                auth = ''
+                Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
+            elif MultiZipFlag == True:
                 MultiZip[0].append(link)
-            Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
+                Thread(target=Multi_Zip_Function, args=(MultiZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
+            
 
         if multi > 1:
             sleep(4)

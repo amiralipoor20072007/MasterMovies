@@ -10,11 +10,12 @@ def get_download(gid):
 
 class AriaDownloadStatus:
 
-    def __init__(self, gid, listener):
+    def __init__(self, gid, listener,Multi_Zip=None):
         self.__gid = gid
         self.__download = get_download(gid)
         self.__uid = listener.uid
         self.__listener = listener
+        self.__multi_zip = Multi_Zip
         self.message = listener.message
 
     def __update(self):
@@ -72,6 +73,8 @@ class AriaDownloadStatus:
         return self
 
     def getListener(self):
+        if self.__multi_zip is not None:
+            return self.__multi_zip
         return self.__listener
 
     def uid(self):
