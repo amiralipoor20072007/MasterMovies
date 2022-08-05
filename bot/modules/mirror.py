@@ -102,7 +102,7 @@ class MirrorListener:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
-        if self.isZip:
+        elif self.isZip:
             try:
                 with download_dict_lock:
                     download_dict[self.uid] = ZipStatus(name, m_path, size)
