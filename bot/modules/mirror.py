@@ -81,6 +81,7 @@ class MirrorListener:
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         if self.MultiZipFlag:
+            LOGGER.info(f'Multi Lisitner')
             m_path = f'{DOWNLOAD_DIR}{self.uid}'
             try:
                 with download_dict_lock:
