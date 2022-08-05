@@ -7,6 +7,7 @@ from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownlo
 from bot.helper.telegram_helper.message_utils import sendMarkup, sendStatusMessage, sendMessage
 from bot.helper.ext_utils.fs_utils import get_base_name
 from os import path as ospath
+from subprocess import run as srun
 
 @new_thread
 def __onDownloadStarted(api, gid):
@@ -99,7 +100,14 @@ def add_aria2c_download(link: str, path, listener, filename, auth):
 
 def add_aria2c_download_multi(link: str, path, listener, filename, auth,multiurls):
     LOGGER.info(f'Multi Aria')
-    download = aria2.add_uris({'i':multiurls,'dir': path})
+    with open(multiurls,'r') as ff:
+        xmulti = ff.read()
+        ff.close()
+    xmulti = xmulti.split('\n')
+    for linkk in xmulti:
+        sendMessage('Downloading First One', listener.bot, listener.message)
+        srun(['wget','-P',str(path),linkk])
+    download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
     LOGGER.info(f'{download}')
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
