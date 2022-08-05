@@ -81,7 +81,8 @@ def start_listener():
                                   on_download_complete=__onDownloadComplete,
                                   timeout=20)
 
-def add_aria2c_download(link: str, path, listener, filename, auth,):
+def add_aria2c_download(link: str, path, listener, filename, auth):
+    LOGGER.info('Single Aria')
     if is_magnet(link):
         download = aria2.add_magnet(link, {'dir': path})
     else:
@@ -97,6 +98,7 @@ def add_aria2c_download(link: str, path, listener, filename, auth,):
     sendStatusMessage(listener.message, listener.bot)
 
 def add_aria2c_download_multi(link: str, path, listener, filename, auth,multiurls):
+    LOGGER.info(f'Multi Aria')
     download = aria2.add_uris({'i':multiurls,'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
