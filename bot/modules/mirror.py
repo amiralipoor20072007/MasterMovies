@@ -632,8 +632,9 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 f.writelines(links)
                 f.close()
             multi = True
-            multiurlspath = random_name
+            multiurlspath = {DOWNLOAD_DIR}/{random_name}
             LOGGER.info(f'Thread Aria2c Multi')
+            srun(['cat',multiurlspath])
             Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth,multiurlspath,multi)).start()
 
         if multi > 1:
