@@ -54,6 +54,7 @@ def __onDownloadComplete(api, gid):
     elif dl:
         #Count Until All File
         urls_text_path = dl.getListener().MultiZip[2]
+        LOGGER.info(f'urls_text_path : {urls_text_path}')
         with open(urls_text_path,'r+') as f:
             Remained = int(f.read())-1
             f.close()
