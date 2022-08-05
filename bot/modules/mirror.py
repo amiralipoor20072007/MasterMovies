@@ -1,6 +1,6 @@
 from base64 import b64encode
 from requests import utils as rutils
-from re import match as re_match, search as re_search, split as re_split
+from re import T, match as re_match, search as re_search, split as re_split
 from time import sleep, time
 from os import path as ospath, remove as osremove, listdir, walk,rename
 from shutil import rmtree
@@ -10,6 +10,8 @@ from pathlib import PurePath
 from html import escape
 from telegram.ext import CommandHandler
 from telegram import InlineKeyboardMarkup
+import random
+import string
 
 from bot import Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app
@@ -525,8 +527,188 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
         sendMarkup('شما در گروه و چنل ربات عضو نیستید\nبرای استفاده از ربات در هردو عضو شوید :)', bot,message, reply_markup)
 
+def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
+    idmustjoin = message.from_user.id
+    if mustjoin(idmustjoin) == True:
+        mesg = message.text.split('\n')
+        links = mesg[1:]
+        message_args = mesg[0].split(maxsplit=1)
+        name_args = mesg[0].split('|', maxsplit=1)
+        qbsel = False
+        index = 1
+
+        if len(message_args) > 1:
+            args = mesg[0].split(maxsplit=3)
+            if "s" in [x.strip() for x in args]:
+                qbsel = True
+                index += 1
+            if "d" in [x.strip() for x in args]:
+                qbsd = True
+                index += 1
+            message_args = mesg[0].split(maxsplit=index)
+            if len(message_args) > index:
+                link = message_args[index].strip()
+                if link.isdigit():
+                    multi = int(link)
+                    link = ''
+                elif link.startswith(("|", "pswd:")):
+                    link = ''
+            else:
+                link = ''
+        else:
+            link = ''
+
+        if len(name_args) > 1:
+            name = name_args[1]
+            name = name.split(' pswd:')[0]
+            name = name.strip()
+        else:
+            name = ''
+
+        link = re_split(r"pswd:|\|", link)[0]
+        link = link.strip()
+
+        pswd_arg = mesg[0].split(' pswd: ')
+        if len(pswd_arg) > 1:
+            pswd = pswd_arg[1]
+        
+        if message.from_user.username:
+            tag = f"@{message.from_user.username}"
+        else:
+            tag = message.from_user.mention_html(message.from_user.first_name)
+
+        reply_to = message.reply_to_message
+        if reply_to is not None:
+            file = None
+            media_array = [reply_to.document, reply_to.video, reply_to.audio]
+            for i in media_array:
+                if i is not None:
+                    file = i
+                    break
+
+            if not reply_to.from_user.is_bot:
+                if reply_to.from_user.username:
+                    tag = f"@{reply_to.from_user.username}"
+                else:
+                    tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+
+            if (
+                not is_url(link)
+                and not is_magnet(link)
+                or len(link) == 0
+            ):
+
+                if file is None:
+                    reply_text = reply_to.text.split(maxsplit=1)[0].strip()
+                    if is_url(reply_text) or is_magnet(reply_text):
+                        link = reply_text
+                elif file.mime_type != "application/x-bittorrent" and not isQbit:
+                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
+                    Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+                    if multi > 1:
+                        sleep(4)
+                        nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
+                        nextmsg = sendMessage(message_args[0], bot, nextmsg)
+                        nextmsg.from_user.id = message.from_user.id
+                        multi -= 1
+                        sleep(4)
+                        Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
+                    return
+                else:
+                    link = file.get_file().file_path
+
+        if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
+            help_msg = "<b>Send link along with command line:</b>"
+            help_msg += "\n<code>/command</code> {link} |newname pswd: xx [zip/unzip]"
+            help_msg += "\n\n<b>By replying to link or file:</b>"
+            help_msg += "\n<code>/command</code> |newname pswd: xx [zip/unzip]"
+            help_msg += "\n\n<b>Direct link authorization:</b>"
+            help_msg += "\n<code>/command</code> {link} |newname pswd: xx\nusername\npassword"
+            help_msg += "\n\n<b>Qbittorrent selection and seed:</b>"
+            help_msg += "\n<code>/qbcommand</code> <b>s</b>(for selection) <b>d</b>(for seeding) {link} or by replying to {file/link}"
+            help_msg += "\n\n<b>Multi links only by replying to first link or file:</b>"
+            help_msg += "\n<code>/command</code> 10(number of links/files)"
+            return sendMessage(help_msg, bot, message)
+
+        LOGGER.info(link)
+
+        if not is_mega_link(link) and not isQbit and not is_magnet(link) \
+            and not is_gdrive_link(link) and not link.endswith('.torrent'):
+            content_type = get_content_type(link)
+            if content_type is None or re_match(r'text/html|text/plain', content_type):
+                try:
+                    link = direct_link_generator(link)
+                    LOGGER.info(f"Generated link: {link}")
+                except DirectDownloadLinkException as e:
+                    LOGGER.info(str(e))
+                    if str(e).startswith('ERROR:'):
+                        return sendMessage(str(e), bot, message)
+
+        listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
+
+        if is_gdrive_link(link):
+            if not isZip and not extract and not isLeech:
+                gmsg = f"Use /{BotCommands.CloneCommand} to clone Google Drive file/folder\n\n"
+                gmsg += f"Use /{BotCommands.ZipMirrorCommand} to make zip of Google Drive folder\n\n"
+                gmsg += f"Use /{BotCommands.UnzipMirrorCommand} to extracts Google Drive archive file"
+                sendMessage(gmsg, bot, message)
+            else:
+                Thread(target=add_gd_download, args=(link, listener)).start()
+        elif is_mega_link(link):
+            if MEGA_KEY is not None:
+                Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
+            else:
+                sendMessage('MEGA_API_KEY not Provided!', bot, message)
+        elif isQbit:
+            Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
+        else:
+            if len(mesg) > 1:
+                try:
+                    ussr = mesg[1]
+                except:
+                    ussr = ''
+                try:
+                    pssw = mesg[2]
+                except:
+                    pssw = ''
+                auth = f"{ussr}:{pssw}"
+                auth = "Basic " + b64encode(auth.encode()).decode('ascii')
+            else:
+                auth = ''
+            random_name = 'multi'+''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase,k=24))+'.txt'
+            with open(f'{DOWNLOAD_DIR}/{random_name}','w') as f:
+                for i in range(len(links)-1):
+                    links[i]=str(links[i])+'\n'
+                f.writelines(links)
+                f.close()
+            multi = True
+            multiurlspath = random_name
+            Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth,multiurlspath,multi)).start()
+
+        if multi > 1:
+            sleep(4)
+            nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
+            msg = message_args[0]
+            if len(mesg) > 2:
+                msg += '\n' + mesg[1] + '\n' + mesg[2]
+            nextmsg = sendMessage(msg, bot, nextmsg)
+            nextmsg.from_user.id = message.from_user.id
+            multi -= 1
+            sleep(4)
+            Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
+    elif mustjoin(idmustjoin) == False:
+        buttons = ButtonMaker()
+        buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
+        buttons.buildbutton("Group", "https://t.me/+xNDVQdjEoOpmYTRk")
+        buttons.buildbutton("Owner", "https://t.me/MahdiXi021")
+        reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
+        sendMarkup('شما در گروه و چنل ربات عضو نیستید\nبرای استفاده از ربات در هردو عضو شوید :)', bot,message, reply_markup)
+
 def mirror(update, context):
     _mirror(context.bot, update.message)
+
+def multimirror(update, context):
+    _mirror_mulit(context.bot, update.message)
 
 def unzip_mirror(update, context):
     _mirror(context.bot, update.message, extract=True)
@@ -562,22 +744,18 @@ def qb_zip_leech(update, context):
     _mirror(context.bot, update.message, True, isQbit=True, isLeech=True)
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
-                                
+                                run_async=True)
+multimirror_handler = CommandHandler('multimirror', mirror,
                                 run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
-                                
                                 run_async=True)
 zip_mirror_handler = CommandHandler(BotCommands.ZipMirrorCommand, zip_mirror,
-                                
                                 run_async=True)
 qb_mirror_handler = CommandHandler(BotCommands.QbMirrorCommand, qb_mirror,
-                                
                                 run_async=True)
 qb_unzip_mirror_handler = CommandHandler(BotCommands.QbUnzipMirrorCommand, qb_unzip_mirror,
-                                
                                 run_async=True)
 qb_zip_mirror_handler = CommandHandler(BotCommands.QbZipMirrorCommand, qb_zip_mirror,
-                                
                                 run_async=True)
 leech_handler = CommandHandler(BotCommands.LeechCommand, leech,
                                  run_async=True)
