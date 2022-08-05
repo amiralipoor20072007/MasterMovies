@@ -60,11 +60,10 @@ def __onDownloadComplete(api, gid):
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
-    elif dl:
+    elif dl is not None:
         LOGGER.info(f'Remained : {Remained}')
-        if Remained == 0:
-            LOGGER.info(f'Going To Zip')
-            dl.getListener().onDownloadComplete()
+        LOGGER.info(f'Going To Zip')
+        dl.getListener().onDownloadComplete()
 
 @new_thread
 def __onDownloadStopped(api, gid):
