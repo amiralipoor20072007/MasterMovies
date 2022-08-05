@@ -592,58 +592,6 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 else:
                     tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
-            if (
-                not is_url(link)
-                and not is_magnet(link)
-                or len(link) == 0
-            ):
-
-                if file is None:
-                    reply_text = reply_to.text.split(maxsplit=1)[0].strip()
-                    if is_url(reply_text) or is_magnet(reply_text):
-                        link = reply_text
-                elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
-                    Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
-                    if multi > 1:
-                        sleep(4)
-                        nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-                        nextmsg = sendMessage(message_args[0], bot, nextmsg)
-                        nextmsg.from_user.id = message.from_user.id
-                        multi -= 1
-                        sleep(4)
-                        Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
-                    return
-                else:
-                    link = file.get_file().file_path
-
-        if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
-            help_msg = "<b>Send link along with command line:</b>"
-            help_msg += "\n<code>/command</code> {link} |newname pswd: xx [zip/unzip]"
-            help_msg += "\n\n<b>By replying to link or file:</b>"
-            help_msg += "\n<code>/command</code> |newname pswd: xx [zip/unzip]"
-            help_msg += "\n\n<b>Direct link authorization:</b>"
-            help_msg += "\n<code>/command</code> {link} |newname pswd: xx\nusername\npassword"
-            help_msg += "\n\n<b>Qbittorrent selection and seed:</b>"
-            help_msg += "\n<code>/qbcommand</code> <b>s</b>(for selection) <b>d</b>(for seeding) {link} or by replying to {file/link}"
-            help_msg += "\n\n<b>Multi links only by replying to first link or file:</b>"
-            help_msg += "\n<code>/command</code> 10(number of links/files)"
-            return sendMessage(help_msg, bot, message)
-
-        LOGGER.info(link)
-
-        if not is_mega_link(link) and not isQbit and not is_magnet(link) \
-            and not is_gdrive_link(link) and not link.endswith('.torrent'):
-            content_type = get_content_type(link)
-            if content_type is None or re_match(r'text/html|text/plain', content_type):
-                try:
-                    link = direct_link_generator(link)
-                    LOGGER.info(f"Generated link: {link}")
-                except DirectDownloadLinkException as e:
-                    LOGGER.info(str(e))
-                    if str(e).startswith('ERROR:'):
-                        return sendMessage(str(e), bot, message)
-
         listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
 
         if is_gdrive_link(link):
