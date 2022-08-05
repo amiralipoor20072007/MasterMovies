@@ -62,6 +62,7 @@ def __onDownloadComplete(api, gid):
             f.write(str(Remained))
             f.close()
         #Count Until All File
+        LOGGER.info(f'Remained : {Remained}')
         if Remained == 0:
             LOGGER.info(f'Going To Zip')
             dl.getListener().onDownloadComplete()
