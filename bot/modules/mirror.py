@@ -532,6 +532,7 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
         links = mesg[1:]
+        LOGGER.info(f'{links}')
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -624,6 +625,7 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             else:
                 auth = ''
             random_name = 'multi'+''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase,k=24))+'.txt'
+            LOGGER.info(f'{random_name}')
             with open(f'{DOWNLOAD_DIR}/{random_name}','w') as f:
                 for i in range(len(links)-1):
                     links[i]=str(links[i])+'\n'
@@ -631,6 +633,7 @@ def _mirror_mulit(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 f.close()
             multi = True
             multiurlspath = random_name
+            LOGGER.info(f'Thread Aria2c Multi')
             Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth,multiurlspath,multi)).start()
 
         if multi > 1:
