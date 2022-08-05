@@ -99,7 +99,7 @@ def add_aria2c_download(link: str, path, listener, filename, auth):
 
 def add_aria2c_download_multi(link: str, path, listener, filename, auth,multiurls):
     LOGGER.info(f'Multi Aria')
-    download = aria2.add_uris({'i':multiurls,'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+    download = aria2.add_uris({'i':multiurls,'dir': path})
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
         LOGGER.info(f"Download Error: {error}")
