@@ -564,6 +564,9 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 def mirror(update, context):
     _mirror(context.bot, update.message)
 
+def multizip(update, context):
+    _mirror(context.bot, update.message,MultiZipFlag=True)
+
 def unzip_mirror(update, context):
     _mirror(context.bot, update.message, extract=True)
 
@@ -599,6 +602,10 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
+
+multizip_handler = CommandHandler('multizip', multizip,
+                                run_async=True)
+
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
                                 run_async=True)
 zip_mirror_handler = CommandHandler(BotCommands.ZipMirrorCommand, zip_mirror,
@@ -622,6 +629,7 @@ qb_unzip_leech_handler = CommandHandler(BotCommands.QbUnzipLeechCommand, qb_unzi
 qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leech,
                                  run_async=True)
 
+dispatcher.add_handler(multizip_handler)
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)
 dispatcher.add_handler(zip_mirror_handler)
