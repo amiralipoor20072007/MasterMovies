@@ -45,6 +45,7 @@ def __onDownloadStarted(api, gid):
 
 @new_thread
 def __onDownloadComplete(api, gid):
+    dl = getDownloadByGid(gid)
     LOGGER.info(f"onDownloadComplete: {gid}")
     urls_text_path = dl.getListener().MultiZip[2]
     LOGGER.info(f'urls_text_path : {urls_text_path}')
@@ -54,7 +55,7 @@ def __onDownloadComplete(api, gid):
     with open(urls_text_path,'w') as f:
         f.write(str(Remained))
         f.close()
-    dl = getDownloadByGid(gid)
+    LOGGER.info(f'Remained : {Remained}')
     download = api.get_download(gid)
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
