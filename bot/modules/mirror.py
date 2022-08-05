@@ -745,7 +745,7 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
-multimirror_handler = CommandHandler('multimirror', mirror,
+multimirror_handler = CommandHandler('multimirror', multimirror,
                                 run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
                                 run_async=True)
