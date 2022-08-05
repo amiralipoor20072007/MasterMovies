@@ -394,6 +394,11 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         mesg = message.text.split('\n')
         if MultiZipFlag == True :
             MultiZip = [mesg[1:],len(mesg)+1]
+            random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase,k=20))+'.txt'
+            with open(f'{DOWNLOAD_DIR}{random_name}','w')as f:
+                f.write(str(MultiZip[1]))
+                f.close()
+            MultiZip.append(f'{DOWNLOAD_DIR}{random_name}')
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
