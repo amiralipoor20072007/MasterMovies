@@ -89,6 +89,8 @@ def add_aria2c_download(link: str, path, listener, filename, auth,multiurls,mult
             download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
     if multi == True :
         download = aria2.add_uris({'input-file':multiurls,'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+        LOGGER.info(f"Multi Zip: {download.gid} DIR: {download.dir} ")
+        LOGGER.info(f"download")
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
         LOGGER.info(f"Download Error: {error}")
