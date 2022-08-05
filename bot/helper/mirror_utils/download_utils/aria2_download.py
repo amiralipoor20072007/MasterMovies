@@ -81,17 +81,23 @@ def start_listener():
                                   on_download_complete=__onDownloadComplete,
                                   timeout=20)
 
-def add_aria2c_download(link: str, path, listener, filename, auth,multiurls,multi = False):
-    if multi == False:
-        LOGGER.info(f"Multi = False")
-        if is_magnet(link):
-            download = aria2.add_magnet(link, {'dir': path})
-        else:
-            download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-    if multi == True :
-        download = aria2.add_uris({'input-file':multiurls,'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-        LOGGER.info(f"Multi Zip: {download.gid} DIR: {download.dir} ")
-        LOGGER.info(f"{download}")
+def add_aria2c_download(link: str, path, listener, filename, auth,):
+    if is_magnet(link):
+        download = aria2.add_magnet(link, {'dir': path})
+    else:
+        download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+    if download.error_message:
+        error = str(download.error_message).replace('<', ' ').replace('>', ' ')
+        LOGGER.info(f"Download Error: {error}")
+        return sendMessage(error, listener.bot, listener.message)
+    with download_dict_lock:
+        download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
+        LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
+    listener.onDownloadStart()
+    sendStatusMessage(listener.message, listener.bot)
+
+def add_aria2c_download_multi(link: str, path, listener, filename, auth,multiurls):
+    download = aria2.add_uris({'i':multiurls,'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
         LOGGER.info(f"Download Error: {error}")
