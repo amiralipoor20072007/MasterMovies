@@ -53,7 +53,7 @@ def __onDownloadComplete(api, gid):
         new_gid = download.followed_by_ids[0]
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
     elif dl:
-        if dl.getListener().MultiZip[1] != 0:
+        if dl.getListener().MultiZip[1] == 0:
             dl.getListener().onDownloadComplete()
 
 @new_thread
