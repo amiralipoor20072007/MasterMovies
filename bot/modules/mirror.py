@@ -92,7 +92,7 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-        if self.MultiZipFlag:
+        if self.MultiZipFlag == True:
             LOGGER.info(f'Multi Lisitner')
             m_path = f'{DOWNLOAD_DIR}{self.uid}'
             try:
