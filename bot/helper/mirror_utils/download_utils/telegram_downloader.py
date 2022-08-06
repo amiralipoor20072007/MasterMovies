@@ -179,8 +179,8 @@ class MultiZip_Telegram():
 
     def Next_Link(self):
         for link in range(len(self.links_list)):
-            x = self.links[link]
-            del self.links[link]
+            x = self.links_list[link]
+            del self.links_list[link]
             self.counter += 1
             return x
 
