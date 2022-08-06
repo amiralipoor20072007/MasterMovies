@@ -90,7 +90,7 @@ class TelegramDownloadHelper:
     def add_download(self, message, path, filename,MultiZip_Id =None):
         if self.MultiZipTelegram is not None:
             LOGGER.info(f'Multi Zip telegram')
-            _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=MultiZip_Id)
+            _dmsg = app.get_messages(message.chat.id, message_ids=MultiZip_Id)
             LOGGER.info(f'_dmsg : {_dmsg}')
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
@@ -168,7 +168,7 @@ class MultiZip_Telegram():
         self.downs = downs
         self.links_list = []
         self.name = name
-        self.first = listener.uid
+        self.first = app.get_messages(self.message.chat.id,reply_to_message_ids=self.message.message_id).id
         self.listener = listener
         self.gids = []
         self.desription =[]
