@@ -91,22 +91,25 @@ class TelegramDownloadHelper:
         if self.MultiZipTelegram is not None:
             LOGGER.info(f'Multi Zip telegram')
             _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=MultiZip_Id)
+            LOGGER.info(f'_dmsg : {_dmsg}')
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
             for i in media_array:
                 if i is not None:
                     media = i
                     break
+            LOGGER.info(f'media : {media}')
             if media is not None:
                 with global_lock:
                     # For avoiding locking the thread lock for long time unnecessarily
                     download = media.file_unique_id not in GLOBAL_GID
+                LOGGER.info(f'download : {download}')
                 if filename == "":
                     name = media.file_name
                 else:
                     name = filename
                     path = path + name
-
+                LOGGER.info(f'name : {name}')
                 if download:
                     size = media.file_size
                     self.MultiZipTelegram.Add_gid(media.file_unique_id)
