@@ -92,8 +92,8 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-        if self.MultiZipFlag == True:
-            LOGGER.info(f'Multi Lisitner')
+        if self.MultiZipFlag:
+            LOGGER.info(f'Multi Lisitner , self.MultiZipFlag = {self.MultiZipFlag}')
             m_path = f'{DOWNLOAD_DIR}{self.uid}'
             try:
                 with download_dict_lock:
@@ -472,7 +472,6 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    LOGGER.info(f'{bot}, {message}, {isZip}, {extract}, {isQbit}, {isLeech}, {pswd}, {tag},{MultiZipFlag},{MultiZip}')
                     listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag,MultiZip)
                     if MultiZipFlag == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
