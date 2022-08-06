@@ -110,6 +110,7 @@ class TelegramDownloadHelper:
                 if download:
                     size = media.file_size
                     self.MultiZipTelegram.Add_gid(media.file_unique_id)
+                    LOGGER.info(f'Added GID:{media.file_unique_id}')
                     self.__onDownloadStart(name, size, media.file_unique_id)
                     LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
                     self.__download(_dmsg, path,media.file_unique_id)
