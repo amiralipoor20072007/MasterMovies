@@ -155,7 +155,10 @@ class Multi_Zip():
             next_link = self.Next_Link()
             self.Download(next_link,self.path)
         else:
-            self.listener.onDownloadComplete()
+            if self.desription != []:
+                self.listener.onDownloadComplete(self.desription)
+            else:
+                self.listener.onDownloadComplete()
 
     def run(self):
         if self.links_rate != self.counter:
