@@ -474,10 +474,10 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
                     listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag,MultiZip)
                     if MultiZipFlag == False:
-                        Thread(target=TelegramDownloadHelper(listener).run, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+                        Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     elif MultiZipFlag == True:
                         MultiZip_Telegram_Tedad = int(message.text.split('T=')[1])
-                        Thread(target=MultiZip_Telegram(DOWNLOAD_DIR,message,name,MultiZip_Telegram_Tedad,listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+                        Thread(target=MultiZip_Telegram(DOWNLOAD_DIR,message,name,MultiZip_Telegram_Tedad,listener).run, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     if multi > 1:
                         sleep(4)
                         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
