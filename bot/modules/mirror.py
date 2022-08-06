@@ -472,7 +472,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag,MultiZip)
+                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
                     if MultiZipFlag == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     elif MultiZipFlag == True:
