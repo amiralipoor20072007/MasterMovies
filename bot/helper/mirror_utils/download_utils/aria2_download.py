@@ -155,6 +155,9 @@ class Multi_Zip():
             next_link = self.Next_Link()
             self.Download(next_link,self.path)
         else:
+            if len(self.desription) == self.links_rate:
+                self.listener.onDownloadError('All Of Links is broken')
+                return
             if self.desription != []:
                 self.listener.onDownloadComplete(self.desription)
             else:
