@@ -176,7 +176,17 @@ class Multi_Zip():
             next_link = self.Next_Link()
             self.Download(next_link,self.path)
         else:
+            if len(self.desription) == self.links_rate:
+                self.listener.onDownloadError('All Of Links is broken')
+                return
             if self.desription != []:
+                download = get_download(self.gids[-1])
+                Counter =-2
+                while download is None:
+                    with download_dict_lock:
+                        download_dict[self.listener.uid] = AriaDownloadStatus(self.gids[Counter], self.listener,self)
+                    download = get_download(self.gids[Counter])
+                    Counter -= 1
                 self.listener.onDownloadComplete(self.desription)
             else:
                 self.listener.onDownloadComplete()

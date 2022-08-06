@@ -23,7 +23,7 @@ from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
 from bot.helper.mirror_utils.download_utils.qbit_downloader import QbDownloader
 from bot.helper.mirror_utils.download_utils.mega_downloader import MegaDownloader
 from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_link_generator
-from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper
+from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper,MultiZip_Telegram
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
 from bot.helper.mirror_utils.status_utils.zip_status import ZipStatus
 from bot.helper.mirror_utils.status_utils.split_status import SplitStatus
@@ -401,11 +401,6 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         mesg = message.text.split('\n')
         if MultiZipFlag == True :
             MultiZip = [mesg[1:],len(mesg)+1]
-            random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase,k=20))+'.txt'
-            with open(f'{DOWNLOAD_DIR}{random_name}','w')as f:
-                f.write(str(MultiZip[1]))
-                f.close()
-            MultiZip.append(f'{DOWNLOAD_DIR}{random_name}')
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -477,8 +472,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
-                    Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag,MultiZip)
+                    if MultiZipFlag == False:
+                        Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+                    elif MultiZipFlag == True:
+                        MultiZip_Telegram_Tedad = int(message.text.split('T=')[1])
+                        Thread(target=MultiZip_Telegram(DOWNLOAD_DIR,message,name,MultiZip_Telegram_Tedad,listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     if multi > 1:
                         sleep(4)
                         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
@@ -581,6 +580,9 @@ def mirror(update, context):
 def multizip_mirror(update, context):
     _mirror(context.bot, update.message,MultiZipFlag=True)
 
+def multizip_telegram(update, context):
+    _mirror(context.bot, update.message,MultiZipFlag=True)
+
 def multizip_leech(update, context):
     _mirror(context.bot, update.message,isLeech=True,MultiZipFlag=True)
 
@@ -619,8 +621,9 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
-
 multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, multizip_mirror,
+                                run_async=True)
+multizip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
                                 run_async=True)
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
                                 run_async=True)
@@ -648,6 +651,7 @@ qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leec
                                  run_async=True)
 
 dispatcher.add_handler(multizip_mirror_handler)
+dispatcher.add_handler(multizip_telegram_handler)
 dispatcher.add_handler(multizip_leech_handler)
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)

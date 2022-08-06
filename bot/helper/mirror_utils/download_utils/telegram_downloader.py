@@ -14,13 +14,14 @@ getLogger("pyrogram").setLevel(WARNING)
 
 class TelegramDownloadHelper:
 
-    def __init__(self, listener):
+    def __init__(self, listener,MultiZipTelegram=None):
         self.name = ""
         self.size = 0
         self.progress = 0
         self.downloaded_bytes = 0
         self.__start_time = time()
         self.__listener = listener
+        self.MultiZipTelegram = MultiZipTelegram
         self.__id = ""
         self.__is_cancelled = False
         self.__resource_lock = RLock()
@@ -39,7 +40,8 @@ class TelegramDownloadHelper:
             self.__id = file_id
         with download_dict_lock:
             download_dict[self.__listener.uid] = TelegramDownloadStatus(self, self.__listener, self.__id)
-        self.__listener.onDownloadStart()
+        if self.MultiZipTelegram is None:
+            self.__listener.onDownloadStart()
         sendStatusMessage(self.__listener.message, self.__listener.bot)
 
     def __onDownloadProgress(self, current, total):
@@ -59,14 +61,20 @@ class TelegramDownloadHelper:
                 GLOBAL_GID.remove(self.__id)
             except:
                 pass
-        self.__listener.onDownloadError(error)
+        if self.MultiZipTelegram is not None and self.__id in self.MultiZipTelegram.gids:
+                self.MultiZipTelegram.Add_Corrupted(error)
+        else:
+            self.__listener.onDownloadError(error)
 
     def __onDownloadComplete(self):
         with global_lock:
             GLOBAL_GID.remove(self.__id)
-        self.__listener.onDownloadComplete()
+        if self.MultiZipTelegram is not None and self.__id in self.MultiZipTelegram.gids:
+            self.MultiZipTelegram.Next_Download()
+        else:
+            self.__listener.onDownloadComplete()
 
-    def __download(self, message, path):
+    def __download(self, message, path,file_id=None):
         try:
             download = message.download(file_name=path, progress=self.__onDownloadProgress)
         except Exception as e:
@@ -77,41 +85,134 @@ class TelegramDownloadHelper:
         elif not self.__is_cancelled:
             self.__onDownloadError('Internal error occurred')
 
-    def add_download(self, message, path, filename):
-        _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=message.message_id)
-        media = None
-        media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
-        for i in media_array:
-            if i is not None:
-                media = i
-                break
-        if media is not None:
-            with global_lock:
-                # For avoiding locking the thread lock for long time unnecessarily
-                download = media.file_unique_id not in GLOBAL_GID
-            if filename == "":
-                name = media.file_name
-            else:
-                name = filename
-                path = path + name
+    def add_download(self, message, path, filename,MultiZip_Id =None):
+        if self.MultiZipTelegram is not None:
+            _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=MultiZip_Id)
+            media = None
+            media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
+            for i in media_array:
+                if i is not None:
+                    media = i
+                    break
+            if media is not None:
+                with global_lock:
+                    # For avoiding locking the thread lock for long time unnecessarily
+                    download = media.file_unique_id not in GLOBAL_GID
+                if filename == "":
+                    name = media.file_name
+                else:
+                    name = filename
+                    path = path + name
 
-            if download:
-                size = media.file_size
-                if STOP_DUPLICATE and not self.__listener.isLeech:
-                    LOGGER.info('Checking File/Folder if already in Drive...')
-                    smsg, button = GoogleDriveHelper().drive_list(name, True, True)
-                    if smsg:
-                        msg = "File/Folder is already available in Drive.\nHere are the search results:"
-                        return sendMarkup(msg, self.__listener.bot, self.__listener.message, button)
-                self.__onDownloadStart(name, size, media.file_unique_id)
-                LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
-                self.__download(_dmsg, path)
+                if download:
+                    size = media.file_size
+                    self.MultiZipTelegram.Add_gid(media.file_unique_id)
+                    self.__onDownloadStart(name, size, media.file_unique_id)
+                    LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
+                    self.__download(_dmsg, path,media.file_unique_id)
+                else:
+                    self.__onDownloadError('File already being downloaded!')
             else:
-                self.__onDownloadError('File already being downloaded!')
+                self.__onDownloadError('No document in the replied message')
         else:
-            self.__onDownloadError('No document in the replied message')
+            _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=message.message_id)
+            media = None
+            media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
+            for i in media_array:
+                if i is not None:
+                    media = i
+                    break
+            if media is not None:
+                with global_lock:
+                    # For avoiding locking the thread lock for long time unnecessarily
+                    download = media.file_unique_id not in GLOBAL_GID
+                if filename == "":
+                    name = media.file_name
+                else:
+                    name = filename
+                    path = path + name
+
+                if download:
+                    size = media.file_size
+                    if STOP_DUPLICATE and not self.__listener.isLeech:
+                        LOGGER.info('Checking File/Folder if already in Drive...')
+                        smsg, button = GoogleDriveHelper().drive_list(name, True, True)
+                        if smsg:
+                            msg = "File/Folder is already available in Drive.\nHere are the search results:"
+                            return sendMarkup(msg, self.__listener.bot, self.__listener.message, button)
+                    self.__onDownloadStart(name, size, media.file_unique_id)
+                    LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
+                    self.__download(_dmsg, path)
+                else:
+                    self.__onDownloadError('File already being downloaded!')
+            else:
+                self.__onDownloadError('No document in the replied message')
 
     def cancel_download(self):
         LOGGER.info(f'Cancelling download on user request: {self.__id}')
         self.__is_cancelled = True
         self.__onDownloadError('Cancelled by user!')
+
+
+class MultiZip_Telegram():
+    def __init__(self,DOWNLOAD_DIR,message,name,downs,listener):
+        self.DOWNLOAD_DIR = DOWNLOAD_DIR
+        self.message = message
+        self.downs = downs
+        self.links_list = []
+        self.name = name
+        self.first = listener.uid
+        self.listener = listener
+        self.gids = []
+        self.desription =[]
+        self.Telegram_Helper = None
+        self.counter = 0
+    
+    def Add_gid(self,gid):
+        self.gids.append(gid)
+
+    def get_downloads_ids(self):
+        firstdown = self.first
+        downloads = self.downs
+        for i in range(firstdown,firstdown+downloads):
+            self.links_list.append(i)
+
+    def Next_Link(self):
+        for link in range(len(self.links_list)):
+            x = self.links[link]
+            del self.links[link]
+            self.counter += 1
+            return x
+
+    def Add_Corrupted(self,error):
+        self.desription.append(error)
+        
+    def Next_Download(self):
+        if self.downs != self.counter:
+            MultiZip_Id = self.Next_Link()
+            self.Telegram_Helper.add_download(self.message, f'{self.DOWNLOAD_DIR}{self.listener.uid}/', self.name,MultiZip_Id)
+        else:
+            if len(self.desription) == self.downs:
+                self.listener.onDownloadError('All Of Links is broken')
+                return
+            if self.desription != []:
+                self.listener.onDownloadComplete(self.desription)
+            else:
+                self.listener.onDownloadComplete()
+
+
+    def run(self):
+        self.get_downloads_ids()
+        if self.downs != self.counter:
+            self.listener.onDownloadStart()
+            MultiZip_Id = self.Next_Link()
+            self.Telegram_Helper = TelegramDownloadHelper(self.listener,self)
+            self.Telegram_Helper.add_download(self.message,f'{self.DOWNLOAD_DIR}{self.listener.uid}/',self.name,MultiZip_Id)
+        else:
+            if len(self.desription) == self.downs:
+                self.listener.onDownloadError('All Of Links is broken')
+                return
+            if self.desription != []:
+                self.listener.onDownloadComplete(self.desription)
+            else:
+                self.listener.onDownloadComplete()
