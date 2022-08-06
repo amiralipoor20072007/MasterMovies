@@ -5,6 +5,7 @@ class _BotCommands:
     def __init__(self):
         self.StartCommand = f'start'
         self.MirrorCommand = f'mirror{CMD_INDEX}'
+        self.MultiZipMirrorCommand = f'multizip_mirror{CMD_INDEX}'
         self.UnzipMirrorCommand = f'unzipmirror{CMD_INDEX}'
         self.ZipMirrorCommand = f'zipmirror{CMD_INDEX}'
         self.CancelMirror = f'cancel{CMD_INDEX}'
@@ -37,6 +38,7 @@ class _BotCommands:
         self.LeechCommand = f'leech{CMD_INDEX}'
         self.UnzipLeechCommand = f'unzipleech{CMD_INDEX}'
         self.ZipLeechCommand = f'zipleech{CMD_INDEX}'
+        self.MultiZipLeechCommand = f'multizip_leech{CMD_INDEX}'
         self.QbLeechCommand = f'qbleech{CMD_INDEX}'
         self.QbUnzipLeechCommand = f'qbunzipleech{CMD_INDEX}'
         self.QbZipLeechCommand = f'qbzipleech{CMD_INDEX}'
