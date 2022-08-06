@@ -42,6 +42,7 @@ class TelegramDownloadHelper:
             download_dict[self.__listener.uid] = TelegramDownloadStatus(self, self.__listener, self.__id)
         if self.MultiZipTelegram is None:
             self.__listener.onDownloadStart()
+        LOGGER.info(f'Download File 1 Started')
         sendStatusMessage(self.__listener.message, self.__listener.bot)
 
     def __onDownloadProgress(self, current, total):
@@ -70,6 +71,7 @@ class TelegramDownloadHelper:
         with global_lock:
             GLOBAL_GID.remove(self.__id)
         if self.MultiZipTelegram is not None and self.__id in self.MultiZipTelegram.gids:
+            LOGGER.info(f'File 1 Completed Next Download')
             self.MultiZipTelegram.Next_Download()
         else:
             self.__listener.onDownloadComplete()
@@ -87,6 +89,7 @@ class TelegramDownloadHelper:
 
     def add_download(self, message, path, filename,MultiZip_Id =None):
         if self.MultiZipTelegram is not None:
+            LOGGER.info(f'Multi Zip telegram')
             _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=MultiZip_Id)
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
@@ -189,8 +192,12 @@ class MultiZip_Telegram():
         
     def Next_Download(self):
         if self.downs != self.counter:
+            LOGGER.info(f'Getting 2 Download')
             MultiZip_Id = self.Next_Link()
+            LOGGER.info(f'2 Download ID : {MultiZip_Id}')
+
             self.Telegram_Helper.add_download(self.message, f'{self.DOWNLOAD_DIR}{self.listener.uid}/', self.name,MultiZip_Id)
+            LOGGER.info(f'Added 2 Download')
         else:
             if len(self.desription) == self.downs:
                 self.listener.onDownloadError('All Of Links is broken')
@@ -202,11 +209,17 @@ class MultiZip_Telegram():
 
 
     def run(self):
+        LOGGER.info(f'Getting Download IDs')
         self.get_downloads_ids()
+        LOGGER.info(f'links_list : {self.links_list}')
         if self.downs != self.counter:
+            LOGGER.info(f'Sginal To Mirror_listnerer')
             self.listener.onDownloadStart()
             MultiZip_Id = self.Next_Link()
+            LOGGER.info(f'Get Fisrt Link : {MultiZip_Id}')
+            LOGGER.info(f'Signal To telegram Helper')
             self.Telegram_Helper = TelegramDownloadHelper(self.listener,self)
+            LOGGER.info(f'Added Mirror : {MultiZip_Id}')
             self.Telegram_Helper.add_download(self.message,f'{self.DOWNLOAD_DIR}{self.listener.uid}/',self.name,MultiZip_Id)
         else:
             if len(self.desription) == self.downs:
