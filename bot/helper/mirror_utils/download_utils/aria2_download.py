@@ -11,7 +11,7 @@ from subprocess import run as srun
 
 @new_thread
 def __onDownloadStarted(api, gid):
-    if gid not in multi_download_gids:
+    if dl.getListener_MultiZip() is None:
         try:
             if STOP_DUPLICATE:
                 download = api.get_download(gid)
@@ -48,22 +48,29 @@ def __onDownloadStarted(api, gid):
 def __onDownloadComplete(api, gid):
     dl = getDownloadByGid(gid)
     LOGGER.info(f"onDownloadComplete: {gid}")
-    if gid in multi_download_gids:
-        if dl is not None:
-            dl.getListener().Next_Download()
     download = api.get_download(gid)
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
     elif dl is not None:
-        dl.getListener().onDownloadComplete()
+        if dl.getListener_MultiZip() is not None and gid in dl.getListener_MultiZip().gids:
+            multiple_gids = dl.getListener_MultiZip().gids
+            if gid in multiple_gids:
+                dl.getListener_MultiZip().Next_Download()
+        else:
+            dl.getListener().onDownloadComplete()
 
 @new_thread
 def __onDownloadStopped(api, gid):
     sleep(6)
     dl = getDownloadByGid(gid)
     if dl:
-        dl.getListener().onDownloadError('Dead torrent!')
+        if dl.getListener_MultiZip() is not None and gid in dl.getListener_MultiZip().gids:
+            multiple_gids = dl.getListener_MultiZip().gids
+            if gid in multiple_gids:
+                dl.getListener_MultiZip().Add_Corrupted('Dead torrent!')
+        else:
+            dl.getListener().onDownloadError('Dead torrent!')
 
 @new_thread
 def __onDownloadError(api, gid):
@@ -77,7 +84,12 @@ def __onDownloadError(api, gid):
     except:
         pass
     if dl:
-        dl.getListener().onDownloadError(error)
+        if dl.getListener_MultiZip() is not None and gid in dl.getListener_MultiZip().gids:
+            multiple_gids = dl.getListener_MultiZip().gids
+            if gid in multiple_gids:
+                dl.getListener_MultiZip().Add_Corrupted(error)
+        else:
+            dl.getListener().onDownloadError(error)
 
 def start_listener():
     aria2.listen_to_notifications(threaded=True, on_download_start=__onDownloadStarted,
@@ -87,34 +99,19 @@ def start_listener():
                                   timeout=20)
 
 def add_aria2c_download(link: str, path, listener, filename, auth):
-    if listener.MultiZip[1] >= 2:
-        if is_magnet(link):
-            download = aria2.add_magnet(link, {'dir': path})
-        else:
-            download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-        if download.error_message:
-            error = str(download.error_message).replace('<', ' ').replace('>', ' ')
-            LOGGER.info(f"Download Error: {error}")
-            return sendMessage(error, listener.bot, listener.message)
-        with download_dict_lock:
-            download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
-            LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
-        listener.onDownloadStart()
-        sendStatusMessage(listener.message, listener.bot)
+    if is_magnet(link):
+        download = aria2.add_magnet(link, {'dir': path})
     else:
-        if is_magnet(link):
-            download = aria2.add_magnet(link, {'dir': path})
-        else:
-            download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
-        if download.error_message:
-            error = str(download.error_message).replace('<', ' ').replace('>', ' ')
-            LOGGER.info(f"Download Error: {error}")
-            return sendMessage(error, listener.bot, listener.message)
-        with download_dict_lock:
-            download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
-            LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
-        listener.onDownloadStart()
-        sendStatusMessage(listener.message, listener.bot)
+        download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header': f"authorization: {auth}"})
+    if download.error_message:
+        error = str(download.error_message).replace('<', ' ').replace('>', ' ')
+        LOGGER.info(f"Download Error: {error}")
+        return sendMessage(error, listener.bot, listener.message)
+    with download_dict_lock:
+        download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
+        LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
+    listener.onDownloadStart()
+    sendStatusMessage(listener.message, listener.bot)
 
 class Multi_Zip():
     def __init__(self,links: list, path, listener):
@@ -123,6 +120,8 @@ class Multi_Zip():
         self.path = path
         self.listener = listener
         self.counter = 0
+        self.gids=[]
+        self.desription =[]
 
     def Download(self,link,path):
         if is_magnet(link):
@@ -133,7 +132,7 @@ class Multi_Zip():
             error = str(download.error_message).replace('<', ' ').replace('>', ' ')
             LOGGER.info(f"Download Error: {error}")
             return sendMessage(error, self.listener.bot, self.listener.message)
-        multi_download_gids.append(download.gid)
+        self.gids.append(download.gid)
         with download_dict_lock:
             download_dict[self.listener.uid] = AriaDownloadStatus(download.gid, self.listener,self)
             LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
@@ -146,6 +145,9 @@ class Multi_Zip():
             self.counter += 1
             return x
 
+    def Add_Corrupted(self,error):
+        self.desription.append(error)
+        
     def Next_Download(self):
         if self.links_rate != self.counter:
             next_link = self.Next_Link()
@@ -159,7 +161,10 @@ class Multi_Zip():
             next_link = self.Next_Link()
             self.Download(next_link,self.path)
         else:
-            self.listener.onDownloadComplete()
+            if self.desription != []:
+                self.listener.onDownloadComplete(self.desription)
+            else:
+                self.listener.onDownloadComplete()
 
 def Multi_Zip_Function(links: list, path, listener):
     multi_zip = Multi_Zip(links, path, listener)

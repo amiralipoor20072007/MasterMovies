@@ -70,7 +70,16 @@ class MirrorListener:
         msg = f"{self.tag} : <code>{self.message.from_user.id}</code> \nStarted Mirroring..."
         self.logxi = LogXi(msg,self.bot)
 
-    def onDownloadComplete(self):
+    def onDownloadComplete(self,MultiZip_ErroredXI=None):
+        if MultiZip_ErroredXI is not None:
+            msg = f"{self.tag} You MultiZipping Process Got Error Wiht One/Many Downloading:\n"
+            counter = 0
+            for error in MultiZip_ErroredXI:
+                counter += 1
+                msg += f"{counter} download has been stopped due to: {error}\n"
+            sendMessage(msg, self.bot, self.message)
+            del msg
+            del counter
         with download_dict_lock:
             LOGGER.info(f"Download completed: {download_dict[self.uid].name()}")
             download = download_dict[self.uid]

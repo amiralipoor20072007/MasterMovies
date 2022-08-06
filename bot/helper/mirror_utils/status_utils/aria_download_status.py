@@ -73,9 +73,12 @@ class AriaDownloadStatus:
         return self
 
     def getListener(self):
+        return self.__listener
+
+    def getListener_MultiZip(self):
         if self.__multi_zip is not None:
             return self.__multi_zip
-        return self.__listener
+        return None
 
     def uid(self):
         return self.__uid
