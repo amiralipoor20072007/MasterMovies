@@ -1,4 +1,3 @@
-from types import NoneType
 from bot import aria2, DOWNLOAD_DIR, LOGGER
 from bot.helper.ext_utils.bot_utils import MirrorStatus
 
@@ -13,14 +12,7 @@ class AriaDownloadStatus:
 
     def __init__(self, gid, listener,Multi_Zip=None):
         self.__gid = gid
-        if Multi_Zip is not None:
-            self.__download = get_download(gid)
-            counter = -2
-            while self.__download is None:
-                self.__gid = Multi_Zip.gids[counter]
-                counter -=1
-        else:
-            self.__download = get_download(gid)
+        self.__download = get_download(gid)
         self.__uid = listener.uid
         self.__listener = listener
         self.__multi_zip = Multi_Zip

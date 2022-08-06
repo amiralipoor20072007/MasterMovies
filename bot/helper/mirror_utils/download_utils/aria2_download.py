@@ -3,7 +3,7 @@ from time import sleep
 from bot import aria2, download_dict_lock,multi_download_gids, download_dict, STOP_DUPLICATE, LOGGER
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.bot_utils import is_magnet, getDownloadByGid, new_thread
-from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus
+from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus,get_download
 from bot.helper.telegram_helper.message_utils import sendMarkup, sendStatusMessage, sendMessage
 from bot.helper.ext_utils.fs_utils import get_base_name
 from os import path as ospath
@@ -159,8 +159,13 @@ class Multi_Zip():
                 self.listener.onDownloadError('All Of Links is broken')
                 return
             if self.desription != []:
-                with download_dict_lock:
-                    download_dict[self.listener.uid] = AriaDownloadStatus(self.gids[-2], self.listener,self)
+                download = get_download(self.gids[-1])
+                Counter =-2
+                while download is None:
+                    with download_dict_lock:
+                        download_dict[self.listener.uid] = AriaDownloadStatus(self.gids[Counter], self.listener,self)
+                    download = get_download(self.gids[Counter])
+                    Counter -= 1
                 self.listener.onDownloadComplete(self.desription)
             else:
                 self.listener.onDownloadComplete()
