@@ -69,6 +69,7 @@ def __onDownloadStopped(api, gid):
             multiple_gids = dl.getListener_MultiZip().gids
             if gid in multiple_gids:
                 dl.getListener_MultiZip().Add_Corrupted('Dead torrent!')
+                dl.getListener_MultiZip().Next_Download()
         else:
             dl.getListener().onDownloadError('Dead torrent!')
 
@@ -88,6 +89,7 @@ def __onDownloadError(api, gid):
             multiple_gids = dl.getListener_MultiZip().gids
             if gid in multiple_gids:
                 dl.getListener_MultiZip().Add_Corrupted(error)
+                dl.getListener_MultiZip().Next_Download()
         else:
             dl.getListener().onDownloadError(error)
 
