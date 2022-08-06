@@ -159,6 +159,8 @@ class Multi_Zip():
                 self.listener.onDownloadError('All Of Links is broken')
                 return
             if self.desription != []:
+                with download_dict_lock:
+                    download_dict[self.listener.uid] = AriaDownloadStatus(self.gids[-2], self.listener,self)
                 self.listener.onDownloadComplete(self.desription)
             else:
                 self.listener.onDownloadComplete()
