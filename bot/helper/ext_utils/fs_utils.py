@@ -80,7 +80,7 @@ def get_path_size(path: str):
 def get_path_md5_sha(path: str):
     if ospath.isfile(path):
         size = get_path_size(path)
-        chunk = (size // 100)+1
+        chunk = (size // 10)+1
         md5 , sha1 , sha256 = hashlib.md5(),hashlib.sha1(),hashlib.sha256()
         with open(path,'rb') as f:
             while True:
