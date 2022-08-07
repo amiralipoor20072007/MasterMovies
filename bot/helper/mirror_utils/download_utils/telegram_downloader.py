@@ -1,5 +1,5 @@
 from logging import getLogger, WARNING
-from time import time
+from time import sleep, time
 from threading import RLock, Lock
 
 from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, app
@@ -188,6 +188,7 @@ class MultiZip_Telegram():
         
     def Next_Download(self):
         if self.downs != self.counter:
+            sleep(3)
             MultiZip_Id = self.Next_Link()
             self.Telegram_Helper.add_download(self.message, f'{self.DOWNLOAD_DIR}{self.listener.uid}/', self.name,MultiZip_Id)
         else:
