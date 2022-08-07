@@ -272,7 +272,7 @@ class MirrorListener:
             DbManger().rm_complete_task(self.message.link)
         msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         LOGGER.info(f'Getting Hash For :{DOWNLOAD_DIR}{self.uid}/{name}')
-        get_path_hash = get_path_md5_sha()
+        get_path_hash = get_path_md5_sha(f'{DOWNLOAD_DIR}{self.uid}/{name}')
         if get_path_hash[-1] == True:
             md5 , sha1 , sha256 = get_path_hash[:-1]
             msg += f'\n\nMd5 : {md5}\nSHA1 : {sha1}\nSHA256 : {sha256}'
