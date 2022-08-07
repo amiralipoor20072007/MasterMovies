@@ -85,9 +85,10 @@ def get_path_md5_sha(path: str):
         GB = MB*1024
         if size <= MB:
             chunk = size
+        elif size > MB and size <= GB:
+            chunk = (size//100)+1
         else:
-            chunk = (size//1000)+1
-        chunk = (size // 100)+1
+            chunk = (size // 1000)+1
         md5 , sha1 , sha256 = hashlib.md5(),hashlib.sha1(),hashlib.sha256()
         with open(path,'rb') as f:
             while True:
