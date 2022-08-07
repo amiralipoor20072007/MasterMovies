@@ -311,14 +311,17 @@ class MirrorListener:
                 share_url = f'{INDEX_URL}/{url_path}'
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
-                    iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
                     backup_links = f'Main Drive : <code>{share_url}</code>'
                     iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
                     for i in range(1,len(link)):
                         if 'drive.google' in link[i]:
                             backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
-                            iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
-                        else :
+                            if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
+                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}</code>'
+                            else:
+                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                        else:
                             backup_links += f'\nDrive {i} : Error!'
                             iran_backup_links += f'\nDrive {i} : Error!'
                     msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
@@ -326,13 +329,16 @@ class MirrorListener:
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
-                    iran_url = share_url.replace(INDEX_URL,'https://dl.mxfile-irani.ga/0:')
+                    iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
                     iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
                     backup_links = f'Main Drive : <code>{share_url}</code>'
                     for i in range(1,len(link)):
                         if 'drive.google' in link[i]:
                             backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
-                            iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                            if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
+                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}</code>'
+                            else:
+                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
                         else :
                             backup_links += f'\nDrive {i} : Error!'
                             iran_backup_links += f'\nDrive {i} : Error!'
