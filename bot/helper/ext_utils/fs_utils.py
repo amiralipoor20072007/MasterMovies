@@ -1,4 +1,5 @@
 from os import remove as osremove, path as ospath, mkdir, walk, listdir, rmdir, makedirs
+import hashlib
 from sys import exit as sysexit
 from json import loads as jsnloads
 from shutil import rmtree
@@ -75,6 +76,23 @@ def get_path_size(path: str):
             abs_path = ospath.join(root, f)
             total_size += ospath.getsize(abs_path)
     return total_size
+
+def get_path_md5_sha(path: str):
+    if ospath.isfile(path):
+        size = get_path_size(path)
+        chunk = (size // 100)+1
+        md5 , sha1 , sha256 = hashlib.md5(),hashlib.sha1(),hashlib.sha256()
+        with open(path,'rb') as f:
+            while True:
+                data = f.read(chunk)
+                if not data:
+                    break
+                md5.update(data)
+                sha1.update(data)
+                sha256.update(data)
+        return md5.hexdigest(),sha1.hexdigest(),sha256.hexdigest(),True
+    return "This isn't a File , It's a Folder",False
+    
 
 def get_base_name(orig_path: str):
     ext = [ext for ext in ARCH_EXT if orig_path.lower().endswith(ext)]
