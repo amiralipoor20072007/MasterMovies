@@ -160,7 +160,7 @@ class MultiZip_Telegram():
         self.downs = downs
         self.links_list = []
         self.name = name
-        self.first = app.get_messages(self.message.chat.id,reply_to_message_ids=self.message.message_id).id
+        self.first = self.message.reply_to_message.message_id
         self.listener = listener
         self.gids = []
         self.desription =[]
