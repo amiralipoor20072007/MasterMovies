@@ -191,7 +191,8 @@ class MultiZip_Telegram():
         
     def Next_Download(self):
         if self.downs != self.counter:
-            sleep(3)
+            sleep(5)
+            #Get Next Link
             MultiZip_Id = self.Next_Link()
             self.Telegram_Helper.add_download(self.message, f'{self.DOWNLOAD_DIR}{self.listener.uid}/', self.name,MultiZip_Id)
         else:
