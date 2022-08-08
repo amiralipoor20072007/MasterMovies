@@ -33,7 +33,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage,LogXi,LogXi_S,copyMessageToPv, sendMarkup,sendMarkupLog,copyLeechToPv, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage,copyMessageToPv, sendMarkup,sendMarkupLog,copyLeechToPv, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 
@@ -51,7 +51,6 @@ class MirrorListener:
         self.tag = tag
         self.MultiZip = MultiZip
         self.MultiZipFlag = MultiZipFlag
-        self.logxi = None
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
 
@@ -65,10 +64,8 @@ class MirrorListener:
             pass
 
     def onDownloadStart(self):
-        if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
+        if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().add_incomplete_task(self.message.chat.id, self.message.link, self.tag)
-        msg = f"{self.tag} : <code>{self.message.from_user.id}</code> \nStarted Mirroring..."
-        self.logxi = LogXi(msg,self.bot)
 
     def onDownloadComplete(self,MultiZip_ErroredXI=None,MultiZip_Counter=0):
         if MultiZip_ErroredXI is not None:
@@ -210,7 +207,22 @@ class MirrorListener:
             'pussy', 'brazzers', 'cock', 'dick', 'creampie', 'erotic',
             'hentie', 'blowjoblesbian', 'gay', 'bisexual', 'nudes',
             'wtf', 'bdsm', 'ass', 'boobs', 'anal', 'nsfw',
-            'hardcore', 'cuck', 'penis', 'fuck']
+            'hardcore', 'cuck', 'penis', 'fuck','cock', 'deepthroat',
+            'dick', 'cumshot', 'tasty', 'baby', 'wet', 'fuck', 'sperm',
+            'jerk off', 'naked', 'ass', 'tits', 'fingering', 'masturbate',
+            'bitch', 'blowjob', 'prostitute', 'shit', 'bullshit', 'dumbass',
+            'dickhead', 'pussy', 'piss', 'asshole', 'boobs', 'butt', 'booty',
+            'dildo', 'erection', 'foreskin', 'gag', 'handjob', 'licking', 'nude',
+            'penis', 'porn', 'vibrator', 'viagra', 'virgin', 'vagina', 'vulva',
+            'wet dream', 'threesome', 'orgy', 'bdsm', 'hickey', 'condom',
+            'sexting', 'squirt', 'testicles', 'anal', 'bareback', 'bukkake',
+            'creampie', 'stripper', 'strap-on', 'missionary', 'make out',
+            'clitoris', 'cock ring', 'sugar daddy', 'cowgirl', 'reach-around',
+            'doggy style', 'fleshlight', 'contraceptive', 'makeup sex', 'lingerie',
+            'butt plug', 'moan', 'milf', 'wank', 'oral', 'sucking', 'kiss', 'dirty talk',
+            'straddle', 'blindfold', 'bondage', 'orgasm', 'french kiss', 'scissoring',
+            'hard', 'deeper', "don't stop", 'slut', 'cumming', 'tasty', 'dirty', 'ode', 'dog',
+            "men's milk", 'pound', 'jerk', 'prick', 'cunt', 'bastard', 'faggot', 'anal', 'anus']
             for i in PORNfilter:
                 if i in up_name.lower():
                     FlagPORN=True
@@ -261,11 +273,11 @@ class MirrorListener:
         else:
             update_all_messages()
 
-        if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
+        if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
     def onUploadComplete(self, link, size, files, folders, typ, name: str):
-        if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
+        if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
         msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         LOGGER.info(f'Getting Hash For :{DOWNLOAD_DIR}{self.uid}/{name}')
@@ -352,7 +364,6 @@ class MirrorListener:
                         share_urls = f'{INDEX_URL}/{url_path}?a=view'
                         buttons.buildbutton("🌐 View Link", share_urls)
             sendMarkup(msg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
-            sendMarkupLog(msg, self.bot, self.logxi, InlineKeyboardMarkup(buttons.build_menu(2)))
             if self.isQbit and self.seed and not self.extract:
                 if self.isZip:
                     try:
@@ -387,7 +398,7 @@ class MirrorListener:
         else:
             update_all_messages()
 
-        if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
+        if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
 def mustjoin(idmustjoin):
