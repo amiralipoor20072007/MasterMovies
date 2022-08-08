@@ -89,6 +89,7 @@ class TelegramDownloadHelper:
     def add_download(self, message, path, filename,MultiZip_Id =None):
         if self.MultiZipTelegram is not None:
             self.__is_cancelled = False
+            self.__start_time = time()
             _dmsg = app.get_messages(message.chat.id, message_ids=MultiZip_Id)
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
