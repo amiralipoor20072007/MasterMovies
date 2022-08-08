@@ -63,6 +63,7 @@ class TelegramDownloadHelper:
                 pass
         if self.MultiZipTelegram is not None and self.__id in self.MultiZipTelegram.gids:
                 self.MultiZipTelegram.Add_Corrupted(error)
+                self.MultiZipTelegram.Next_Download()
         else:
             self.__listener.onDownloadError(error)
 
