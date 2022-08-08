@@ -211,7 +211,7 @@ class MultiZip_Telegram():
             self.Telegram_Helper.add_download(self.message,f'{self.DOWNLOAD_DIR}{self.listener.uid}/',self.name,MultiZip_Id)
         else:
             if len(self.desription) == self.downs:
-                self.listener.onDownloadError('All Of Links is broken')
+                self.listener.onDownloadError('All Of Links is broken\nOr\nYour Download Completly Cancelled')
                 return
             if self.desription != []:
                 self.listener.onDownloadComplete(self.desription)

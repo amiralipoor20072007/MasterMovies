@@ -80,9 +80,6 @@ class MirrorListener:
             sendMessage(msg, self.bot, self.message)
             del msg
             del counter
-            if len(MultiZip_ErroredXI) == MultiZip_Counter:
-                msg = 'Your Download Completely Cancelled'
-                return sendMessage(msg, self.bot, self.message)
         with download_dict_lock:
             LOGGER.info(f"Download completed: {download_dict[self.uid].name()}")
             download = download_dict[self.uid]
