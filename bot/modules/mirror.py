@@ -112,6 +112,11 @@ class MirrorListener:
         elif self.Extract_Audio:
             Video_Name = PurePath(m_path).name
             Video_path = f'{DOWNLOAD_DIR}{self.uid}/{Video_Name}'
+            LOGGER.info(f'Video_path : {Video_path} ,Video_Name : {Video_Name}')
+            if ospath.isfile(Video_path):
+                LOGGER.info(f'Video_path : is File')
+            if Video_Name.endswith(VIDEO_SUFFIXES):
+                LOGGER.info(f'Video_Name : endswith(VIDEO_SUFFIXES)')
             if ospath.isfile(Video_path) and Video_Name.endswith(VIDEO_SUFFIXES):
                 try:
                     with download_dict_lock:
@@ -126,6 +131,7 @@ class MirrorListener:
             else:
                 msg = "You're Requested For Extract Audio But The File Isn't A Video"
                 sendMessage(msg, self.bot, self.message)
+                self.onUploadError('Extract error occurred!!')
                 return
         elif self.isZip:
             try:
