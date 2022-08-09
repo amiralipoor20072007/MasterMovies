@@ -117,7 +117,7 @@ class MirrorListener:
                 LOGGER.info(f'Video_path : is File')
             if Video_Name.endswith(VIDEO_SUFFIXES):
                 LOGGER.info(f'Video_Name : endswith(VIDEO_SUFFIXES)')
-            if ospath.isfile(Video_path) and Video_Name.endswith(VIDEO_SUFFIXES):
+            if ospath.isfile(Video_path) and Video_Name.upper().endswith(VIDEO_SUFFIXES):
                 try:
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractAudio_Status(name, m_path, size)
