@@ -124,9 +124,7 @@ class MirrorListener:
                     self.onUploadError('Internal error occurred!!')
                     return
             else:
-                msg = "You're Requested For Extract Audio But The File Isn't A Video"
-                sendMessage(msg, self.bot, self.message)
-                self.onUploadError('Extract error occurred!!')
+                self.onUploadError("You're Requested For Extract Audio But The File Isn't A Video")
                 return
         elif self.isZip:
             try:
