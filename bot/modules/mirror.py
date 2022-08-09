@@ -112,15 +112,12 @@ class MirrorListener:
         elif self.Extract_Audio:
             Video_Name = PurePath(m_path).name
             Video_path = f'{DOWNLOAD_DIR}{self.uid}/{Video_Name}'
-            LOGGER.info(f'Video_path : {Video_path} ,Video_Name : {Video_Name}')
-            random_name = ''.join(random.choices(string.ascii_lowercase+string.ascii_letters+string.ascii_uppercase,k=12))
-            m_path = f'{DOWNLOAD_DIR}{self.uid}'
-            path = f'{m_path}/'+random_name+".m4a"
             if ospath.isfile(Video_path) and Video_Name.upper().endswith(VIDEO_SUFFIXES):
                 try:
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractAudio_Status(name, m_path, size)
-                    LOGGER.info(f'Extracting Audio: Video_path: {Video_path}, Audio_path: {path}')
+                    path = ospath.splitext(Video_path)[0]+'-Audio.m4a'
+                    LOGGER.info('Extracting Audio')
                     srun(["new-api","-hide_banner","-i",Video_path,"-vn","-c:a","copy",path])
                 except FileNotFoundError:
                     LOGGER.info('File to archive not found!')
