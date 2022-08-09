@@ -433,7 +433,7 @@ def mustjoin(idmustjoin):
                     return True
     return False
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0]):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
@@ -510,7 +510,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
+                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
                     if MultiZipFlag == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     elif MultiZipFlag == True:
@@ -555,7 +555,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if str(e).startswith('ERROR:'):
                         return sendMessage(str(e), bot, message)
 
-        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
+        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
 
         if is_gdrive_link(link):
             if not isZip and not extract and not isLeech:
@@ -603,7 +603,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             nextmsg.from_user.id = message.from_user.id
             multi -= 1
             sleep(4)
-            Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
+            Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi,)).start()
     elif mustjoin(idmustjoin) == False:
         buttons = ButtonMaker()
         buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")
@@ -623,6 +623,12 @@ def multizip_telegram(update, context):
 
 def multizip_leech(update, context):
     _mirror(context.bot, update.message,isLeech=True,MultiZipFlag=True)
+
+def audioextract_mirror(update, context):
+    _mirror(context.bot, update.message,Extract_Audio=True)
+
+def audioextract_leech(update, context):
+    _mirror(context.bot, update.message,isLeech=True,Extract_Audio=True)
 
 def unzip_mirror(update, context):
     _mirror(context.bot, update.message, extract=True)
@@ -665,6 +671,10 @@ multizip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, 
                                 run_async=True)
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
                                 run_async=True)
+audioextract_leech_handler = CommandHandler(BotCommands.AudioExtractLeechCommand, audioextract_leech,
+                                run_async=True)
+audioextract_mirror_handler = CommandHandler(BotCommands.AudioExtractMirrorCommand, audioextract_mirror,
+                                run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
                                 run_async=True)
 zip_mirror_handler = CommandHandler(BotCommands.ZipMirrorCommand, zip_mirror,
@@ -691,6 +701,8 @@ qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leec
 dispatcher.add_handler(multizip_mirror_handler)
 dispatcher.add_handler(multizip_telegram_handler)
 dispatcher.add_handler(multizip_leech_handler)
+dispatcher.add_handler(audioextract_mirror_handler)
+dispatcher.add_handler(audioextract_leech_handler)
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)
 dispatcher.add_handler(zip_mirror_handler)

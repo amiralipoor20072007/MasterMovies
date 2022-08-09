@@ -7,6 +7,8 @@ class _BotCommands:
         self.MirrorCommand = f'mirror{CMD_INDEX}'
         self.MultiZipMirrorCommand = f'multizip_mirror{CMD_INDEX}'
         self.MultiZipTelegramCommand = f'multizip_telegram{CMD_INDEX}'
+        self.AudioExtractMirrorCommand = f'audioextract_mirror{CMD_INDEX}'
+        self.AudioExtractLeechCommand = f'audioextract_leech{CMD_INDEX}'
         self.UnzipMirrorCommand = f'unzipmirror{CMD_INDEX}'
         self.ZipMirrorCommand = f'zipmirror{CMD_INDEX}'
         self.CancelMirror = f'cancel{CMD_INDEX}'
