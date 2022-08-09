@@ -123,7 +123,7 @@ class MirrorListener:
                         download_dict[self.uid] = ExtractAudio_Status(name, m_path, size)
                     path = ospath.splitext(Video_path)[0]+'-Audio.m4a'
                     LOGGER.info(f'Extracting Audio: Video_path: {m_path}, Audio_path: {path}')
-                    srun(["ffmpeg","-hide_banner","-i",f"{Video_path}","-vn","-c:a","copy",f"{path}"])
+                    srun(["ffmpeg","-hide_banner","-i",f"{m_path}","-vn","-c:a","copy",f"{path}"])
                 except FileNotFoundError:
                     LOGGER.info('File to archive not found!')
                     self.onUploadError('Internal error occurred!!')
