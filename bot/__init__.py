@@ -160,16 +160,21 @@ except:
     log_error("One or more env variables missing! Exiting now")
     exit(1)
 
-LOGGER.info("Generating BOT_SESSION_STRING")
-app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
-
 try:
+    IS_PREMIUM_USER = False
     USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
     if len(USER_SESSION_STRING) == 0:
         raise KeyError
-    rss_session = Client(name='rss_session', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
+    log_info("Creating client from USER_SESSION_STRING")
+    app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
+    with app:
+        IS_PREMIUM_USER = app.me.is_premium
 except:
-    rss_session = None
+    log_info("Creating client from BOT_TOKEN")
+    app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
+MAX_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
+
+rss_session = None
 
 def aria2c_init():
     try:

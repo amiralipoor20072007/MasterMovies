@@ -11,7 +11,7 @@ from math import ceil
 from re import split as re_split, I
 
 from .exceptions import NotSupportedExtractionArchive
-from bot import aria2, app, LOGGER, DOWNLOAD_DIR, get_client, TG_SPLIT_SIZE, EQUAL_SPLITS
+from bot import aria2, app, LOGGER, DOWNLOAD_DIR, get_client, TG_SPLIT_SIZE, EQUAL_SPLITS,MAX_SPLIT_SIZE
 
 VIDEO_SUFFIXES = ("M4V", "MP4", "MOV", "FLV", "WMV", "3GP", "MPG", "WEBM", "MKV", "AVI")
 
@@ -138,7 +138,7 @@ def take_ss(video_file):
     return des_dir
 
 def split_file(path, size, file_, dirpath, split_size, start_time=0, i=1, inLoop=False):
-    parts = ceil(size/TG_SPLIT_SIZE)
+    parts = ceil(size/MAX_SPLIT_SIZE)
     if EQUAL_SPLITS and not inLoop:
         split_size = ceil(size/parts) + 1000
     if file_.upper().endswith(VIDEO_SUFFIXES):
@@ -150,8 +150,8 @@ def split_file(path, size, file_, dirpath, split_size, start_time=0, i=1, inLoop
             srun(["new-api", "-hide_banner", "-loglevel", "error", "-ss", str(start_time),
                   "-i", path, "-fs", str(split_size), "-map", "0", "-map_chapters", "-1", "-c", "copy", out_path])
             out_size = get_path_size(out_path)
-            if out_size > 2097152000:
-                dif = out_size - 2097152000
+            if out_size > MAX_SPLIT_SIZE:
+                dif = out_size - MAX_SPLIT_SIZE
                 split_size = split_size - dif + 5000000
                 osremove(out_path)
                 return split_file(path, size, file_, dirpath, split_size, start_time, i, True)

@@ -14,7 +14,7 @@ import random
 import string
 
 from bot import Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
-                download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app
+                download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app,MAX_SPLIT_SIZE
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha,VIDEO_SUFFIXES
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
@@ -202,13 +202,13 @@ class MirrorListener:
                 for file_ in files:
                     f_path = ospath.join(dirpath, file_)
                     f_size = ospath.getsize(f_path)
-                    if int(f_size) > TG_SPLIT_SIZE:
+                    if int(f_size) > MAX_SPLIT_SIZE:
                         if not checked:
                             checked = True
                             with download_dict_lock:
                                 download_dict[self.uid] = SplitStatus(up_name, up_path, size)
                             LOGGER.info(f"Splitting: {up_name}")
-                        split_file(f_path, f_size, file_, dirpath, TG_SPLIT_SIZE)
+                        split_file(f_path, f_size, file_, dirpath, MAX_SPLIT_SIZE)
                         osremove(f_path)
         if self.isLeech:
             size = get_path_size(f'{DOWNLOAD_DIR}{self.uid}')
