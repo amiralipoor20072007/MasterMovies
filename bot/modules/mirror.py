@@ -111,7 +111,7 @@ class MirrorListener:
                 return
         elif self.Extract_Audio:
             Video_Name = PurePath(m_path).name
-            Video_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+            Video_path = f'{DOWNLOAD_DIR}{self.uid}/{Video_Name}'
             if ospath.isfile(Video_path) and Video_Name.endswith(VIDEO_SUFFIXES):
                 try:
                     with download_dict_lock:
