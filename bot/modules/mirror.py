@@ -16,7 +16,7 @@ import string
 from bot import Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
-from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha
+from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha,VIDEO_SUFFIXES
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download,Multi_Zip_Function
 from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
@@ -26,6 +26,7 @@ from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_
 from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper,MultiZip_Telegram
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
 from bot.helper.mirror_utils.status_utils.zip_status import ZipStatus
+from bot.helper.mirror_utils.status_utils.extract_audio_status import ExtractAudio_Status
 from bot.helper.mirror_utils.status_utils.split_status import SplitStatus
 from bot.helper.mirror_utils.status_utils.upload_status import UploadStatus
 from bot.helper.mirror_utils.status_utils.tg_upload_status import TgUploadStatus
@@ -39,7 +40,7 @@ from bot.helper.ext_utils.db_handler import DbManger
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZipFlag=False,MultiZip=[[],0]):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -51,6 +52,7 @@ class MirrorListener:
         self.tag = tag
         self.MultiZip = MultiZip
         self.MultiZipFlag = MultiZipFlag
+        self.Extract_Audio = Extract_Audio
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
 
@@ -106,6 +108,24 @@ class MirrorListener:
             except FileNotFoundError:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
+                return
+        elif self.Extract_Audio:
+            Video_Name = PurePath(m_path).name
+            Video_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+            if ospath.isfile(Video_path) and Video_Name.endswith(VIDEO_SUFFIXES):
+                try:
+                    with download_dict_lock:
+                        download_dict[self.uid] = ExtractAudio_Status(name, m_path, size)
+                    path = ospath.splitext(Video_path)[0]+'-Audio.m4a'
+                    LOGGER.info(f'Extracting Audio: Video_path: {m_path}, Audio_path: {path}')
+                    srun(["ffmpeg","-hide_banner","-i",f"{Video_path}","-vn","-c:a","copy",f"{path}"])
+                except FileNotFoundError:
+                    LOGGER.info('File to archive not found!')
+                    self.onUploadError('Internal error occurred!!')
+                    return
+            else:
+                msg = "You're Requested For Extract Audio But The File Isn't A Video"
+                sendMessage(msg, self.bot, self.message)
                 return
         elif self.isZip:
             try:
@@ -490,7 +510,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
+                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
                     if MultiZipFlag == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     elif MultiZipFlag == True:
@@ -535,7 +555,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if str(e).startswith('ERROR:'):
                         return sendMessage(str(e), bot, message)
 
-        listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd,MultiZipFlag,MultiZip)
+        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip)
 
         if is_gdrive_link(link):
             if not isZip and not extract and not isLeech:

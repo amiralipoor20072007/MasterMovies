@@ -28,6 +28,7 @@ class MirrorStatus:
     STATUS_FAILED = "Failed 🚫. Cleaning Download..."
     STATUS_PAUSE = "Paused...⛔️"
     STATUS_ARCHIVING = "Archiving...🔐"
+    STATUS_EXTRACTING_AUDIO = "Extracting Audio...🔉"
     STATUS_EXTRACTING = "Extracting...📂"
     STATUS_SPLITTING = "Splitting...✂️"
     STATUS_CHECKING = "CheckingUp...📝"
@@ -73,6 +74,7 @@ def getDownloadByGid(gid):
                 status
                 not in [
                     MirrorStatus.STATUS_ARCHIVING,
+                    MirrorStatus.STATUS_EXTRACTING_AUDIO, 
                     MirrorStatus.STATUS_EXTRACTING,
                     MirrorStatus.STATUS_SPLITTING,
                 ]
@@ -85,7 +87,7 @@ def getAllDownload(req_status: str):
     with download_dict_lock:
         for dl in list(download_dict.values()):
             status = dl.status()
-            if status not in [MirrorStatus.STATUS_ARCHIVING, MirrorStatus.STATUS_EXTRACTING, MirrorStatus.STATUS_SPLITTING] and dl:
+            if status not in [MirrorStatus.STATUS_ARCHIVING,MirrorStatus.STATUS_EXTRACTING_AUDIO,MirrorStatus.STATUS_EXTRACTING, MirrorStatus.STATUS_SPLITTING] and dl:
                 if req_status == 'down' and (status not in [MirrorStatus.STATUS_SEEDING,
                                                             MirrorStatus.STATUS_UPLOADING,
                                                             MirrorStatus.STATUS_CLONING]):
@@ -127,6 +129,7 @@ def get_readable_message():
             if download.status() not in [
                 MirrorStatus.STATUS_ARCHIVING,
                 MirrorStatus.STATUS_EXTRACTING,
+                MirrorStatus.STATUS_EXTRACTING_AUDIO,
                 MirrorStatus.STATUS_SPLITTING,
                 MirrorStatus.STATUS_SEEDING,
             ]:

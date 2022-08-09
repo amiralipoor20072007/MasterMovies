@@ -39,6 +39,8 @@ def cancel_mirror(update, context):
         sendMessage("Extract in Progress, You Can't Cancel It.", context.bot, update.message)
     elif dl.status() == MirrorStatus.STATUS_SPLITTING:
         sendMessage("Split in Progress, You Can't Cancel It.", context.bot, update.message)
+    elif dl.status() == MirrorStatus.STATUS_EXTRACTING_AUDIO:
+        sendMessage("Extracting Audio in Progress, You Can't Cancel It.", context.bot, update.message)
     else:
         dl.download().cancel_download()
 
