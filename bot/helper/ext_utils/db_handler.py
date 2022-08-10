@@ -56,6 +56,7 @@ class DbManger:
         rows = self.cur.fetchall()  # return a list ==> (uid, sudo, auth, media, doc, thumb,randomname,autodeletexi,hashuser)
         if rows:
             for row in rows:
+                LOGGER.info(f'{row}')
                 if row[1] and row[0] not in SUDO_USERS:
                     SUDO_USERS.add(row[0])
                 elif row[2] and row[0] not in AUTHORIZED_CHATS:
