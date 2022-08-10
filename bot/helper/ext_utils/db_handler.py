@@ -29,9 +29,9 @@ class DbManger:
                  auth boolean DEFAULT FALSE,
                  media boolean DEFAULT FALSE,
                  doc boolean DEFAULT FALSE,
-                 thumb bytea DEFAULT NULL
-                 randomname boolean DEFAULT FALSE
-                 autodeletexi boolean DEFAULT FALSE
+                 thumb bytea DEFAULT NULL,
+                 randomname boolean DEFAULT FALSE,
+                 autodeletexi boolean DEFAULT FALSE,
                  hashuser boolean DEFAULT FALSE
               )
               """
