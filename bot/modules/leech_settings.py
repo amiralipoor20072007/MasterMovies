@@ -116,31 +116,37 @@ def setLeechType(update, context):
         if DB_URI is not None:
             DbManger().user_active_random(user_id)
         query.answer(text="Random Name Acticated!", show_alert=True)
+        editLeechType(message, query)
     elif data[2] == "rnd":
         RandomName_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_deactive_random(user_id)
         query.answer(text="Random Name Deactivated!", show_alert=True)
+        editLeechType(message, query)
     elif data[2] == "ada":
         AutoDelete_USERS.add(user_id)
         if DB_URI is not None:
             DbManger().user_active_delete(user_id)
         query.answer(text="Auto Delete Acticated!", show_alert=True)
+        editLeechType(message, query)
     elif data[2] == "add":
         RandomName_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_deactive_delete(user_id)
         query.answer(text="Auto Delete Deactivated!", show_alert=True)
+        editLeechType(message, query)
     elif data[2] == "ha":
         Hash_USERS.add(user_id)
         if DB_URI is not None:
             DbManger().user_hash(user_id)
         query.answer(text="Hash Acticated!", show_alert=True)
+        editLeechType(message, query)
     elif data[2] == "hd":
         Hash_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_unhash(user_id)
         query.answer(text="Hash Deactivated!", show_alert=True)
+        editLeechType(message, query)
     else:
         query.answer()
         try:
