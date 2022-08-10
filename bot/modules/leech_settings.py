@@ -130,7 +130,7 @@ def setLeechType(update, context):
         query.answer(text="Auto Delete Acticated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "add":
-        RandomName_USERS.remove(user_id)
+        AutoDelete_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_deactive_delete(user_id)
         query.answer(text="Auto Delete Deactivated!", show_alert=True)
