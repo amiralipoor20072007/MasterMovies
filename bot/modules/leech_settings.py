@@ -4,7 +4,7 @@ from PIL import Image
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import AS_DOC_USERS, AS_MEDIA_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
+from bot import AS_DOC_USERS, AS_MEDIA_USERS, AutoDelete_USERS,RandomName_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -27,13 +27,27 @@ def getleechinfo(from_user):
     else:
         ltype = "MEDIA"
         buttons.sbutton("Send As Document", f"leechset {user_id} doc")
-
+    
+    if user_id in RandomName_USERS:
+        Random = 'Active 🟢'
+        buttons.sbutton('Random Name Deactive 🔴', f"leechset {user_id} rnd")
+    else:
+        Random = 'Deactive 🔴'
+        buttons.sbutton('Random Name Active 🟢', f"leechset {user_id} rna")
+    
+    if user_id in AutoDelete_USERS:
+        Autodelete = 'Active 🟢'
+        buttons.sbutton('Auto Delete Deactive 🔴', f"leechset {user_id} add")
+    else:
+        Autodelete = 'Deactive 🔴'
+        buttons.sbutton('Auto Delete Active 🟢', f"leechset {user_id} ada")
+    
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
         buttons.sbutton("Delete Thumbnail", f"leechset {user_id} thumb")
     else:
         thumbmsg = "Not Exists"
-
+    
     if AUTO_DELETE_MESSAGE_DURATION == -1:
         buttons.sbutton("Close", f"leechset {user_id} close")
 
@@ -41,6 +55,8 @@ def getleechinfo(from_user):
 
     text = f"<u>Leech Settings for <a href='tg://user?id={user_id}'>{name}</a></u>\n"\
            f"Leech Type <b>{ltype}</b>\n"\
+           f"<b>Random Name: </b>{Random}\n"\
+           f"<b>Auto Delete: </b>{Autodelete}\n"\
            f"Custom Thumbnail <b>{thumbmsg}</b>"
     return text, button
 
@@ -87,6 +103,26 @@ def setLeechType(update, context):
             editLeechType(message, query)
         else:
             query.answer(text="Old Settings", show_alert=True)
+    elif data[2] == "rna":
+        RandomName_USERS.add(user_id)
+        if DB_URI is not None:
+            DbManger().user_active_random(user_id)
+        query.answer(text="Random Name Acticated!", show_alert=True)
+    elif data[2] == "rnd":
+        RandomName_USERS.remove(user_id)
+        if DB_URI is not None:
+            DbManger().user_deactive_random(user_id)
+        query.answer(text="Random Name Deactivated!", show_alert=True)
+    elif data[2] == "ada":
+        AutoDelete_USERS.add(user_id)
+        if DB_URI is not None:
+            DbManger().user_active_delete(user_id)
+        query.answer(text="Auto Delete Acticated!", show_alert=True)
+    elif data[2] == "add":
+        RandomName_USERS.remove(user_id)
+        if DB_URI is not None:
+            DbManger().user_deactive_delete(user_id)
+        query.answer(text="Auto Delete Deactivated!", show_alert=True)
     else:
         query.answer()
         try:

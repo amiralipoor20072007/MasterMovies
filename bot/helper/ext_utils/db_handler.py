@@ -1,7 +1,7 @@
 from os import path as ospath, makedirs
 from psycopg2 import connect, DatabaseError
 
-from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, rss_dict, LOGGER, botname
+from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS,RandomName_USERS,AutoDelete_USERS, rss_dict, LOGGER, botname
 
 class DbManger:
     def __init__(self):
@@ -30,6 +30,8 @@ class DbManger:
                  media boolean DEFAULT FALSE,
                  doc boolean DEFAULT FALSE,
                  thumb bytea DEFAULT NULL
+                 randomname boolean DEFAULT FALSE
+                 autodeletexi boolean DEFAULT FALSE
               )
               """
         self.cur.execute(sql)
@@ -50,7 +52,7 @@ class DbManger:
     def db_load(self):
         # User Data
         self.cur.execute("SELECT * from users")
-        rows = self.cur.fetchall()  # return a list ==> (uid, sudo, auth, media, doc, thumb)
+        rows = self.cur.fetchall()  # return a list ==> (uid, sudo, auth, media, doc, thumb,randomname,autodeletexi)
         if rows:
             for row in rows:
                 if row[1] and row[0] not in SUDO_USERS:
@@ -61,6 +63,10 @@ class DbManger:
                     AS_MEDIA_USERS.add(row[0])
                 elif row[4]:
                     AS_DOC_USERS.add(row[0])
+                if row[6] and row[0] not in RandomName_USERS:
+                    RandomName_USERS.add(row[0])
+                if row[7] and row[0] not in AutoDelete_USERS:
+                    AutoDelete_USERS.add(row[0])
                 path = f"Thumbnails/{row[0]}.jpg"
                 if row[5] is not None and not ospath.exists(path):
                     if not ospath.exists('Thumbnails'):
@@ -145,6 +151,50 @@ class DbManger:
             sql = 'INSERT INTO users (uid, doc) VALUES ({}, TRUE)'.format(user_id)
         else:
             sql = 'UPDATE users SET media = FALSE, doc = TRUE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
+    def user_active_random(self, user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, randomname) VALUES ({}, TRUE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET randomname = TRUE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
+    def user_deactive_random(self, user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, randomname) VALUES ({}, FALSE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET randomname = FALSE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
+    def user_active_delete(self, user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, autodeletexi) VALUES ({}, TRUE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET autodeletexi = TRUE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
+    def user_deactive_delete(self, user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, autodeletexi) VALUES ({}, FALSE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET autodeletexi = FALSE WHERE uid = {}'.format(user_id)
         self.cur.execute(sql)
         self.conn.commit()
         self.disconnect()

@@ -13,7 +13,7 @@ from telegram import InlineKeyboardMarkup
 import random
 import string
 
-from bot import Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
+from bot import AutoDelete_USERS, Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app,MAX_SPLIT_SIZE
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha,VIDEO_SUFFIXES
@@ -245,22 +245,21 @@ class MirrorListener:
             for i in PORNfilter:
                 if i in up_name.lower():
                     FlagPORN=True
-            if FlagPORN == True:
+            if FlagPORN == True or self.message.from_user.id in AutoDelete_USERS:
                 for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
                     for subdir_ in subdir:
                         rename(ospath.join(dirpath,subdir_),ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.',''))))
                     for file_ in files:
                         f_path = ospath.join(dirpath, file_)
                         fxi , fnamexi = ospath.splitext(f_path)
-                        fname_len = -(len(fnamexi))
-                        rename(f_path,ospath.join(dirpath, '.'.join(file_[:fname_len].replace(' ','').replace('.',''))+file_[fname_len:]))
+                        random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase+string.digits,k=random.randint(8,16)))+fnamexi
+                        rename(f_path,ospath.join(dirpath,random_name))
                 if isfilexi == True:
                     LOGGER.info(f"Torrent/Download is : File[Porn] , {up_path}")
                     up_name = PurePath(path).name
                     up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
                     fxi , fnamexi = ospath.splitext(up_path)
-                    fname_len = -(len(fnamexi))
-                    up_name = '.'.join(up_name[:fname_len].replace(' ','').replace('.',''))+up_name[fname_len:]
+                    up_name = random_name
                     up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
                 else:
                     LOGGER.info(f"Torrent/Download is : Folder[Porn] , {up_path}")
@@ -432,6 +431,11 @@ def mustjoin(idmustjoin):
                     return True
     return False
 
+def message_deleter(user_id: int,message):
+    if user_id in AutoDelete_USERS:
+        sleep(2)
+        message.delete()
+
 def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
@@ -523,6 +527,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                         multi -= 1
                         sleep(4)
                         Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
+                        message_deleter(idmustjoin,message)
                     return
                 else:
                     link = file.get_file().file_path
@@ -564,13 +569,16 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 sendMessage(gmsg, bot, message)
             else:
                 Thread(target=add_gd_download, args=(link, listener)).start()
+                message_deleter(idmustjoin,message)
         elif is_mega_link(link):
             if MEGA_KEY is not None:
                 Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
+                message_deleter(idmustjoin,message)
             else:
                 sendMessage('MEGA_API_KEY not Provided!', bot, message)
         elif isQbit:
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
+            message_deleter(idmustjoin,message)
         else:
             if MultiZipFlag == False:
                 if len(mesg) > 1:
@@ -587,6 +595,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     auth = ''
                 Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
+                message_deleter(idmustjoin,message)
             elif MultiZipFlag == True:
                 MultiZip[0].append(link)
                 Thread(target=Multi_Zip_Function, args=(MultiZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
@@ -603,6 +612,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             multi -= 1
             sleep(4)
             Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi,)).start()
+            message_deleter(idmustjoin,message)
     elif mustjoin(idmustjoin) == False:
         buttons = ButtonMaker()
         buttons.buildbutton("Channel", "https://t.me/MX_TR_Official")

@@ -117,6 +117,8 @@ rss_dict = {}
 AUTHORIZED_CHATS = set()
 SUDO_USERS = set()
 AS_DOC_USERS = set()
+RandomName_USERS = set()
+AutoDelete_USERS = set()
 AS_MEDIA_USERS = set()
 EXTENSION_FILTER = set()
 
