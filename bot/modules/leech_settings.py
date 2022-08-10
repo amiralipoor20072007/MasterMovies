@@ -4,7 +4,7 @@ from PIL import Image
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import AS_DOC_USERS, AS_MEDIA_USERS, AutoDelete_USERS,RandomName_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
+from bot import AS_DOC_USERS, AS_MEDIA_USERS, AutoDelete_USERS, Hash_USERS,RandomName_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -42,6 +42,13 @@ def getleechinfo(from_user):
         Autodelete = 'Deactive 🔴'
         buttons.sbutton('Auto Delete Active 🟢', f"leechset {user_id} ada")
     
+    if user_id in Hash_USERS:
+        Hash = 'Active 🟢'
+        buttons.sbutton('Hash Deactive 🔴', f"leechset {user_id} hd")
+    else:
+        Hash = 'Deactive 🔴'
+        buttons.sbutton('Hash Active 🟢', f"leechset {user_id} ha")
+
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
         buttons.sbutton("Delete Thumbnail", f"leechset {user_id} thumb")
@@ -57,6 +64,7 @@ def getleechinfo(from_user):
            f"Leech Type <b>{ltype}</b>\n"\
            f"<b>Random Name: </b>{Random}\n"\
            f"<b>Auto Delete: </b>{Autodelete}\n"\
+           f"<b>Send Hash File: </b>{Hash}\n"\
            f"Custom Thumbnail <b>{thumbmsg}</b>"
     return text, button
 
@@ -123,6 +131,16 @@ def setLeechType(update, context):
         if DB_URI is not None:
             DbManger().user_deactive_delete(user_id)
         query.answer(text="Auto Delete Deactivated!", show_alert=True)
+    elif data[2] == "ha":
+        Hash_USERS.add(user_id)
+        if DB_URI is not None:
+            DbManger().user_hash(user_id)
+        query.answer(text="Hash Acticated!", show_alert=True)
+    elif data[2] == "hd":
+        Hash_USERS.remove(user_id)
+        if DB_URI is not None:
+            DbManger().user_unhash(user_id)
+        query.answer(text="Hash Deactivated!", show_alert=True)
     else:
         query.answer()
         try:
