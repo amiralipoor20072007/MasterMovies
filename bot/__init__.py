@@ -170,13 +170,12 @@ try:
     if len(USER_SESSION_STRING) == 0:
         raise KeyError
     log_info("Creating client from USER_SESSION_STRING")
-    Premuim_app = Client(name='pyrogram', api_id=int(PREMUIM_TELEGRAM_API), api_hash=PREMUIM_TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
+    Premuim_app = Client(name='mxssdgram', api_id=int(PREMUIM_TELEGRAM_API), api_hash=PREMUIM_TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
     with Premuim_app:
         IS_PREMIUM_USER = Premuim_app.me.is_premium
     log_info("Creating client from BOT_TOKEN")
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 except:
-    Premuim_app = None
     log_info("Creating client from BOT_TOKEN")
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 MAX_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
