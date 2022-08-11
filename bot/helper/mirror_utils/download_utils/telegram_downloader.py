@@ -7,9 +7,9 @@ from ..status_utils.telegram_download_status import TelegramDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendMarkup, sendMessage, sendStatusMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 if Premuim_app == None:
-    Tapp = Premuim_app
-else:
     Tapp = app
+else:
+    Tapp = Premuim_app
 global_lock = Lock()
 GLOBAL_GID = set()
 getLogger("pyrogram").setLevel(WARNING)

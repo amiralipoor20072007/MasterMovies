@@ -9,9 +9,9 @@ from bot import DOWNLOAD_DIR, AS_DOCUMENT, AS_DOC_USERS, AS_MEDIA_USERS, CUSTOM_
 from bot.helper.ext_utils.fs_utils import take_ss, get_media_info, get_path_size
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
 if Premuim_app == None:
-    Tapp = Premuim_app
-else:
     Tapp = app
+else:
+    Tapp = Premuim_app
 LOGGER = getLogger(__name__)
 getLogger("pyrogram").setLevel(WARNING)
 
