@@ -265,7 +265,8 @@ def main():
     signal(SIGINT, exit_clean_up)
 
 app.start()
-Premuim_app.start()
+if Premuim_app != None:
+    Premuim_app.start()
 main()
 
 main_loop.run_forever()

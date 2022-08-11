@@ -39,7 +39,8 @@ def clean_all():
     aria2.remove_all(True)
     get_client().torrents_delete(torrent_hashes="all")
     app.stop()
-    Premuim_app.stop()
+    if Premuim_app != None:
+        Premuim_app.stop()
     try:
         rmtree(DOWNLOAD_DIR)
     except:
