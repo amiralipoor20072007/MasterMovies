@@ -164,7 +164,6 @@ try:
 except:
     log_error("One or more env variables missing! Exiting now")
     exit(1)
-Premuim_app = None
 try:
     IS_PREMIUM_USER = False
     USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
@@ -177,6 +176,7 @@ try:
     log_info("Creating client from BOT_TOKEN")
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 except:
+    Premuim_app = None
     log_info("Creating client from BOT_TOKEN")
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 MAX_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
