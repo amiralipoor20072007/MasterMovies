@@ -166,8 +166,8 @@ except:
     exit(1)
 try:
     IS_PREMIUM_USER = False
-    USER_STRING_SESSION  = getConfig('USER_STRING_SESSION ')
-    if len(USER_STRING_SESSION ) == 0:
+    USER_STRING_SESSION  = getConfig('USER_STRING_SESSION')
+    if len(USER_STRING_SESSION) == 0:
         raise KeyError
     log_info("Creating client from USER_STRING_SESSION ")
     Premuim_app = Client(name='mxssdgram', api_id=int(PREMUIM_TELEGRAM_API), api_hash=PREMUIM_TELEGRAM_HASH, session_string=USER_STRING_SESSION , parse_mode=enums.ParseMode.HTML, no_updates=True)
