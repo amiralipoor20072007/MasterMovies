@@ -159,19 +159,23 @@ try:
     AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
     TELEGRAM_API = getConfig('TELEGRAM_API')
     TELEGRAM_HASH = getConfig('TELEGRAM_HASH')
+    PREMUIM_TELEGRAM_API = getConfig('PREMUIM_TELEGRAM_API')
+    PREMUIM_TELEGRAM_HASH = getConfig('PREMUIM_TELEGRAM_HASH')
 except:
     log_error("One or more env variables missing! Exiting now")
     exit(1)
-
+Premuim_app = None
 try:
     IS_PREMIUM_USER = False
     USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
     if len(USER_SESSION_STRING) == 0:
         raise KeyError
     log_info("Creating client from USER_SESSION_STRING")
-    app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
-    with app:
-        IS_PREMIUM_USER = app.me.is_premium
+    Premuim_app = Client(name='pyrogram', api_id=int(PREMUIM_TELEGRAM_API), api_hash=PREMUIM_TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
+    with Premuim_app:
+        IS_PREMIUM_USER = Premuim_app.me.is_premium
+    log_info("Creating client from BOT_TOKEN")
+    app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 except:
     log_info("Creating client from BOT_TOKEN")
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)

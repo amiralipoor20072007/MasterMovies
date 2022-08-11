@@ -5,10 +5,13 @@ from pyrogram.errors import FloodWait, RPCError
 from PIL import Image
 from threading import RLock
 
-from bot import DOWNLOAD_DIR, AS_DOCUMENT, AS_DOC_USERS, AS_MEDIA_USERS, CUSTOM_FILENAME, EXTENSION_FILTER, app
+from bot import DOWNLOAD_DIR, AS_DOCUMENT, AS_DOC_USERS, AS_MEDIA_USERS, CUSTOM_FILENAME, EXTENSION_FILTER, app,Premuim_app
 from bot.helper.ext_utils.fs_utils import take_ss, get_media_info, get_path_size
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
-
+if Premuim_app == None:
+    Tapp = Premuim_app
+else:
+    Tapp = app
 LOGGER = getLogger(__name__)
 getLogger("pyrogram").setLevel(WARNING)
 
@@ -33,7 +36,7 @@ class TgUploader:
         self.__corrupted = 0
         self.__resource_lock = RLock()
         self.__is_corrupted = False
-        self.__sent_msg = app.get_messages(self.__listener.message.chat.id, self.__listener.uid)
+        self.__sent_msg = Tapp.get_messages(self.__listener.message.chat.id, self.__listener.uid)
         self.__user_settings()
 
     def upload(self):
@@ -154,7 +157,7 @@ class TgUploader:
 
     def __upload_progress(self, current, total):
         if self.__is_cancelled:
-            app.stop_transmission()
+            Tapp.stop_transmission()
             return
         with self.__resource_lock:
             chunk_size = current - self._last_uploaded

@@ -2,11 +2,14 @@ from logging import getLogger, WARNING
 from time import sleep, time
 from threading import RLock, Lock
 
-from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, app
+from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, app,Premuim_app
 from ..status_utils.telegram_download_status import TelegramDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendMarkup, sendMessage, sendStatusMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-
+if Premuim_app == None:
+    Tapp = Premuim_app
+else:
+    Tapp = app
 global_lock = Lock()
 GLOBAL_GID = set()
 getLogger("pyrogram").setLevel(WARNING)
@@ -46,7 +49,7 @@ class TelegramDownloadHelper:
 
     def __onDownloadProgress(self, current, total):
         if self.__is_cancelled:
-            app.stop_transmission()
+            Tapp.stop_transmission()
             return
         with self.__resource_lock:
             self.downloaded_bytes = current
@@ -90,7 +93,7 @@ class TelegramDownloadHelper:
         if self.MultiZipTelegram is not None:
             self.__is_cancelled = False
             self.__start_time = time()
-            _dmsg = app.get_messages(message.chat.id, message_ids=MultiZip_Id)
+            _dmsg = Tapp.get_messages(message.chat.id, message_ids=MultiZip_Id)
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
             for i in media_array:
@@ -117,7 +120,7 @@ class TelegramDownloadHelper:
             else:
                 self.__onDownloadError('No document in the replied message')
         else:
-            _dmsg = app.get_messages(message.chat.id, reply_to_message_ids=message.message_id)
+            _dmsg = Tapp.get_messages(message.chat.id, reply_to_message_ids=message.message_id)
             media = None
             media_array = [_dmsg.document, _dmsg.video, _dmsg.audio]
             for i in media_array:

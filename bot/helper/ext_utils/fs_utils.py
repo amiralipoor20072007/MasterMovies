@@ -11,8 +11,7 @@ from math import ceil
 from re import split as re_split, I
 
 from .exceptions import NotSupportedExtractionArchive
-from bot import aria2, app, LOGGER, DOWNLOAD_DIR, get_client, TG_SPLIT_SIZE, EQUAL_SPLITS,MAX_SPLIT_SIZE
-
+from bot import aria2, app,Premuim_app, LOGGER, DOWNLOAD_DIR, get_client, TG_SPLIT_SIZE, EQUAL_SPLITS,MAX_SPLIT_SIZE
 VIDEO_SUFFIXES = ("M4V", "MP4", "MOV", "FLV", "WMV", "3GP", "MPG", "WEBM", "MKV", "AVI")
 
 ARCH_EXT = [".tar.bz2", ".tar.gz", ".bz2", ".gz", ".tar.xz", ".tar", ".tbz2", ".tgz", ".lzma2",
@@ -40,6 +39,7 @@ def clean_all():
     aria2.remove_all(True)
     get_client().torrents_delete(torrent_hashes="all")
     app.stop()
+    Premuim_app.stop()
     try:
         rmtree(DOWNLOAD_DIR)
     except:
