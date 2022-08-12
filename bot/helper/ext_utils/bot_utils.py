@@ -8,7 +8,7 @@ from requests import head as rhead
 from urllib.request import urlopen
 from telegram import InlineKeyboardMarkup
 
-from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR
+from bot import LOGGER, download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
@@ -132,13 +132,19 @@ def get_readable_message():
                 MirrorStatus.STATUS_SPLITTING,
                 MirrorStatus.STATUS_SEEDING,
             ]:
-                msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
+                try:
+                    msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
+                except Exception as err:
+                    LOGGER.info(f'{err}')
                 if download.status() == MirrorStatus.STATUS_CLONING:
                     msg += f"\n<b>Cloned:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 elif download.status() == MirrorStatus.STATUS_UPLOADING:
                     msg += f"\n<b>Uploaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 elif download.status() == MirrorStatus.STATUS_ARCHIVING:
-                    msg += f"\n<b>Archived:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                    try:
+                        msg += f"\n<b>Archived:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                    except Exception as err:
+                        LOGGER.info(f'{err}')
                 else:
                     msg += f"\n<b>Downloaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 msg += f"\n<b>Speed:</b> {download.speed()} | <b>ETA:</b> {download.eta()}"
