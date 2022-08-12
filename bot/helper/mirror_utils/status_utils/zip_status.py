@@ -5,7 +5,7 @@ from time import time
 from threading import RLock
 from os import path as ospath
 class ZipStatus:
-    def __init__(self, name,m_path, path, size):
+    def __init__(self, name,m_path, path):
         self.__name = name
         self.__path = path
         self.__mpath = m_path
@@ -15,12 +15,10 @@ class ZipStatus:
 
     def progress(self):
         x = round(self.progress_raw(), 2)
-        LOGGER.info(f'{x}')
         return f'{x}%'
 
     def speed(self):
         x = get_readable_file_size(self.speed_raw())
-        LOGGER.info(f'{x}')
         return f'{x}/s'
 
     def name(self):
@@ -34,14 +32,12 @@ class ZipStatus:
 
     def size(self):
         x = get_readable_file_size(self.__size)
-        LOGGER.info(f'{x}')
         return x
 
     def eta(self):
         try:
             seconds = (self.__size - self.uploaded_bytes()) / self.speed_raw()
             x = get_readable_time(seconds)
-            LOGGER.info(f'{x}')
             return f'{x}'
         except ZeroDivisionError:
             return '-'
@@ -57,7 +53,6 @@ class ZipStatus:
 
     def processed_bytes(self):
         x = self.uploaded_bytes()
-        LOGGER.info(f'{x}')
         return x
 
     def uploaded_bytes(self):
