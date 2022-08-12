@@ -154,7 +154,7 @@ def get_readable_message():
                 except:
                     pass
                 msg += f"\nSource ::: <a href='{download.message.link}'>'{download.message.from_user.first_name}'</a>"
-                if download.status() != MirrorStatus.STATUS_ARCHIVING:
+                if download.status() != MirrorStatus.STATUS_ARCHIVING and download.status() != MirrorStatus.STATUS_EXTRACTING:
                     msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n<b>Size: </b>{download.size()}"
