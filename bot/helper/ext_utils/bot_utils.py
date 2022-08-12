@@ -127,20 +127,19 @@ def get_readable_message():
             msg += f"<b>Name:</b> <code>{escape(str(download.name()))}</code>"
             msg += f"\n<b>Status:</b> <i>{download.status()}</i>"
             if download.status() not in [
-                MirrorStatus.STATUS_EXTRACTING,
                 MirrorStatus.STATUS_EXTRACTING_AUDIO,
                 MirrorStatus.STATUS_SPLITTING,
                 MirrorStatus.STATUS_SEEDING
             ]:
                 msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
-                LOGGER.info(msg + 'XIIIIIIIIIIIIIII')
                 if download.status() == MirrorStatus.STATUS_CLONING:
                     msg += f"\n<b>Cloned:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 elif download.status() == MirrorStatus.STATUS_UPLOADING:
                     msg += f"\n<b>Uploaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 elif download.status() == MirrorStatus.STATUS_ARCHIVING:
-                    LOGGER.info(f'Archive Statud' + 'XIIIIIIIIIIIIIII')
                     msg += f"\n<b>Archived:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                elif download.status() == MirrorStatus.STATUS_EXTRACTING:
+                    msg += f"\n<b>Extracted:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 else:
                     msg += f"\n<b>Downloaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 msg += f"\n<b>Speed:</b> {download.speed()} | <b>ETA:</b> {download.eta()}"

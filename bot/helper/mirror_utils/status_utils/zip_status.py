@@ -1,9 +1,6 @@
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, MirrorStatus, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_path_size
-from bot import LOGGER
 from time import time
-from threading import RLock
-from os import path as ospath
 class ZipStatus:
     def __init__(self, name,m_path, path,listener):
         self.__name = name
