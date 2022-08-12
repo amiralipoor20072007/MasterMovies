@@ -117,13 +117,14 @@ rss_dict = {}
 AUTHORIZED_CHATS = set()
 SUDO_USERS = set()
 AS_DOC_USERS = set()
-RandomName_USERS = set()
-AutoDelete_USERS = set()
-Hash_USERS = set()
+RANDOMNAME_USERS = set()
+AUTODELETE_USERS = set()
+HASH_USERS = set()
 AS_MEDIA_USERS = set()
 EXTENSION_FILTER = set()
-WatchCommandUsed = 0
-
+WATCHCOMMANDUSED = []
+for i in range(20):
+    WATCHCOMMANDUSED.append(i)
 try:
     aid = getConfig('AUTHORIZED_CHATS')
     aid = aid.split()

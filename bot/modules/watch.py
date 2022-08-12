@@ -4,7 +4,7 @@ from telegram import InlineKeyboardMarkup
 from time import sleep
 from re import split as re_split,search as re_search
 
-from bot import DOWNLOAD_DIR, WatchCommandUsed, dispatcher
+from bot import DOWNLOAD_DIR,dispatcher,WATCHCOMMANDUSED
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage
 from bot.helper.telegram_helper import button_build
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_url
@@ -85,8 +85,8 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
     Youtube_link_regex = r'^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$'
     Youtube_link_Limit = re_search(Youtube_link_regex,link)
     if Youtube_link_Limit != None:
-        WatchCommandUsed += 1
-        if WatchCommandUsed <= 20:
+        if len(WATCHCOMMANDUSED) !=0:
+            WATCHCOMMANDUSED.pop()
             listener = MirrorListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
             buttons = button_build.ButtonMaker()
             best_video = "bv*+ba/b"

@@ -1,7 +1,7 @@
 from os import path as ospath, makedirs
 from psycopg2 import connect, DatabaseError
 
-from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, Hash_USERS,RandomName_USERS,AutoDelete_USERS, rss_dict, LOGGER, botname
+from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, HASH_USERS,RANDOMNAME_USERS,AUTODELETE_USERS, rss_dict, LOGGER, botname
 
 class DbManger:
     def __init__(self):
@@ -65,12 +65,12 @@ class DbManger:
                     AS_MEDIA_USERS.add(row[0])
                 elif row[4]:
                     AS_DOC_USERS.add(row[0])
-                if row[6] and row[0] not in RandomName_USERS:
-                    RandomName_USERS.add(row[0])
-                if row[7] and row[0] not in AutoDelete_USERS:
-                    AutoDelete_USERS.add(row[0])
-                if row[8] and row[0] not in Hash_USERS:
-                    Hash_USERS.add(row[0])
+                if row[6] and row[0] not in RANDOMNAME_USERS:
+                    RANDOMNAME_USERS.add(row[0])
+                if row[7] and row[0] not in AUTODELETE_USERS:
+                    AUTODELETE_USERS.add(row[0])
+                if row[8] and row[0] not in HASH_USERS:
+                    HASH_USERS.add(row[0])
                 path = f"Thumbnails/{row[0]}.jpg"
                 if row[5] is not None and not ospath.exists(path):
                     if not ospath.exists('Thumbnails'):

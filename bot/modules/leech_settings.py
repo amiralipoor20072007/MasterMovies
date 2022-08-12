@@ -4,7 +4,7 @@ from PIL import Image
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import AS_DOC_USERS, AS_MEDIA_USERS, AutoDelete_USERS, Hash_USERS,RandomName_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
+from bot import AS_DOC_USERS, AS_MEDIA_USERS, AUTODELETE_USERS, HASH_USERS,RANDOMNAME_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -28,21 +28,21 @@ def getleechinfo(from_user):
         ltype = "MEDIA"
         buttons.sbutton("Send As Document", f"leechset {user_id} doc")
     
-    if user_id in RandomName_USERS:
+    if user_id in RANDOMNAME_USERS:
         Random = 'Active 🟢'
         buttons.sbutton('Random Name Deactive 🔴', f"leechset {user_id} rnd")
     else:
         Random = 'Deactive 🔴'
         buttons.sbutton('Random Name Active 🟢', f"leechset {user_id} rna")
     
-    if user_id in AutoDelete_USERS:
+    if user_id in AUTODELETE_USERS:
         Autodelete = 'Active 🟢'
         buttons.sbutton('Auto Delete Deactive 🔴', f"leechset {user_id} add")
     else:
         Autodelete = 'Deactive 🔴'
         buttons.sbutton('Auto Delete Active 🟢', f"leechset {user_id} ada")
     
-    if user_id in Hash_USERS:
+    if user_id in HASH_USERS:
         Hash = 'Active 🟢'
         buttons.sbutton('Hash Deactive 🔴', f"leechset {user_id} hd")
     else:
@@ -112,37 +112,37 @@ def setLeechType(update, context):
         else:
             query.answer(text="Old Settings", show_alert=True)
     elif data[2] == "rna":
-        RandomName_USERS.add(user_id)
+        RANDOMNAME_USERS.add(user_id)
         if DB_URI is not None:
             DbManger().user_active_random(user_id)
         query.answer(text="Random Name Acticated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "rnd":
-        RandomName_USERS.remove(user_id)
+        RANDOMNAME_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_deactive_random(user_id)
         query.answer(text="Random Name Deactivated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "ada":
-        AutoDelete_USERS.add(user_id)
+        AUTODELETE_USERS.add(user_id)
         if DB_URI is not None:
             DbManger().user_active_delete(user_id)
         query.answer(text="Auto Delete Acticated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "add":
-        AutoDelete_USERS.remove(user_id)
+        AUTODELETE_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_deactive_delete(user_id)
         query.answer(text="Auto Delete Deactivated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "ha":
-        Hash_USERS.add(user_id)
+        HASH_USERS.add(user_id)
         if DB_URI is not None:
             DbManger().user_hash(user_id)
         query.answer(text="Hash Acticated!", show_alert=True)
         editLeechType(message, query)
     elif data[2] == "hd":
-        Hash_USERS.remove(user_id)
+        HASH_USERS.remove(user_id)
         if DB_URI is not None:
             DbManger().user_unhash(user_id)
         query.answer(text="Hash Deactivated!", show_alert=True)
