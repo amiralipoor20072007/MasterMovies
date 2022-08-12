@@ -91,10 +91,10 @@ class MirrorListener:
         if self.MultiZipFlag:
             m_path = f'{DOWNLOAD_DIR}{self.uid}'
             try:
-                with download_dict_lock:
-                    download_dict[self.uid] = ZipStatus(name, m_path, size)
                 random_name = ''.join(random.choices(string.ascii_lowercase+string.ascii_letters+string.ascii_uppercase,k=12))
                 path = f'{m_path}/'+random_name+".zip"
+                with download_dict_lock:
+                    download_dict[self.uid] = ZipStatus(name, m_path,path,size)
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
                 if self.pswd is not None:
                     if self.isLeech and int(size) > TG_SPLIT_SIZE:
@@ -128,9 +128,9 @@ class MirrorListener:
                 return
         elif self.isZip:
             try:
-                with download_dict_lock:
-                    download_dict[self.uid] = ZipStatus(name, m_path, size)
                 path = m_path + ".zip"
+                with download_dict_lock:
+                    download_dict[self.uid] = ZipStatus(name, m_path,path, size)
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
                 if self.pswd is not None:
                     if self.isLeech and int(size) > TG_SPLIT_SIZE:
