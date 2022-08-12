@@ -5,13 +5,15 @@ from time import time
 from threading import RLock
 from os import path as ospath
 class ZipStatus:
-    def __init__(self, name,m_path, path):
+    def __init__(self, name,m_path, path,listener):
         self.__name = name
         self.__path = path
         self.__mpath = m_path
         self.__size = get_path_size(self.__mpath)
         self.__start_time = time()
         self.__uploaded_bytes = 0
+        self.listener = listener
+        self.message = listener.message
 
     def progress(self):
         x = round(self.progress_raw(), 2)
