@@ -1,5 +1,6 @@
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, MirrorStatus, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_path_size
+from bot import LOGGER
 from time import time
 from threading import RLock
 from os import path as ospath
@@ -13,10 +14,14 @@ class ZipStatus:
         self.__uploaded_bytes = 0
 
     def progress(self):
-        return f'{round(self.progress_raw(), 2)}%'
+        x = round(self.progress_raw(), 2)
+        LOGGER.info(f'{x}')
+        return f'{x}%'
 
     def speed(self):
-        return f'{get_readable_file_size(self.speed_raw())}/s'
+        x = get_readable_file_size(self.speed_raw())
+        LOGGER.info(f'{x}')
+        return f'{x}/s'
 
     def name(self):
         return self.__name
@@ -28,12 +33,16 @@ class ZipStatus:
         return self.__size
 
     def size(self):
-        return get_readable_file_size(self.__size)
+        x = get_readable_file_size(self.__size)
+        LOGGER.info(f'{x}')
+        return x
 
     def eta(self):
         try:
             seconds = (self.__size - self.uploaded_bytes()) / self.speed_raw()
-            return f'{get_readable_time(seconds)}'
+            x = get_readable_time(seconds)
+            LOGGER.info(f'{x}')
+            return f'{x}'
         except ZeroDivisionError:
             return '-'
 
@@ -47,7 +56,9 @@ class ZipStatus:
         return MirrorStatus.STATUS_ARCHIVING
 
     def processed_bytes(self):
-        return self.uploaded_bytes()
+        x = self.uploaded_bytes()
+        LOGGER.info(f'{x}')
+        return x
 
     def uploaded_bytes(self):
         try:
