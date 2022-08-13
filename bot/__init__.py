@@ -150,9 +150,9 @@ except:
     pass
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
-    parent_id = getConfig('GDRIVE_FOLDER_ID')
+    PARENT_ID = getConfig('GDRIVE_FOLDER_ID')
     backup_id_list = getConfig('GDRIVE_MULTI_XI')
-    backup_id_list = backup_id_list.split(',')
+    BACKUP_ID_LIST = backup_id_list.split(',')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
@@ -438,7 +438,7 @@ except:
     pass
 
 DRIVES_NAMES.append("Main")
-DRIVES_IDS.append(parent_id)
+DRIVES_IDS.append(PARENT_ID)
 if ospath.exists('drive_folder'):
     with open('drive_folder', 'r+') as f:
         lines = f.readlines()
