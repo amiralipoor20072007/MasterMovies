@@ -327,7 +327,7 @@ class GoogleDriveHelper:
                 break
         return files
 
-    def clone(self, link,CloneXi=False):
+    def clone(self, link,CloneXi=False,PARENT_ID=PARENT_ID):
         self.is_cloning = True
         self.start_time = time()
         self.__total_files = 0
@@ -341,19 +341,19 @@ class GoogleDriveHelper:
         LOGGER.info(f"File ID: {file_id}")
         if CloneXi == True:
             Download_Urls_XI = []
-            for PARENT_ID in BACKUP_ID_LIST:
-                LOGGER.info(f'PARENT_ID : {PARENT_ID}')
+            for parent_id in BACKUP_ID_LIST:
+                LOGGER.info(f'parent_id : {parent_id}')
                 try:
                     meta = self.__getFileMetadata(file_id)
                     IdOfDownloader = self.__listener.message.from_user.id
                     mime_type = meta.get("mimeType")
                     if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
-                        dir_id = self.__create_directory(meta.get('name'), PARENT_ID,IdOfDownloader)
+                        dir_id = self.__create_directory(meta.get('name'), parent_id,IdOfDownloader)
                         self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id,CloneXi=True)
                         durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
                         Download_Urls_XI.append(durl)
                     else:
-                        file = self.__copyFile(meta.get('id'), PARENT_ID)
+                        file = self.__copyFile(meta.get('id'), parent_id)
                         durl = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))
                         Download_Urls_XI.append(durl)
                 except Exception as err:
@@ -373,7 +373,7 @@ class GoogleDriveHelper:
                         msg = f"Error.\n{err}"
                     Download_Urls_XI.append(msg)
             return Download_Urls_XI
-        if CloneXi == False:
+        else:
             try:
                 meta = self.__getFileMetadata(file_id)
                 mime_type = meta.get("mimeType")
