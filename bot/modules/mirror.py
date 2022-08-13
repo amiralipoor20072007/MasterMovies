@@ -318,7 +318,7 @@ class MirrorListener:
         if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
         if self.NameBeforeChange:
-            msg = f"<b>Original-Name: </b><code>{escape(self.NameBeforeChange)}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
+            msg = f"<b>Original-Name: </b><code>{self.NameBeforeChange}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         else:
             msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.message.from_user.id in HASH_USERS:
