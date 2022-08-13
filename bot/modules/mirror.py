@@ -65,16 +65,16 @@ def CheckName(checkingname):
         part2 = i+'.'
         part3 = '.'+i
         if part1 in checkingname:
-            filter_message = f"Bot has problem with this word containing your download's name : {part1}\n\nChanged Files/Folders:\n\n"
-            filter_message += f"\nIf You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
+            filter_message = f"<br>Bot has problem with this word containing your download's name : {part1}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
+            filter_message += f"\n<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
             return True,filter_message
         elif part2 in checkingname:
-            filter_message = f"Bot has problem with this word containing your download's name : {part2}\n\nChanged Files/Folders:\n\n"
-            filter_message += f"\nIf You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
+            filter_message = f"<br>Bot has problem with this word containing your download's name : {part2}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
+            filter_message += f"\n<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
             return True,filter_message
         elif part3 in checkingname:
-            filter_message = f"Bot has problem with this word containing your download's name : {part3}\n\nChanged Files/Folders:\n\n"
-            filter_message += f"If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)\n\n"
+            filter_message = f"<br>Bot has problem with this word containing your download's name : {part3}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
+            filter_message += f"<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
             return True,filter_message
     return [False]
     
@@ -302,7 +302,7 @@ class MirrorListener:
             FlagPORN = False
             if self.message.from_user.id in AUTODELETE_USERS:
                 FlagPORN = True
-                filter_message = f"Bot Changed File Names Because Of Your LeechSetting\nif you don't link it you can change it with command {BotCommands.LeechSetCommand}\nChanged Files/Folders:\n"
+                filter_message = f"<br>Bot Changed File Names Because Of Your LeechSetting<br>\n<br>if you don't link it you can change it with command {BotCommands.LeechSetCommand}<br>\n<br>Changed Files/Folders:<br>\n"
             else:
                 Checked = CheckPorn(f'{DOWNLOAD_DIR}{self.uid}')
                 if Checked[0] == True:
@@ -316,13 +316,13 @@ class MirrorListener:
                         ipath = ospath.join(dirpath,subdir_)
                         dpath = ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.','')))
                         rename(ipath,dpath)
-                        filter_message += f"{PurePath(ipath).name} <-ChangedTo-> {PurePath(dpath).name}\n\n"
+                        filter_message += f"<br>{PurePath(ipath).name} <-ChangedTo-> {PurePath(dpath).name}<br>\n"
                     for file_ in files:
                         f_path = ospath.join(dirpath, file_)
                         fxi , fnamexi = ospath.splitext(f_path)
                         random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase+string.digits,k=random.randint(8,16)))+fnamexi
                         rename(f_path,ospath.join(dirpath,random_name))
-                        filter_message += f"{PurePath(f_path).name} <-ChangedTo-> {random_name}\n\n"
+                        filter_message += f"<br>{PurePath(f_path).name} <-ChangedTo-> {random_name}<br>\n"
                 if isfilexi == True:
                     LOGGER.info(f"Torrent/Download is : File[Porn] , {up_path}")
                     self.NameBeforeChange[0] = str(PurePath(path).name)
