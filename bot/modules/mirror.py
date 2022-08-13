@@ -264,8 +264,19 @@ class MirrorListener:
             'hard', 'deeper', "don't stop", 'slut', 'cumming', 'tasty', 'dirty', 'ode', 'dog',
             "men's milk", 'pound', 'jerk', 'prick', 'cunt', 'bastard', 'faggot', 'anal', 'anus']
             for i in PORNfilter:
-                if i in up_name.lower():
-                    FlagPORN=True
+                part1 = '.'+i+'.'
+                part2 = i+'.'
+                part3 = '.'+i
+                checking_name = up_name.lower()
+                if part1 in checking_name:
+                    FlagPORN = True
+                    break
+                elif part2 in checking_name:
+                    FlagPORN = True
+                    break
+                elif part3 in checking_name:
+                    FlagPORN = True
+                    break
             if FlagPORN == True or self.message.from_user.id in AUTODELETE_USERS:
                 for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
                     for subdir_ in subdir:
