@@ -37,6 +37,7 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage,copyMessageToPv, sendMarkup,sendMarkupLog,copyLeechToPv, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
+from bot.helper.ext_utils.telegraph_helper import telegraph
 
 
 class MirrorListener:
@@ -55,7 +56,7 @@ class MirrorListener:
         self.Extract_Audio = Extract_Audio
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
-        self.NameBeforeChange = False
+        self.NameBeforeChange = ["FileName","Type","Telegraph Page",False]
         self.SubProc = None
 
     def clean(self):
@@ -270,33 +271,51 @@ class MirrorListener:
                 checking_name = up_name.lower()
                 if part1 in checking_name:
                     FlagPORN = True
+                    key_porn = part1
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
                     break
                 elif part2 in checking_name:
                     FlagPORN = True
+                    key_porn = part2
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
                     break
                 elif part3 in checking_name:
                     FlagPORN = True
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
+                    key_porn = part3
                     break
+            if self.message.from_user.id in AUTODELETE_USERS:
+                filter_message = f"Bot Changed File Names Because Of Your LeechSetting\nif you don't link it you can change it with command {BotCommands.LeechSetCommand}\nChanged Files/Folders:\n"
             if FlagPORN == True or self.message.from_user.id in AUTODELETE_USERS:
                 for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
                     for subdir_ in subdir:
-                        rename(ospath.join(dirpath,subdir_),ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.',''))))
+                        ipath = ospath.join(dirpath,subdir_)
+                        dpath = ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.','')))
+                        rename(ipath,dpath)
+                        filter_message += f"({PurePath(ipath).name}) <-ChangedTo-> ({dpath})\n"
                     for file_ in files:
                         f_path = ospath.join(dirpath, file_)
                         fxi , fnamexi = ospath.splitext(f_path)
                         random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase+string.digits,k=random.randint(8,16)))+fnamexi
+                        filter_message += f"({PurePath(f_path).name}) <-ChangedTo-> ({random_name})\n"
                         rename(f_path,ospath.join(dirpath,random_name))
                 if isfilexi == True:
                     LOGGER.info(f"Torrent/Download is : File[Porn] , {up_path}")
-                    self.NameBeforeChange = str(PurePath(path).name)
+                    self.NameBeforeChange[0] = str(PurePath(path).name)
+                    self.NameBeforeChange[1] = "File"
                     up_name = random_name
                     up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
                 else:
                     LOGGER.info(f"Torrent/Download is : Folder[Porn] , {up_path}")
                     up_name = PurePath(path).name
-                    self.NameBeforeChange = str(up_name)
+                    self.NameBeforeChange[0] = str(up_name)
+                    self.NameBeforeChange[1] = "Folder"
                     up_name = '.'.join(up_name.replace(' ','').replace('.',''))
                     up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+                filter_message += f"If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
+                filter_url = telegraph.create_page(title='Mirror-Leech-Bot Help',content=filter_message)["path"]
+                self.NameBeforeChange[2] = f"https://telegra.ph/{filter_url}"
+                self.NameBeforeChange[-1] = True
             size = get_path_size(up_path)
             LOGGER.info(f"Upload Name: {up_name}")
             drive = GoogleDriveHelper(up_name, self)
@@ -328,9 +347,11 @@ class MirrorListener:
     def onUploadComplete(self, link, size, files, folders, typ, name: str):
         if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
-        if self.NameBeforeChange:
+        if self.NameBeforeChange[-1] == True:
             LOGGER.info(self.NameBeforeChange)
-            msg = f"<b>Original-Name: </b><code>{self.NameBeforeChange}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
+            msg = f"<b>Original-Name: </b><code>{self.NameBeforeChange[0]}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
+            if self.NameBeforeChange[1] == "Folder":
+                msg += f"\n\n 🔥❌⚠️ Also Your Files Got Renamed You Can Check Them <a href='{self.NameBeforeChange[2]}'>Here</a>⚠️❌🔥"
         else:
             msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.message.from_user.id in HASH_USERS:
