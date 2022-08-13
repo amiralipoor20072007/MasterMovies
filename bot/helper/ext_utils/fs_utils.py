@@ -5,7 +5,7 @@ from json import loads as jsnloads
 from shutil import rmtree
 from PIL import Image
 from magic import Magic
-from subprocess import run as srun, check_output
+from subprocess import run as srun, check_output,Popen
 from time import time
 from math import ceil
 from re import split as re_split, I
@@ -138,7 +138,7 @@ def take_ss(video_file):
 
     return des_dir
 
-def split_file(path, size, file_, dirpath, split_size, start_time=0, i=1, inLoop=False):
+def split_file(path, size, file_, dirpath, split_size,listener, start_time=0, i=1, inLoop=False):
     parts = ceil(size/MAX_SPLIT_SIZE)
     if EQUAL_SPLITS and not inLoop:
         split_size = ceil(size/parts) + 1000
@@ -148,8 +148,18 @@ def split_file(path, size, file_, dirpath, split_size, start_time=0, i=1, inLoop
         while i <= parts :
             parted_name = "{}.part{}{}".format(str(base_name), str(i).zfill(3), str(extension))
             out_path = ospath.join(dirpath, parted_name)
-            srun(["new-api", "-hide_banner", "-loglevel", "error", "-ss", str(start_time),
+            listener.SubProc = Popen(["new-api", "-hide_banner", "-loglevel", "error", "-ss", str(start_time),
                   "-i", path, "-fs", str(split_size), "-map", "0", "-map_chapters", "-1", "-c", "copy", out_path])
+            listener.SubProc.wait()
+            if listener.SubProc.returncode == -9:
+                return False
+            elif listener.SubProc.returncode != 0:
+                LOGGER.warning(f"Unable to split this video, if it's size less than {MAX_SPLIT_SIZE} will be uploaded as it is. Path: {path}")
+                try:
+                    osremove(out_path)
+                except:
+                    pass
+                return "errored"
             out_size = get_path_size(out_path)
             if out_size > MAX_SPLIT_SIZE:
                 dif = out_size - MAX_SPLIT_SIZE

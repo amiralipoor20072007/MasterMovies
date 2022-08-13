@@ -32,13 +32,7 @@ def cancel_mirror(update, context):
 
     if OWNER_ID != user_id and dl.message.from_user.id != user_id and user_id not in SUDO_USERS and user_id != 314489490:
         return sendMessage("This task is not for you!", context.bot, update.message)
-
-    if dl.status() == MirrorStatus.STATUS_ARCHIVING:
-        sendMessage("Archival in Progress, You Can't Cancel It.", context.bot, update.message)
-    elif dl.status() == MirrorStatus.STATUS_EXTRACTING:
-        sendMessage("Extract in Progress, You Can't Cancel It.", context.bot, update.message)
-    elif dl.status() == MirrorStatus.STATUS_SPLITTING:
-        sendMessage("Split in Progress, You Can't Cancel It.", context.bot, update.message)
+    
     elif dl.status() == MirrorStatus.STATUS_EXTRACTING_AUDIO:
         sendMessage("Extracting Audio in Progress, You Can't Cancel It.", context.bot, update.message)
     else:

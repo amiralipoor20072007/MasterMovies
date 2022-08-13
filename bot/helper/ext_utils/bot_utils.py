@@ -128,7 +128,6 @@ def get_readable_message():
             msg += f"\n<b>Status:</b> <i>{download.status()}</i>"
             if download.status() not in [
                 MirrorStatus.STATUS_EXTRACTING_AUDIO,
-                MirrorStatus.STATUS_SPLITTING,
                 MirrorStatus.STATUS_SEEDING
             ]:
                 msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
@@ -140,6 +139,8 @@ def get_readable_message():
                     msg += f"\n<b>Archived:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 elif download.status() == MirrorStatus.STATUS_EXTRACTING:
                     msg += f"\n<b>Extracted:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+                elif download.status() == MirrorStatus.STATUS_SPLITTING:
+                    pass
                 else:
                     msg += f"\n<b>Downloaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 msg += f"\n<b>Speed:</b> {download.speed()} | <b>ETA:</b> {download.eta()}"
@@ -154,8 +155,7 @@ def get_readable_message():
                 except:
                     pass
                 msg += f"\nSource ::: <a href='{download.message.link}'>'{download.message.from_user.first_name}'</a>"
-                if download.status() != MirrorStatus.STATUS_ARCHIVING and download.status() != MirrorStatus.STATUS_EXTRACTING:
-                    msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
+                msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n<b>Size: </b>{download.size()}"
                 msg += f"\n<b>Speed: </b>{get_readable_file_size(download.torrent_info().upspeed)}/s"
