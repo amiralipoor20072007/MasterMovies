@@ -378,7 +378,7 @@ class GoogleDriveHelper:
                 meta = self.__getFileMetadata(file_id)
                 mime_type = meta.get("mimeType")
                 if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
-                    dir_id = self.__create_directory(meta.get('name'), parent_id,IdOfDownloader)
+                    dir_id = self.__create_directory(meta.get('name'), parent_id)
                     self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id)
                     durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
                     if self.is_cancelled:
