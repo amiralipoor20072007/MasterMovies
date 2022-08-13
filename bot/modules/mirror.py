@@ -272,17 +272,20 @@ class MirrorListener:
                 if part1 in checking_name:
                     FlagPORN = True
                     key_porn = part1
-                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\n\nChanged Files/Folders:\n\n"
+                    filter_message += f"\nIf You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
                     break
                 elif part2 in checking_name:
                     FlagPORN = True
                     key_porn = part2
-                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\n\nChanged Files/Folders:\n\n"
+                    filter_message += f"\nIf You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
                     break
                 elif part3 in checking_name:
                     FlagPORN = True
-                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\nChanged Files/Folders:\n"
                     key_porn = part3
+                    filter_message = f"Bot has problem with this word containing your download's name : {key_porn}\n\nChanged Files/Folders:\n\n"
+                    filter_message += f"If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)\n\n"
                     break
             if self.message.from_user.id in AUTODELETE_USERS:
                 filter_message = f"Bot Changed File Names Because Of Your LeechSetting\nif you don't link it you can change it with command {BotCommands.LeechSetCommand}\nChanged Files/Folders:\n"
@@ -292,13 +295,13 @@ class MirrorListener:
                         ipath = ospath.join(dirpath,subdir_)
                         dpath = ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.','')))
                         rename(ipath,dpath)
-                        filter_message += f"({PurePath(ipath).name}) <-ChangedTo-> ({dpath})\n"
+                        filter_message += f"{PurePath(ipath).name} <-ChangedTo-> {PurePath(dpath).name}\n\n"
                     for file_ in files:
                         f_path = ospath.join(dirpath, file_)
                         fxi , fnamexi = ospath.splitext(f_path)
                         random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase+string.digits,k=random.randint(8,16)))+fnamexi
-                        filter_message += f"({PurePath(f_path).name}) <-ChangedTo-> ({random_name})\n"
                         rename(f_path,ospath.join(dirpath,random_name))
+                        filter_message += f"{PurePath(f_path).name} <-ChangedTo-> {random_name}\n\n"
                 if isfilexi == True:
                     LOGGER.info(f"Torrent/Download is : File[Porn] , {up_path}")
                     self.NameBeforeChange[0] = str(PurePath(path).name)
@@ -312,7 +315,6 @@ class MirrorListener:
                     self.NameBeforeChange[1] = "Folder"
                     up_name = '.'.join(up_name.replace(' ','').replace('.',''))
                     up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
-                filter_message += f"If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)"
                 filter_url = telegraph.create_page(title='Mirror-Leech-Bot Help',content=filter_message)["path"]
                 self.NameBeforeChange[2] = f"https://telegra.ph/{filter_url}"
                 self.NameBeforeChange[-1] = True
@@ -351,7 +353,7 @@ class MirrorListener:
             LOGGER.info(self.NameBeforeChange)
             msg = f"<b>Original-Name: </b><code>{self.NameBeforeChange[0]}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
             if self.NameBeforeChange[1] == "Folder":
-                msg += f"\n\n 🔥❌⚠️ Also Your Files Got Renamed You Can Check Them <a href='{self.NameBeforeChange[2]}'>Here</a>⚠️❌🔥"
+                msg += f"\n\n 🔥❌⚠️ Also Files Got Renamed You Can <a href='{self.NameBeforeChange[2]}'>Here</a>⚠️❌🔥"
         else:
             msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.message.from_user.id in HASH_USERS:
