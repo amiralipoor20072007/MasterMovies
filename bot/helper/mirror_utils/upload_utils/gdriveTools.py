@@ -156,7 +156,7 @@ class GoogleDriveHelper:
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
            retry=(retry_if_exception_type(GCError) | retry_if_exception_type(IOError)))
-    def __upload_file(self, file_path, file_name, mime_type, parent_id,IdOfDownloader):
+    def __upload_file(self, file_path, file_name, mime_type, parent_id,IdOfDownloader='Cloned'):
         # File body description
         file_metadata = {
             'name': file_name,
@@ -376,7 +376,6 @@ class GoogleDriveHelper:
         if CloneXi == False:
             try:
                 meta = self.__getFileMetadata(file_id)
-                IdOfDownloader = self.__listener.message.from_user.id
                 mime_type = meta.get("mimeType")
                 if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
                     dir_id = self.__create_directory(meta.get('name'), parent_id,IdOfDownloader)
@@ -461,7 +460,7 @@ class GoogleDriveHelper:
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
            retry=retry_if_exception_type(GCError))
-    def __create_directory(self, directory_name, parent_id,IdOfDownloader):
+    def __create_directory(self, directory_name, parent_id,IdOfDownloader='Cloning'):
         file_metadata = {
             "name": directory_name,
             "description": IdOfDownloader,
