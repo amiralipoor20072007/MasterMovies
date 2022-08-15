@@ -595,11 +595,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
                     listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
-                    if MultiZipFlag == False:
+                    if MultiZipTelegram == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
-                    elif MultiZipFlag == True:
-                        LOGGER.info('MultiZip')
-                        Thread(target=MultiZip_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
                     if multi > 1:
                         sleep(4)
                         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
@@ -643,7 +640,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
 
         if MultiZipTelegram:
-            Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+            Thread(target=MultiZip_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
             return
 
         if is_gdrive_link(link):
