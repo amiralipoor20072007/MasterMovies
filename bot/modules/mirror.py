@@ -713,7 +713,7 @@ def multizip_mirror(update, context):
     _mirror(context.bot, update.message,MultiZipFlag=True)
 
 def multizip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiZipFlag=True)
+    _mirror(context.bot, update.message,MultiZipFlag=True,MultiZipTelegram=True)
 
 def multizip_leech(update, context):
     _mirror(context.bot, update.message,isLeech=True,MultiZipFlag=True)
