@@ -33,8 +33,12 @@ class MultiZip_Telegram_GetIDs():
     def Get_Messages(self):
         self.All_Messages = app.get_messages(chat_id=self.chat_id,message_ids=self.All_IDs)
         for message in self.All_Messages:
-            if message.from_user.id == self.user_id:
-                self.Add_id(message.id)
+            media_array = [message.document, message.video, message.audio]
+            if message.from_user.id == self.user_id :
+                for i in media_array:
+                    if i is not None:
+                        self.Add_id(message.id)
+                        break
     
     def Deliver_To_MultiZip(self):
         Deliver = MultiZip_Telegram(self.DOWNLOAD_DIR,self.message,self.name,self.downloadIDs,self.listener)
@@ -42,11 +46,9 @@ class MultiZip_Telegram_GetIDs():
 
 
 def MultiZip_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener):
-    help_msg=f"""I Got It You Want To Zip Telegram Files
-    So To Do That Just Send Files To Group
-    Then Send {BotCommands.SetLastID} To Confirm Your Downloads And Start Downloading...
-    Tnx For Using Our Group
-    """
+    help_msg=f"I Got It You Want To Zip Telegram Files\nSo To Do That Just Send Files To Group\n"
+    help_msg += f"Then Send {BotCommands.SetLastID} To Confirm Your Downloads And Start Downloading...\n"
+    help_msg += f"Tnx For Using Our Group"
     sendMessage(help_msg, bot, message)
     Litsener = MultiZip_Telegram_GetIDs(message.from_user.id,message.chat.id,uid,DOWNLOAD_DIR,message,name,listener)
     multizip_telegram_download_dict[message.from_user.id] = Litsener
