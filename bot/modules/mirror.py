@@ -517,7 +517,7 @@ def message_deleter(user_id: int,message):
         sleep(2)
         message.delete()
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False,MultiZipTelegram=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
@@ -613,7 +613,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     link = file.get_file().file_path
 
-        if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
+        if not is_url(link) and not is_magnet(link) and not ospath.exists(link) and not MultiZipTelegram:
             help_msg = "<b>Send link along with command line:</b>"
             help_msg += "\n<code>/command</code> {link} |newname pswd: xx [zip/unzip]"
             help_msg += "\n\n<b>By replying to link or file:</b>"
@@ -628,7 +628,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
         LOGGER.info(link)
 
-        if not is_mega_link(link) and not isQbit and not is_magnet(link) \
+        if not is_mega_link(link) and not isQbit and not MultiZipTelegram and not is_magnet(link) \
             and not is_gdrive_link(link) and not link.endswith('.torrent'):
             content_type = get_content_type(link)
             if content_type is None or re_match(r'text/html|text/plain', content_type):
@@ -641,6 +641,10 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                         return sendMessage(str(e), bot, message)
 
         listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
+
+        if MultiZipTelegram:
+            Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
+            return
 
         if is_gdrive_link(link):
             if not isZip and not extract and not isLeech:
