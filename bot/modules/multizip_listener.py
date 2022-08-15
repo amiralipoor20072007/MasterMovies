@@ -3,7 +3,7 @@ from telegram.ext import CommandHandler
 from bot import multizip_telegram_download_dict, app,dispatcher
 from bot.helper.mirror_utils.download_utils.telegram_downloader import MultiZip_Telegram
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.telegram_helper.message_utils import sendMessage
+from bot.helper.telegram_helper.message_utils import deleteMessage, sendMessage
 
 class MultiZip_Telegram_GetIDs():
 
@@ -62,8 +62,9 @@ def SetLastID(update,context):
         pass
     else:
         help_msg=f"I Start Mirroring Your Files Please Be Patient"
-        sendMessage(help_msg, bot, message)
+        temp = sendMessage(help_msg, bot, message)
         sleep(3)
+        deleteMessage(bot,temp)
         confirm.SetLastID(message.message_id)
         confirm.Get_All_IDs()
         confirm.Get_Messages()
