@@ -38,6 +38,7 @@ from bot.helper.telegram_helper.message_utils import sendMessage,copyMessageToPv
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.telegraph_helper import telegraph
+from bot.modules.multizip_listener import MultiZip_Listener_Telegram_Runner
 def CheckName(checkingname):
     PORNfilter = ['clubseventeen', 'virgin', 'xxx', 'xxx', 'porn',
             'porn', 'porn', 'blacked', 'onlyfans', 'sex', 'step','vixen', 'tushyraw',
@@ -597,8 +598,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if MultiZipFlag == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     elif MultiZipFlag == True:
-                        MultiZip_Telegram_Tedad = int(message.text.split('T=')[1])
-                        Thread(target=MultiZip_Telegram(DOWNLOAD_DIR,message,name,MultiZip_Telegram_Tedad,listener).run).start()
+                        Thread(target=MultiZip_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
                     if multi > 1:
                         sleep(4)
                         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})

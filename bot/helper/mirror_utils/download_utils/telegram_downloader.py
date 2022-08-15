@@ -160,13 +160,12 @@ class TelegramDownloadHelper:
 
 
 class MultiZip_Telegram():
-    def __init__(self,DOWNLOAD_DIR,message,name,downs,listener):
+    def __init__(self,DOWNLOAD_DIR,message,name,links_list,listener):
         self.DOWNLOAD_DIR = DOWNLOAD_DIR
         self.message = message
-        self.downs = downs
-        self.links_list = []
+        self.links_list = links_list
+        self.downs = len(links_list)
         self.name = name
-        self.first = self.message.reply_to_message.message_id
         self.listener = listener
         self.gids = []
         self.desription =[]
@@ -175,12 +174,6 @@ class MultiZip_Telegram():
     
     def Add_gid(self,gid):
         self.gids.append(gid)
-
-    def get_downloads_ids(self):
-        firstdown = self.first
-        downloads = self.downs
-        for i in range(firstdown,firstdown+downloads):
-            self.links_list.append(i)
 
     def Next_Link(self):
         for link in range(len(self.links_list)):
@@ -209,7 +202,6 @@ class MultiZip_Telegram():
 
 
     def run(self):
-        self.get_downloads_ids()
         if self.downs != self.counter:
             self.listener.onDownloadStart()
             MultiZip_Id = self.Next_Link()

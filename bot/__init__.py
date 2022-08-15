@@ -109,7 +109,7 @@ status_reply_dict = {}
 # Key: update.message.message_id
 # Value: An object of Status
 download_dict = {}
-multi_download_gids = []
+multizip_telegram_download_dict = {}
 # key: rss_title
 # value: [rss_feed, last_link, last_title, filter]
 rss_dict = {}
