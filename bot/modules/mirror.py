@@ -109,9 +109,8 @@ class MirrorListener:
         self.isLeech = isLeech
         self.pswd = pswd
         self.tag = tag
-        self.MultiZip = MultiZip
-        self.MultiZipFlag = MultiZip[1]
-        self.MultiUnZip = MultiUnZip
+        self.MultiZip = MultiZip[1]
+        self.MultiUnZip = MultiUnZip[1]
         self.Extract_Audio = Extract_Audio
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
@@ -166,9 +165,9 @@ class MirrorListener:
             else:
                 self.onUploadError("You're Requested For Extract Audio But The File Isn't A Video")
                 return
-        elif self.isZip or self.MultiZipFlag:
+        elif self.isZip or self.MultiZip:
             try:
-                if self.MultiZipFlag:
+                if self.MultiZip:
                     m_path = f'{DOWNLOAD_DIR}{self.uid}'
                     random_name = ''.join(random.choices(string.ascii_lowercase+string.ascii_letters+string.ascii_uppercase,k=12))
                     path = f'{m_path}/'+random_name+".zip"
@@ -195,7 +194,7 @@ class MirrorListener:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
-            if not self.MultiZipFlag:
+            if not self.MultiZip:
                 if not self.isQbit or not self.seed or self.isLeech:
                     try:
                         rmtree(m_path)
@@ -497,12 +496,14 @@ def message_deleter(user_id: int,message):
         sleep(2)
         message.delete()
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=False,Extract_Audio=False,MultiZipTelegram=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,MultiTelegram=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
         if MultiZip[1] == True :
             MultiZip[0] = mesg[1:]
+        elif MultiUnZip[1] == True :
+            MultiUnZip[0] = mesg[1:]
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -575,7 +576,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
                     listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
-                    if MultiZipTelegram == False:
+                    if MultiTelegram == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     if multi > 1:
                         sleep(4)
@@ -590,7 +591,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     link = file.get_file().file_path
 
-        if not is_url(link) and not is_magnet(link) and not ospath.exists(link) and not MultiZipTelegram:
+        if not is_url(link) and not is_magnet(link) and not ospath.exists(link) and not MultiTelegram:
             help_msg = "<b>Send link along with command line:</b>"
             help_msg += "\n<code>/command</code> {link} |newname pswd: xx [zip/unzip]"
             help_msg += "\n\n<b>By replying to link or file:</b>"
@@ -605,7 +606,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
         LOGGER.info(link)
 
-        if not is_mega_link(link) and not isQbit and not MultiZipTelegram and not is_magnet(link) \
+        if not is_mega_link(link) and not isQbit and not MultiTelegram and not is_magnet(link) \
             and not is_gdrive_link(link) and not link.endswith('.torrent'):
             content_type = get_content_type(link)
             if content_type is None or re_match(r'text/html|text/plain', content_type):
@@ -619,7 +620,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
         listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZip=MultiZip,MultiUnZip=MultiUnZip,Extract_Audio=Extract_Audio)
 
-        if MultiZipTelegram or MultiUnZip:
+        if MultiTelegram:
             Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
             return
 
@@ -642,7 +643,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
             message_deleter(idmustjoin,message)
         else:
-            if MultiZip[1] == False:
+            if MultiZip[1] == False and MultiUnZip[1] == False:
                 if len(mesg) > 1:
                     try:
                         ussr = mesg[1]
@@ -658,9 +659,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     auth = ''
                 Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
                 message_deleter(idmustjoin,message)
-            elif MultiZip[1] == True or MultiUnZip:
+            elif MultiZip[1] == True:
                 MultiZip[0].append(link)
                 Thread(target=Multi_Zip_Function, args=(MultiZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
+            elif MultiUnZip[1] == True:
+                MultiUnZip[0].append(link)
+                Thread(target=Multi_Zip_Function, args=(MultiUnZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
             
 
         if multi > 1:
@@ -689,14 +693,26 @@ def mirror(update, context):
 def multizip_mirror(update, context):
     _mirror(context.bot, update.message,MultiZip=[[],True])
 
-def multizip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiZip=[[],True],MultiZipTelegram=True)
-
-def multiunzip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiUnZip=True,MultiZipTelegram=True)
-
 def multizip_leech(update, context):
     _mirror(context.bot, update.message,isLeech=True,MultiZip=[[],True])
+
+def multiunzip_mirror(update, context):
+    _mirror(context.bot, update.message,MultiUnZip=[[],True])
+
+def multiunzip_leech(update, context):
+    _mirror(context.bot, update.message,MultiUnZip=[[],True],isLeech=True)
+
+def multizip_telegram(update, context):
+    _mirror(context.bot, update.message,MultiZip=[[],True],MultiTelegram=True)
+
+def multizip_telegram_leech(update, context):
+    _mirror(context.bot, update.message,MultiZip=[[],True],MultiTelegram=True,isLeech=True)
+
+def multiunzip_telegram(update, context):
+    _mirror(context.bot, update.message,MultiUnZip=[[],True],MultiTelegram=True)
+
+def multiunzip_telegram_leech(update, context):
+    _mirror(context.bot, update.message,MultiUnZip=[[],True],MultiTelegram=True,isLeech=True)
 
 def audioextract_mirror(update, context):
     _mirror(context.bot, update.message,Extract_Audio=True)
@@ -741,12 +757,20 @@ mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
 multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, multizip_mirror,
                                 run_async=True)
+multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
+                                run_async=True)
+multiunzip_mirror_handler = CommandHandler(BotCommands.MultiUnZipMirrorCommand, multiunzip_mirror,
+                                run_async=True)
+multiunzip_leech_handler = CommandHandler(BotCommands.MultiUnZipLeechCommand, multiunzip_leech,
+                                run_async=True)
 multizip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
+                                run_async=True)
+multizip_telegram_leech_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram_leech,
                                 run_async=True)
 multiunzip_telegram_handler = CommandHandler(BotCommands.MultiUnZipTelegramCommand, multiunzip_telegram,
                                 run_async=True)                      
-multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
-                                run_async=True)
+multiunzip_telegram_leech_handler = CommandHandler(BotCommands.MultiUnZipTelegramLeechCommand, multiunzip_telegram_leech,
+                                run_async=True)  
 audioextract_leech_handler = CommandHandler(BotCommands.AudioExtractLeechCommand, audioextract_leech,
                                 run_async=True)
 audioextract_mirror_handler = CommandHandler(BotCommands.AudioExtractMirrorCommand, audioextract_mirror,
@@ -775,9 +799,13 @@ qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leec
                                  run_async=True)
 
 dispatcher.add_handler(multizip_mirror_handler)
-dispatcher.add_handler(multizip_telegram_handler)
-dispatcher.add_handler(multiunzip_telegram_handler)
 dispatcher.add_handler(multizip_leech_handler)
+dispatcher.add_handler(multiunzip_mirror_handler)
+dispatcher.add_handler(multiunzip_leech_handler)
+dispatcher.add_handler(multizip_telegram_handler)
+dispatcher.add_handler(multizip_telegram_leech_handler)
+dispatcher.add_handler(multiunzip_telegram_handler)
+dispatcher.add_handler(multiunzip_telegram_leech_handler)
 dispatcher.add_handler(audioextract_mirror_handler)
 dispatcher.add_handler(audioextract_leech_handler)
 dispatcher.add_handler(mirror_handler)
