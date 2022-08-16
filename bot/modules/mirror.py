@@ -743,7 +743,7 @@ multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, mult
                                 run_async=True)
 multizip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
                                 run_async=True)
-multiunzip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
+multiunzip_telegram_handler = CommandHandler(BotCommands.MultiUnZipTelegramCommand, multiunzip_telegram,
                                 run_async=True)                      
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
                                 run_async=True)
@@ -776,6 +776,7 @@ qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leec
 
 dispatcher.add_handler(multizip_mirror_handler)
 dispatcher.add_handler(multizip_telegram_handler)
+dispatcher.add_handler(multiunzip_telegram_handler)
 dispatcher.add_handler(multizip_leech_handler)
 dispatcher.add_handler(audioextract_mirror_handler)
 dispatcher.add_handler(audioextract_leech_handler)
