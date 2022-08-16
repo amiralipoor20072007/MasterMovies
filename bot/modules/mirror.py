@@ -692,7 +692,7 @@ def multizip_mirror(update, context):
 def multizip_telegram(update, context):
     _mirror(context.bot, update.message,MultiZip=[[],True],MultiZipTelegram=True)
 
-def multizip_telegram(update, context):
+def multiunzip_telegram(update, context):
     _mirror(context.bot, update.message,MultiUnZip=True,MultiZipTelegram=True)
 
 def multizip_leech(update, context):
@@ -743,6 +743,8 @@ multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, mult
                                 run_async=True)
 multizip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
                                 run_async=True)
+multiunzip_telegram_handler = CommandHandler(BotCommands.MultiZipTelegramCommand, multizip_telegram,
+                                run_async=True)                      
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
                                 run_async=True)
 audioextract_leech_handler = CommandHandler(BotCommands.AudioExtractLeechCommand, audioextract_leech,
