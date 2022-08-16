@@ -5,7 +5,7 @@ from bot.helper.mirror_utils.download_utils.telegram_downloader import MultiZip_
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.message_utils import deleteMessage, sendMessage
 
-class MultiZip_Telegram_GetIDs():
+class Multi_Telegram_GetIDs():
 
     def __init__(self,user_id,chat_id,firstid,DOWNLOAD_DIR,message,name,listener) -> None:
         self.downloadIDs = []
@@ -45,12 +45,12 @@ class MultiZip_Telegram_GetIDs():
         Deliver.run()
 
 
-def MultiZip_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener):
+def Multi_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener):
     help_msg=f"I Got It You Want To Zip Telegram Files\nSo To Do That Just Send Files To Group\n"
     help_msg += f"Then Send /{BotCommands.SetLastID} To Confirm Your Downloads And Start Downloading...\n"
     help_msg += f"Tnx For Using Our Group"
     sendMessage(help_msg, bot, message)
-    Litsener = MultiZip_Telegram_GetIDs(message.from_user.id,message.chat.id,uid,DOWNLOAD_DIR,message,name,listener)
+    Litsener = Multi_Telegram_GetIDs(message.from_user.id,message.chat.id,uid,DOWNLOAD_DIR,message,name,listener)
     multizip_telegram_download_dict[message.from_user.id] = Litsener
 
 def SetLastID(update,context):

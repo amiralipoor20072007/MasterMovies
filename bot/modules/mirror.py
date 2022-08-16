@@ -38,7 +38,7 @@ from bot.helper.telegram_helper.message_utils import sendMessage,copyMessageToPv
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.telegraph_helper import telegraph
-from bot.modules.multizip_listener import MultiZip_Listener_Telegram_Runner
+from bot.modules.multizip_listener import Multi_Listener_Telegram_Runner, MultiZip_Listener_Telegram_Runner
 def CheckName(checkingname):
     PORNfilter = ['clubseventeen', 'virgin', 'xxx', 'xxx', 'porn',
             'porn', 'porn', 'blacked', 'onlyfans', 'sex', 'step','vixen', 'tushyraw',
@@ -99,7 +99,7 @@ def CheckPorn(path):
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=False,Extract_Audio=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -110,7 +110,8 @@ class MirrorListener:
         self.pswd = pswd
         self.tag = tag
         self.MultiZip = MultiZip
-        self.MultiZipFlag = MultiZipFlag
+        self.MultiZipFlag = MultiZip[1]
+        self.MultiUnZip = MultiUnZip
         self.Extract_Audio = Extract_Audio
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
@@ -134,9 +135,8 @@ class MirrorListener:
         if MultiZip_ErroredXI is not None:
             msg = f"{self.tag} You MultiZipping Process Got Error Wiht One/Many Downloading:\n"
             counter = 0
-            for error in MultiZip_ErroredXI:
-                counter += 1
-                msg += f"{counter} download has been stopped due to: {error}\n"
+            for index , error in enumerate(MultiZip_ErroredXI,start=1):
+                msg += f"{index} - download has been stopped due to: {error}\n"
             sendMessage(msg, self.bot, self.message)
             del msg
             del counter
@@ -149,33 +149,7 @@ class MirrorListener:
             if name == "None" or self.isQbit or not ospath.exists(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 name = listdir(f'{DOWNLOAD_DIR}{self.uid}')[-1]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-        if self.MultiZipFlag:
-            m_path = f'{DOWNLOAD_DIR}{self.uid}'
-            try:
-                random_name = ''.join(random.choices(string.ascii_lowercase+string.ascii_letters+string.ascii_uppercase,k=12))
-                path = f'{m_path}/'+random_name+".zip"
-                with download_dict_lock:
-                    download_dict[self.uid] = ZipStatus(random_name, m_path,path,gid,self)
-                LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
-                if self.pswd is not None:
-                    if self.isLeech and int(size) > TG_SPLIT_SIZE:
-                        self.SubProc = Popen(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", f"-p{self.pswd}", path, m_path])
-                    else:
-                        self.SubProc = Popen(["7z", "a", "-mx=0", f"-p{self.pswd}", path, m_path])
-                elif self.isLeech and int(size) > TG_SPLIT_SIZE:
-                    self.SubProc = Popen(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", path, m_path])
-                else:
-                    self.SubProc = Popen(["7z", "a", "-mx=0", path, m_path])
-                self.SubProc.wait()
-                if self.SubProc.returncode == -9:
-                    return
-                elif self.SubProc.returncode != 0:
-                    LOGGER.error('Unable to extract archive splits!')
-            except FileNotFoundError:
-                LOGGER.info('File to archive not found!')
-                self.onUploadError('Internal error occurred!!')
-                return
-        elif self.Extract_Audio:
+        if self.Extract_Audio:
             Video_Name = PurePath(m_path).name
             Video_path = f'{DOWNLOAD_DIR}{self.uid}/{Video_Name}'
             if ospath.isfile(Video_path) and Video_Name.upper().endswith(VIDEO_SUFFIXES):
@@ -194,7 +168,12 @@ class MirrorListener:
                 return
         elif self.isZip:
             try:
-                path = m_path + ".zip"
+                if self.MultiZipFlag:
+                    m_path = f'{DOWNLOAD_DIR}{self.uid}'
+                    random_name = ''.join(random.choices(string.ascii_lowercase+string.ascii_letters+string.ascii_uppercase,k=12))
+                    path = f'{m_path}/'+random_name+".zip"
+                else:
+                    path = m_path + ".zip"
                 with download_dict_lock:
                     download_dict[self.uid] = ZipStatus(name, m_path,path,gid,self)
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
@@ -216,12 +195,13 @@ class MirrorListener:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
-            if not self.isQbit or not self.seed or self.isLeech:
-                try:
-                    rmtree(m_path)
-                except:
-                    osremove(m_path)
-        elif self.extract:
+            if not self.MultiZipFlag:
+                if not self.isQbit or not self.seed or self.isLeech:
+                    try:
+                        rmtree(m_path)
+                    except:
+                        osremove(m_path)
+        elif self.extract or self.MultiUnZip:
             try:
                 if ospath.isfile(m_path):
                     path = get_base_name(m_path)
@@ -375,7 +355,7 @@ class MirrorListener:
             LOGGER.info(self.NameBeforeChange)
             msg = f"<b>Original-Name: </b><code>{self.NameBeforeChange[0]}</code>\n\n<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
             if self.NameBeforeChange[1] == "Folder":
-                msg += f"\n\n 🔥❌⚠️ Also Files Got Renamed You Can <a href='{self.NameBeforeChange[2]}'>Here</a>⚠️❌🔥"
+                msg += f"\n\n 🔥❌⚠️ Also Files Got Renamed <a href='{self.NameBeforeChange[2]}'>Here</a>⚠️❌🔥"
         else:
             msg = f"<b>Name: </b><code>{escape(name)}</code>\n\n<b>Size: </b>{size}"
         if self.message.from_user.id in HASH_USERS:
@@ -517,12 +497,12 @@ def message_deleter(user_id: int,message):
         sleep(2)
         message.delete()
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZipFlag=False,MultiZip=[[],0],Extract_Audio=False,MultiZipTelegram=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=False,Extract_Audio=False,MultiZipTelegram=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
-        if MultiZipFlag == True :
-            MultiZip = [mesg[1:],len(mesg)+1]
+        if MultiZip[1] == True :
+            MultiZip[0] = mesg[1:]
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -594,7 +574,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
+                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
                     if MultiZipTelegram == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     if multi > 1:
@@ -637,10 +617,10 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if str(e).startswith('ERROR:'):
                         return sendMessage(str(e), bot, message)
 
-        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZipFlag=MultiZipFlag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
+        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZip=MultiZip,MultiUnZip=MultiUnZip,Extract_Audio=Extract_Audio)
 
-        if MultiZipTelegram:
-            Thread(target=MultiZip_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
+        if MultiZipTelegram or MultiUnZip:
+            Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
             return
 
         if is_gdrive_link(link):
@@ -662,7 +642,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
             message_deleter(idmustjoin,message)
         else:
-            if MultiZipFlag == False:
+            if MultiZip[1] == False:
                 if len(mesg) > 1:
                     try:
                         ussr = mesg[1]
@@ -678,7 +658,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     auth = ''
                 Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
                 message_deleter(idmustjoin,message)
-            elif MultiZipFlag == True:
+            elif MultiZip[1] == True or MultiUnZip:
                 MultiZip[0].append(link)
                 Thread(target=Multi_Zip_Function, args=(MultiZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
             
@@ -707,13 +687,16 @@ def mirror(update, context):
     _mirror(context.bot, update.message)
 
 def multizip_mirror(update, context):
-    _mirror(context.bot, update.message,MultiZipFlag=True)
+    _mirror(context.bot, update.message,MultiZip=[[],True])
 
 def multizip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiZipFlag=True,MultiZipTelegram=True)
+    _mirror(context.bot, update.message,MultiZip=[[],True],MultiZipTelegram=True)
+
+def multizip_telegram(update, context):
+    _mirror(context.bot, update.message,MultiUnZip=True,MultiZipTelegram=True)
 
 def multizip_leech(update, context):
-    _mirror(context.bot, update.message,isLeech=True,MultiZipFlag=True)
+    _mirror(context.bot, update.message,isLeech=True,MultiZip=[[],True])
 
 def audioextract_mirror(update, context):
     _mirror(context.bot, update.message,Extract_Audio=True)
