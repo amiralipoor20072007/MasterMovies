@@ -11,38 +11,37 @@ from subprocess import run as srun
 
 @new_thread
 def __onDownloadStarted(api, gid):
-    if dl.getListener_MultiZip() is None:
-        try:
-            if STOP_DUPLICATE:
+    try:
+        if STOP_DUPLICATE:
+            download = api.get_download(gid)
+            if download.is_metadata:
+                LOGGER.info(f'onDownloadStarted: {gid} Metadata')
+                return
+            elif not download.is_torrent:
+                sleep(3)
                 download = api.get_download(gid)
-                if download.is_metadata:
-                    LOGGER.info(f'onDownloadStarted: {gid} Metadata')
-                    return
-                elif not download.is_torrent:
-                    sleep(3)
-                    download = api.get_download(gid)
-                LOGGER.info(f'onDownloadStarted: {gid}')
-                dl = getDownloadByGid(gid)
-                if not dl or dl.getListener().isLeech:
-                    return
-                LOGGER.info('Checking File/Folder if already in Drive...')
-                LOGGER.info(f'{download} , {download.name}')
-                sname = download.name
-                if dl.getListener().isZip:
-                    sname = sname + ".zip"
-                elif dl.getListener().extract:
-                    try:
-                        sname = get_base_name(sname)
-                    except:
-                        sname = None
-                if sname is not None:
-                    smsg, button = GoogleDriveHelper().drive_list(sname, True)
-                    if smsg:
-                        dl.getListener().onDownloadError('File/Folder already available in Drive.\n\n')
-                        api.remove([download], force=True, files=True)
-                        return sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
-        except Exception as e:
-            LOGGER.error(f"{e} onDownloadStart: {gid} stop duplicate didn't pass")
+            LOGGER.info(f'onDownloadStarted: {gid}')
+            dl = getDownloadByGid(gid)
+            if not dl or dl.getListener().isLeech or dl.getListener_MultiZip() is None:
+                return
+            LOGGER.info('Checking File/Folder if already in Drive...')
+            LOGGER.info(f'{download} , {download.name}')
+            sname = download.name
+            if dl.getListener().isZip:
+                sname = sname + ".zip"
+            elif dl.getListener().extract:
+                try:
+                    sname = get_base_name(sname)
+                except:
+                    sname = None
+            if sname is not None:
+                smsg, button = GoogleDriveHelper().drive_list(sname, True)
+                if smsg:
+                    dl.getListener().onDownloadError('File/Folder already available in Drive.\n\n')
+                    api.remove([download], force=True, files=True)
+                    return sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
+    except Exception as e:
+        LOGGER.error(f"{e} onDownloadStart: {gid} stop duplicate didn't pass")
 
 @new_thread
 def __onDownloadComplete(api, gid):
