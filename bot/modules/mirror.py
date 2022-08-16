@@ -99,7 +99,7 @@ def CheckPorn(path):
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=False,Extract_Audio=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
