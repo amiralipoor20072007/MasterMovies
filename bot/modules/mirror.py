@@ -166,7 +166,7 @@ class MirrorListener:
             else:
                 self.onUploadError("You're Requested For Extract Audio But The File Isn't A Video")
                 return
-        elif self.isZip:
+        elif self.isZip or self.MultiZipFlag:
             try:
                 if self.MultiZipFlag:
                     m_path = f'{DOWNLOAD_DIR}{self.uid}'
