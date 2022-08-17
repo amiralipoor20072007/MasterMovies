@@ -33,6 +33,7 @@ class MirrorStatus:
     STATUS_SPLITTING = "Splitting...✂️"
     STATUS_CHECKING = "CheckingUp...📝"
     STATUS_SEEDING = "Seeding...🌧"
+    STATUS_SOFTSUB = "SoftSub ...📽️"
 
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
@@ -73,10 +74,9 @@ def getDownloadByGid(gid):
             if (
                 status
                 not in [
-                    MirrorStatus.STATUS_ARCHIVING,
                     MirrorStatus.STATUS_EXTRACTING_AUDIO, 
-                    MirrorStatus.STATUS_EXTRACTING,
-                    MirrorStatus.STATUS_SPLITTING,
+                    MirrorStatus.STATUS_SOFTSUB,
+                    MirrorStatus.STATUS_SPLITTING
                 ]
                 and dl.gid() == gid
             ):
@@ -87,7 +87,7 @@ def getAllDownload(req_status: str):
     with download_dict_lock:
         for dl in list(download_dict.values()):
             status = dl.status()
-            if status not in [MirrorStatus.STATUS_ARCHIVING,MirrorStatus.STATUS_EXTRACTING_AUDIO,MirrorStatus.STATUS_EXTRACTING, MirrorStatus.STATUS_SPLITTING] and dl:
+            if status not in [MirrorStatus.STATUS_EXTRACTING_AUDIO,MirrorStatus.STATUS_SOFTSUB,MirrorStatus.STATUS_SPLITTING] and dl:
                 if req_status == 'down' and (status not in [MirrorStatus.STATUS_SEEDING,
                                                             MirrorStatus.STATUS_UPLOADING,
                                                             MirrorStatus.STATUS_CLONING]):
@@ -128,6 +128,7 @@ def get_readable_message():
             msg += f"\n<b>Status:</b> <i>{download.status()}</i>"
             if download.status() not in [
                 MirrorStatus.STATUS_EXTRACTING_AUDIO,
+                MirrorStatus.STATUS_SOFTSUB,
                 MirrorStatus.STATUS_SEEDING
             ]:
                 msg += f"\n{get_progress_bar_string(download)} {download.progress()}"

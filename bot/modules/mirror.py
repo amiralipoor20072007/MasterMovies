@@ -27,6 +27,7 @@ from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramD
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
 from bot.helper.mirror_utils.status_utils.zip_status import ZipStatus
 from bot.helper.mirror_utils.status_utils.extract_audio_status import ExtractAudio_Status
+from bot.helper.mirror_utils.status_utils.softsub_status import SoftSub_Status
 from bot.helper.mirror_utils.status_utils.split_status import SplitStatus
 from bot.helper.mirror_utils.status_utils.upload_status import UploadStatus
 from bot.helper.mirror_utils.status_utils.tg_upload_status import TgUploadStatus
@@ -99,7 +100,7 @@ def CheckPorn(path):
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,SoftSub=[[],False]):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -112,6 +113,7 @@ class MirrorListener:
         self.MultiZip = MultiZip[1]
         self.MultiUnZip = MultiUnZip[1]
         self.Extract_Audio = Extract_Audio
+        self.SoftSub = SoftSub
         self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
         self.NameBeforeChange = ["FileName","Type","Telegraph Page",False]
@@ -158,6 +160,24 @@ class MirrorListener:
                     path = ospath.splitext(Video_path)[0]+'-Audio.m4a'
                     LOGGER.info('Extracting Audio')
                     srun(["new-api","-hide_banner","-i",Video_path,"-vn","-c:a","copy",path])
+                except FileNotFoundError:
+                    LOGGER.info('File to archive not found!')
+                    self.onUploadError('Internal error occurred!!')
+                    return
+            else:
+                self.onUploadError("You're Requested For Extract Audio But The File Isn't A Video")
+                return
+        elif self.SoftSub[1] == True:
+            Video_Name = PurePath(m_path).name
+            Video_path = f'{DOWNLOAD_DIR}{self.uid}/{Video_Name}'
+            Sub_path = f'{DOWNLOAD_DIR}{self.uid}/softsubxi.srt'
+            if ospath.isfile(Video_path) and Video_Name.upper().endswith(VIDEO_SUFFIXES):
+                try:
+                    with download_dict_lock:
+                        download_dict[self.uid] = SoftSub_Status(name, m_path, size)
+                    path = ospath.splitext(Video_path)[0]+'-SoftSubbed' + ospath.splitext(Video_path)[1]
+                    LOGGER.info('Subtitling...')
+                    srun(["new-api","-hide_banner","-i",Video_path,'-i',Sub_path,'-c',"copy",path])
                 except FileNotFoundError:
                     LOGGER.info('File to archive not found!')
                     self.onUploadError('Internal error occurred!!')
@@ -496,7 +516,7 @@ def message_deleter(user_id: int,message):
         sleep(2)
         message.delete()
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,MultiTelegram=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,SoftSub=[[],False],MultiTelegram=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
@@ -504,6 +524,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             MultiZip[0] = mesg[1:]
         elif MultiUnZip[1] == True :
             MultiUnZip[0] = mesg[1:]
+        elif SoftSub[1] == True :
+            SoftSub[0] = mesg[1:]
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
         qbsel = False
@@ -575,7 +597,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if is_url(reply_text) or is_magnet(reply_text):
                         link = reply_text
                 elif file.mime_type != "application/x-bittorrent" and not isQbit:
-                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZip=MultiZip,Extract_Audio=Extract_Audio)
+                    listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag,MultiZip=MultiZip,MultiUnZip=MultiUnZip,Extract_Audio=Extract_Audio)
                     if MultiTelegram == False:
                         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
                     if multi > 1:
@@ -618,7 +640,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     if str(e).startswith('ERROR:'):
                         return sendMessage(str(e), bot, message)
 
-        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZip=MultiZip,MultiUnZip=MultiUnZip,Extract_Audio=Extract_Audio)
+        listener = MirrorListener(bot, message, isZip=isZip, extract=extract, isQbit=isQbit, isLeech=isLeech, pswd=pswd, tag=tag, seed=qbsd,MultiZip=MultiZip,MultiUnZip=MultiUnZip,SoftSub=SoftSub,Extract_Audio=Extract_Audio)
 
         if MultiTelegram:
             Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
@@ -643,7 +665,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
             message_deleter(idmustjoin,message)
         else:
-            if MultiZip[1] == False and MultiUnZip[1] == False:
+            if MultiZip[1] == False and MultiUnZip[1] == False and SoftSub[1] == False:
                 if len(mesg) > 1:
                     try:
                         ussr = mesg[1]
@@ -665,6 +687,9 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             elif MultiUnZip[1] == True:
                 MultiUnZip[0].append(link)
                 Thread(target=Multi_Zip_Function, args=(MultiUnZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
+            elif SoftSub[1] == True:
+                SoftSub[0].append(link)
+                Thread(target=Multi_Zip_Function, args=(SoftSub[0], f'{DOWNLOAD_DIR}{listener.uid}', listener,True)).start()
             
 
         if multi > 1:
@@ -717,6 +742,12 @@ def multiunzip_telegram_leech(update, context):
 def audioextract_mirror(update, context):
     _mirror(context.bot, update.message,Extract_Audio=True)
 
+def softsub_leech(update, context):
+    _mirror(context.bot, update.message,SoftSub=[[],True],isLeech=True)
+
+def softsub_mirror(update, context):
+    _mirror(context.bot, update.message,SoftSub=[[],True])
+
 def audioextract_leech(update, context):
     _mirror(context.bot, update.message,isLeech=True,Extract_Audio=True)
 
@@ -759,6 +790,10 @@ multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, mult
                                 run_async=True)
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
                                 run_async=True)
+softsub_mirror_handler = CommandHandler(BotCommands.SoftSubLeechCommand, softsub_leech,
+                                run_async=True)
+softsub_leech_handler = CommandHandler(BotCommands.SoftSubMirrorCommand, softsub_mirror,
+                                run_async=True)
 multiunzip_mirror_handler = CommandHandler(BotCommands.MultiUnZipMirrorCommand, multiunzip_mirror,
                                 run_async=True)
 multiunzip_leech_handler = CommandHandler(BotCommands.MultiUnZipLeechCommand, multiunzip_leech,
@@ -798,6 +833,8 @@ qb_unzip_leech_handler = CommandHandler(BotCommands.QbUnzipLeechCommand, qb_unzi
 qb_zip_leech_handler = CommandHandler(BotCommands.QbZipLeechCommand, qb_zip_leech,
                                  run_async=True)
 
+dispatcher.add_handler(softsub_mirror_handler)
+dispatcher.add_handler(softsub_leech_handler)
 dispatcher.add_handler(multizip_mirror_handler)
 dispatcher.add_handler(multizip_leech_handler)
 dispatcher.add_handler(multiunzip_mirror_handler)

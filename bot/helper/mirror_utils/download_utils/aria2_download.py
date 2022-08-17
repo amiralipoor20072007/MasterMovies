@@ -115,7 +115,7 @@ def add_aria2c_download(link: str, path, listener, filename, auth):
     sendStatusMessage(listener.message, listener.bot)
 
 class Multi_Zip():
-    def __init__(self,links: list, path, listener):
+    def __init__(self,links: list, path, listener,softsub=False):
         self.links = links
         self.links_rate = len(links)
         self.path = path
@@ -123,12 +123,16 @@ class Multi_Zip():
         self.counter = 0
         self.gids=[]
         self.desription =[]
+        self.softsub = softsub
 
     def Download(self,link,path):
         if is_magnet(link):
             download = aria2.add_magnet(link, {'dir': path})
         else:
-            download = aria2.add_uris([link], {'dir': path})
+            if self.softsub and self.counter == 1:
+                download = aria2.add_uris([link], {'dir': path,'out': 'softsubxi.srt'})
+            else:
+                download = aria2.add_uris([link], {'dir': path})
         if download.error_message:
             error = str(download.error_message).replace('<', ' ').replace('>', ' ')
             LOGGER.info(f"Download Error: {error}")
@@ -190,8 +194,8 @@ class Multi_Zip():
             else:
                 self.listener.onDownloadComplete()
 
-def Multi_Zip_Function(links: list, path, listener):
-    multi_zip = Multi_Zip(links, path, listener)
+def Multi_Zip_Function(links: list, path, listener,softsub=False):
+    multi_zip = Multi_Zip(links, path, listener,softsub)
     multi_zip.run()
 
 start_listener()

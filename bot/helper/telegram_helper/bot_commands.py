@@ -8,6 +8,8 @@ class _BotCommands:
         self.MultiZipMirrorCommand = f'multizip_mirror{CMD_INDEX}'
         self.MultiZipLeechCommand = f'multizip_leech{CMD_INDEX}'
         self.MultiUnZipMirrorCommand = f'multiunzip_mirror{CMD_INDEX}'
+        self.SoftSubMirrorCommand = f'softsub_mirror{CMD_INDEX}'
+        self.SoftSubLeechCommand = f'softsub_leech{CMD_INDEX}'
         self.MultiUnZipLeechCommand = f'multiunzip_leech{CMD_INDEX}'
         self.MultiZipTelegramCommand = f'multizip_telegram{CMD_INDEX}'
         self.MultiUnZipTelegramCommand = f'multiunzip_telegram{CMD_INDEX}'
