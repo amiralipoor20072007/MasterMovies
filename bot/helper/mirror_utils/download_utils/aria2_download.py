@@ -156,6 +156,7 @@ class Multi_Zip():
     def Next_Download(self):
         if self.links_rate != self.counter:
             next_link = self.Next_Link()
+            sleep(5)
             self.Download(next_link,self.path)
         else:
             if len(self.desription) == self.links_rate:
@@ -177,6 +178,7 @@ class Multi_Zip():
         if self.links_rate != self.counter:
             self.listener.onDownloadStart()
             next_link = self.Next_Link()
+            sleep(5)
             self.Download(next_link,self.path)
         else:
             if len(self.desription) == self.links_rate:
