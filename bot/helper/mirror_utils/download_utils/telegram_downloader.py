@@ -190,6 +190,7 @@ class MultiZip_Telegram():
             sleep(5)
             #Get Next Link
             MultiZip_Id = self.Next_Link()
+            sleep(5)
             self.Telegram_Helper.add_download(self.message, f'{self.DOWNLOAD_DIR}{self.listener.uid}/', self.name,MultiZip_Id)
         else:
             if len(self.desription) == self.downs:
@@ -205,6 +206,7 @@ class MultiZip_Telegram():
         if self.downs != self.counter:
             self.listener.onDownloadStart()
             MultiZip_Id = self.Next_Link()
+            sleep(5)
             self.Telegram_Helper = TelegramDownloadHelper(self.listener,self)
             self.Telegram_Helper.add_download(self.message,f'{self.DOWNLOAD_DIR}{self.listener.uid}/',self.name,MultiZip_Id)
         else:
