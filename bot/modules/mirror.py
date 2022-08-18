@@ -505,10 +505,9 @@ def mustjoin(idmustjoin):
         if idmustjoin == Memberin.user.id:
             Flag = True
     if Flag == True:
-        for AuthorizedChat in AUTHORIZED_CHATS:
-            for Memberin in app.get_chat_members(AuthorizedChat):
-                if idmustjoin == Memberin.user.id:
-                    return True
+        for Memberin in app.get_chat_members(-1001727312001):
+            if idmustjoin == Memberin.user.id:
+                return True
     return False
 
 def message_deleter(user_id: int,message):
