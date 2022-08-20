@@ -87,7 +87,7 @@ def getAllDownload(req_status: str):
     with download_dict_lock:
         for dl in list(download_dict.values()):
             status = dl.status()
-            if status not in [MirrorStatus.STATUS_EXTRACTING_AUDIO,MirrorStatus.STATUS_SOFTSUB,MirrorStatus.STATUS_SPLITTING] and dl:
+            if status not in [MirrorStatus.STATUS_EXTRACTING_AUDIO,MirrorStatus.STATUS_SOFTSUB] and dl:
                 if req_status == 'down' and (status not in [MirrorStatus.STATUS_SEEDING,
                                                             MirrorStatus.STATUS_UPLOADING,
                                                             MirrorStatus.STATUS_CLONING]):
@@ -128,6 +128,7 @@ def get_readable_message():
             msg += f"\n<b>Status:</b> <i>{download.status()}</i>"
             if download.status() not in [
                 MirrorStatus.STATUS_EXTRACTING_AUDIO,
+                MirrorStatus.STATUS_SPLITTING,
                 MirrorStatus.STATUS_SOFTSUB,
                 MirrorStatus.STATUS_SEEDING
             ]:
@@ -156,6 +157,8 @@ def get_readable_message():
                 except:
                     pass
                 msg += f"\nSource ::: <a href='{download.message.link}'>'{download.message.from_user.first_name}'</a>"
+                msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
+            elif download.status() == MirrorStatus.STATUS_SPLITTING:
                 msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n<b>Size: </b>{download.size()}"

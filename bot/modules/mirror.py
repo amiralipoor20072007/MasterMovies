@@ -222,12 +222,37 @@ class MirrorListener:
                         osremove(m_path)
         elif self.extract or self.MultiUnZip:
             try:
+                
                 if ospath.isfile(m_path):
                     path = get_base_name(m_path)
                     LOGGER.info(f"Extracting: {name}")
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, m_path, path,gid,self)
                 if ospath.isdir(m_path):
+                    path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
+                    LOGGER.info(f"Extracting: {name}")
+                    with download_dict_lock:
+                        download_dict[self.uid] = ExtractStatus(name, m_path, path,gid,self)
+                    for dirpath, subdir, files in walk(m_path, topdown=False):
+                        for file_ in files:
+                            if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
+                               or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
+                                m_path = ospath.join(dirpath, file_)
+                                if self.pswd is not None:
+                                    self.SubProc = Popen(["7z", "x", f"-p{self.pswd}", m_path, f"-o{dirpath}", "-aot"])
+                                else:
+                                    self.SubProc = Popen(["7z", "x", m_path, f"-o{dirpath}", "-aot"])
+                                self.SubProc.wait()
+                                if self.SubProc.returncode == -9:
+                                    return
+                                elif self.SubProc.returncode != 0:
+                                    LOGGER.error('Unable to extract archive splits!')
+                        for file_ in files:
+                            if file_.endswith((".rar", ".zip", ".7z")) or re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
+                                del_path = ospath.join(dirpath, file_)
+                                osremove(del_path)
+                elif self.MultiUnZip :
+                    m_path = f'{DOWNLOAD_DIR}{self.uid}'
                     path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
                     LOGGER.info(f"Extracting: {name}")
                     with download_dict_lock:
