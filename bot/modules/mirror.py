@@ -223,7 +223,7 @@ class MirrorListener:
         elif self.extract or self.MultiUnZip:
             try:
                 
-                if ospath.isfile(m_path):
+                if ospath.isfile(m_path) and not self.MultiUnZip:
                     path = get_base_name(m_path)
                     LOGGER.info(f"Extracting: {name}")
                     with download_dict_lock:
@@ -254,7 +254,7 @@ class MirrorListener:
                 elif self.MultiUnZip :
                     m_path = f'{DOWNLOAD_DIR}{self.uid}'
                     path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-                    LOGGER.info(f"Extracting: {name}")
+                    LOGGER.info(f"Extracting Multi: {name}")
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, m_path, path,gid,self)
                     for dirpath, subdir, files in walk(m_path, topdown=False):
