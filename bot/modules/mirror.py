@@ -253,7 +253,7 @@ class MirrorListener:
                                 osremove(del_path)
                 elif self.MultiUnZip :
                     m_path = f'{DOWNLOAD_DIR}{self.uid}'
-                    path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
+                    path = f'{DOWNLOAD_DIR}{self.uid}'
                     LOGGER.info(f"Extracting Multi: {name}")
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, m_path, path,gid,self)
