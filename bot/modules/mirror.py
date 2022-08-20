@@ -264,9 +264,9 @@ class MirrorListener:
                                 m_path = ospath.join(dirpath, file_)
                                 LOGGER.info(f"Extracting : {m_path}")
                                 if self.pswd is not None:
-                                    self.SubProc = Popen(["7z", "x", f"-p{self.pswd}", m_path, f"-o{dirpath}", "-aot"])
+                                    self.SubProc = Popen(["bash", "pextract", m_path, self.pswd])
                                 else:
-                                    self.SubProc = Popen(["7z", "x", m_path, f"-o{dirpath}", "-aot"])
+                                    self.SubProc = Popen(["bash", "extract", m_path])
                                 self.SubProc.wait()
                                 if self.SubProc.returncode == -9:
                                     return
