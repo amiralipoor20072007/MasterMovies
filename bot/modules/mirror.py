@@ -252,26 +252,28 @@ class MirrorListener:
                                 del_path = ospath.join(dirpath, file_)
                                 osremove(del_path)
                 elif self.MultiUnZip :
-                    m_path = f'{DOWNLOAD_DIR}{self.uid}'
+                    original_path = f'{DOWNLOAD_DIR}{self.uid}'
                     path = f'{DOWNLOAD_DIR}{self.uid}'
                     LOGGER.info(f"Extracting Multi: {name}")
                     with download_dict_lock:
-                        download_dict[self.uid] = ExtractStatus(name, m_path, path,gid,self)
-                    for dirpath, subdir, files in walk(m_path, topdown=False):
+                        download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
+                    counter = 0
+                    for dirpath, subdir, files in walk(original_path, topdown=False):
                         for file_ in files:
-                            if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
-                               or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
-                                m_path = ospath.join(dirpath, file_)
-                                LOGGER.info(f"Extracting : {m_path}")
-                                if self.pswd is not None:
-                                    self.SubProc = Popen(["bash", "pextract", m_path, self.pswd])
-                                else:
-                                    self.SubProc = Popen(["bash", "extract", m_path])
-                                self.SubProc.wait()
-                                if self.SubProc.returncode == -9:
-                                    return
-                                elif self.SubProc.returncode != 0:
-                                    LOGGER.error('Unable to extract archive splits!')
+                            if counter < 1:
+                                if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
+                                or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
+                                    m_path = ospath.join(dirpath, file_)
+                                    LOGGER.info(f"Extracting : {m_path}")
+                                    if self.pswd is not None:
+                                        self.SubProc = Popen(["bash", "pextract", m_path, self.pswd])
+                                    else:
+                                        self.SubProc = Popen(["7z", "e",f"-o{original_path}", m_path])
+                                    self.SubProc.wait()
+                                    if self.SubProc.returncode == -9:
+                                        return
+                                    elif self.SubProc.returncode != 0:
+                                        LOGGER.error('Unable to extract archive splits!')
                         for file_ in files:
                             if file_.endswith((".rar", ".zip", ".7z")) or re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                 del_path = ospath.join(dirpath, file_)
