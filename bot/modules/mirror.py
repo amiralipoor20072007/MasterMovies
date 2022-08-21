@@ -11,8 +11,7 @@ from html import escape
 from telegram.ext import CommandHandler
 from telegram import InlineKeyboardMarkup
 import random
-from requests import get as requestsget
-from bs4 import BeautifulSoup
+
 import string
 
 from bot import AUTODELETE_USERS, HASH_USERS, Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
@@ -100,29 +99,7 @@ def CheckPorn(path):
                 return True,verify[1]
     return [False]
 
-def remove_blanks(List : list):
-    while True:
-        try:
-            List.remove('')
-        except:
-            break
-    return List
 
-
-
-def oghatsharei(update,context):
-    LOGGER.info('Oghat Sharei')
-    page = requestsget('https://www.time.ir/')
-    soup = BeautifulSoup(page.text,'html.parser')
-    forum1 = soup.find_all('div',attrs={'class':'col-sm-6'})[6].text.split('\n')
-    forum1 = remove_blanks(forum1)
-    forum2 = soup.find_all('div',attrs={'class':'col-sm-6'})[7].text.split('\n')
-    forum2 = remove_blanks(forum2)
-    msg = '<b>اوقات شرعی تهران :</b>\n'
-    for i in [0,2,4]:
-        msg += f'<b>{forum1[i]}</b> : <b>{forum1[i+1]}</b>'
-        msg += f'<b>{forum2[i]}</b> : <b>{forum2[i+1]}</b>'
-    sendMessage(msg,context.bot,update.message)
 
 
 class MirrorListener:
@@ -839,7 +816,7 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
-oghatsharei_handler = CommandHandler(BotCommands.OghatSharei,oghatsharei,run_async=True)
+
 multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, multizip_mirror,
                                 run_async=True)
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,
@@ -911,4 +888,3 @@ dispatcher.add_handler(zip_leech_handler)
 dispatcher.add_handler(qb_leech_handler)
 dispatcher.add_handler(qb_unzip_leech_handler)
 dispatcher.add_handler(qb_zip_leech_handler)
-dispatcher.add_handler(oghatsharei_handler)
