@@ -455,15 +455,15 @@ class MirrorListener:
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
-                    backup_links = f'Main Drive : <code>{share_url}</code>'
-                    iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
+                    backup_links = f"<a href='{share_url}'>Main Drive</a>"
+                    iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
                     for i in range(1,len(link)):
                         if 'drive.google' in link[i]:
-                            backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
+                            backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
                             if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
-                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}</code>'
+                                iran_backup_links += f"\n<a href='{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>"          
                             else:
-                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                                iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
                         else:
                             backup_links += f'\nDrive {i} : Error!'
                             iran_backup_links += f'\nDrive {i} : Error!'
@@ -816,7 +816,6 @@ def qb_zip_leech(update, context):
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 run_async=True)
-
 multizip_mirror_handler = CommandHandler(BotCommands.MultiZipMirrorCommand, multizip_mirror,
                                 run_async=True)
 multizip_leech_handler = CommandHandler(BotCommands.MultiZipLeechCommand, multizip_leech,

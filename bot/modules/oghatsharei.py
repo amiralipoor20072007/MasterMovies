@@ -23,7 +23,7 @@ def oghatsharei(update,context):
     forum1 = remove_blanks(forum1)
     forum2 = soup.find_all('div',attrs={'class':'col-sm-6'})[7].text.split('\n')
     forum2 = remove_blanks(forum2)
-    msg = '<b>اوقات شرعی تهران :</b>\n'
+    msg = '<b>اوقات شرعی تهران :</b>\n\n'
     for i in [0,2,4]:
         msg += f'<b>{forum1[i]}</b> : <b>{forum1[i+1]}</b>\n\n'
         msg += f'<b>{forum2[i]}</b> : <b>{forum2[i+1]}</b>\n\n'
