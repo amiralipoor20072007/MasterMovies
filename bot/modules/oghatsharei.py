@@ -17,16 +17,13 @@ def remove_blanks(List : list):
 
 def oghatsharei(update,context):
     LOGGER.info('Oghat Sharei')
-    page = requestsget('https://www.time.ir/')
+    page = requestsget('https://badesaba.ir/owghat/284/%D8%AA%D9%87%D8%B1%D8%A7%D9%86')
     soup = BeautifulSoup(page.text,'html.parser')
-    forum1 = soup.find_all('div',attrs={'class':'col-sm-6'})[6].text.split('\n')
-    forum1 = remove_blanks(forum1)
-    forum2 = soup.find_all('div',attrs={'class':'col-sm-6'})[7].text.split('\n')
-    forum2 = remove_blanks(forum2)
-    msg = '<b>اوقات شرعی تهران :</b>\n\n'
-    for i in [0,2,4]:
-        msg += f'<b>{forum1[i]}</b> : <b>{forum1[i+1]}</b>\n\n'
-        msg += f'<b>{forum2[i]}</b> : <b>{forum2[i+1]}</b>\n\n'
+    forum = soup.find('div',attrs={'class':'col-12 col-lg'}).text.split('  ')
+    msg = '<b>اوقات شرعی تهران :</b>\n'
+    msg +=f'<b>{forum[0]}</b>\n\n'
+    for i in range(1,16,2):
+        msg += f'<b>{forum[i+1]}</b> : <b>{forum[i]}</b>\n\n'
     sendMessage(msg,context.bot,update.message)
 
 oghatsharei_handler = CommandHandler(BotCommands.OghatSharei,oghatsharei,run_async=True)
