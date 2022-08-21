@@ -113,7 +113,7 @@ def remove_blanks(List : list):
 def oghatsharei(update,context):
     LOGGER.info('Oghat Sharei')
     page = requestsget('https://www.time.ir/')
-    soup = BeautifulSoup(page,'html.parser')
+    soup = BeautifulSoup(page.text,'html.parser')
     forum1 = soup.find_all('div',attrs={'class':'col-sm-6'})[6].text.split('\n')
     forum1 = remove_blanks(forum1)
     forum2 = soup.find_all('div',attrs={'class':'col-sm-6'})[7].text.split('\n')
