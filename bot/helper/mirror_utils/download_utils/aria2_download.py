@@ -22,7 +22,7 @@ def __onDownloadStarted(api, gid):
                 download = api.get_download(gid)
             LOGGER.info(f'onDownloadStarted: {gid}')
             dl = getDownloadByGid(gid)
-            if not dl or dl.getListener().isLeech or dl.getListener_MultiZip() is None:
+            if not dl or dl.getListener().isLeech or dl.getListener_MultiZip() is not None:
                 return
             LOGGER.info('Checking File/Folder if already in Drive...')
             LOGGER.info(f'{download} , {download.name}')
