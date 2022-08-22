@@ -639,7 +639,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     link = file.get_file().file_path
 
-        if not is_url(link) and not is_magnet(link) and not ospath.exists(link) and not MultiTelegram:
+        if not is_url(link) and not is_magnet(link) and not ospath.exists(link) and not MultiTelegram and not MultiZip and not MultiUnZip:
             help_msg = "<b>Send link along with command line:</b>"
             help_msg += "\n<code>/command</code> {link} |newname pswd: xx [zip/unzip]"
             help_msg += "\n\n<b>By replying to link or file:</b>"
