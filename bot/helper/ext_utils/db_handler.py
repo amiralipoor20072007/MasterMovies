@@ -1,7 +1,7 @@
 from os import path as ospath, makedirs
 from psycopg2 import connect, DatabaseError
 
-from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, HASH_USERS,RANDOMNAME_USERS,AUTODELETE_USERS, rss_dict, LOGGER, botname
+from bot import DB_URI, AUTHORIZED_CHATS, HOW2SEND_COMPLETE_MESSAGE, MULTI_DRIVE_XI, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, HASH_USERS,RANDOMNAME_USERS,AUTODELETE_USERS, rss_dict, LOGGER, botname
 
 class DbManger:
     def __init__(self):
@@ -32,7 +32,9 @@ class DbManger:
                  thumb bytea DEFAULT NULL,
                  randomname boolean DEFAULT FALSE,
                  autodeletexi boolean DEFAULT FALSE,
-                 hashuser boolean DEFAULT FALSE
+                 hashuser boolean DEFAULT FALSE,
+                 howsend int DEFAULT 1,
+                 multidrivexi DEFAULT FALSE
               )
               """
         self.cur.execute(sql)
@@ -53,7 +55,7 @@ class DbManger:
     def db_load(self):
         # User Data
         self.cur.execute("SELECT * from users")
-        rows = self.cur.fetchall()  # return a list ==> (uid, sudo, auth, media, doc, thumb,randomname,autodeletexi,hashuser)
+        rows = self.cur.fetchall()  # return a list ==> (uid, sudo, auth, media, doc, thumb,randomname,autodeletexi,hashuser,howsend)
         if rows:
             for row in rows:
                 LOGGER.info(f'{row}')
@@ -71,6 +73,10 @@ class DbManger:
                     AUTODELETE_USERS.add(row[0])
                 if row[8] and row[0] not in HASH_USERS:
                     HASH_USERS.add(row[0])
+                if row[9]:
+                    HOW2SEND_COMPLETE_MESSAGE[row[0]] = row[9]
+                if row[10] and row[0] not in MULTI_DRIVE_XI:
+                    MULTI_DRIVE_XI.add(row[0])
                 path = f"Thumbnails/{row[0]}.jpg"
                 if row[5] is not None and not ospath.exists(path):
                     if not ospath.exists('Thumbnails'):
@@ -225,6 +231,28 @@ class DbManger:
         self.conn.commit()
         self.disconnect()
 
+    def user_multidrive(self,user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, multidrivexi) VALUES ({}, TRUE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET multidrivexi = TRUE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
+    def user_unmultidrive(self,user_id: int):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, multidrivexi) VALUES ({}, FALSE)'.format(user_id)
+        else:
+            sql = 'UPDATE users SET multidrivexi = FALSE WHERE uid = {}'.format(user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
     def user_save_thumb(self, user_id: int, path):
         if self.err:
             return
@@ -237,6 +265,18 @@ class DbManger:
         self.cur.execute(sql, (image_bin, user_id))
         self.conn.commit()
         self.disconnect()
+
+    def set_how2send(self,user_id,how2send):
+        if self.err:
+            return
+        elif not self.user_check(user_id):
+            sql = 'INSERT INTO users (uid, howsend) VALUES ({}, {})'.format(user_id,how2send)
+        else:
+            sql = 'UPDATE users SET howsend = {} WHERE uid = {}'.format(how2send,user_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+
 
     def user_rm_thumb(self, user_id: int, path):
         if self.err:

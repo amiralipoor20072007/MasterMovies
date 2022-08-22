@@ -16,7 +16,7 @@ from telegram import InlineKeyboardMarkup
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, RetryError
 
 from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot import PARENT_ID,BACKUP_ID_LIST, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, USE_SERVICE_ACCOUNTS, VIEW_LINK, \
+from bot import MULTI_DRIVE_XI, PARENT_ID,BACKUP_ID_LIST, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, USE_SERVICE_ACCOUNTS, VIEW_LINK, \
                 DRIVES_NAMES, DRIVES_IDS, INDEX_URLS, EXTENSION_FILTER
 from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
@@ -263,9 +263,10 @@ class GoogleDriveHelper:
                 return
             elif self.is_errored:
                 return
-        Download_Urls_XI = self.clone(link,CloneXi=True)
         link = [link]
-        link.extend(Download_Urls_XI)
+        if self.__listener.message.from_user.id in MULTI_DRIVE_XI:
+            Download_Urls_XI = self.clone(link,CloneXi=True)
+            link.extend(Download_Urls_XI)
         self.__listener.onUploadComplete(link, size, self.__total_files, self.__total_folders, mime_type, self.name)
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),

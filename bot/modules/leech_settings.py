@@ -4,7 +4,7 @@ from PIL import Image
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import AS_DOC_USERS, AS_MEDIA_USERS, AUTODELETE_USERS, HASH_USERS,RANDOMNAME_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
+from bot import AS_DOC_USERS, AS_MEDIA_USERS, AUTODELETE_USERS, HASH_USERS, HOW2SEND_COMPLETE_MESSAGE, MULTI_DRIVE, MULTI_DRIVE_XI,RANDOMNAME_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -48,6 +48,25 @@ def getleechinfo(from_user):
     else:
         Hash = 'Deactive 🔴'
         buttons.sbutton('Hash Active 🟢', f"leechset {user_id} ha")
+    
+    How2Send = HOW2SEND_COMPLETE_MESSAGE.get(user_id,1)
+
+    if How2Send == 1:
+        How2Send = 'HyperLink'
+        buttons.sbutton('Set How2Send -> Code(قابل کپی)', f"leechset {user_id} h2s 2")
+    elif How2Send == 2:
+        How2Send = 'Code(قابل کپی)'
+        buttons.sbutton('Set How2Send -> Both(HyperLink+Code)', f"leechset {user_id} h2s 3")
+    else:
+        How2Send = 'Both(HyperLink+Code)'
+        buttons.sbutton('Set How2Send -> HyperLink', f"leechset {user_id} h2s 1")
+    
+    if user_id in MULTI_DRIVE_XI:
+        Multi_DRIVE = 'MultiDrive Upload 🟢'
+        buttons.sbutton('MultiDrive Deactive 🔴', f"leechset {user_id} mdxa")
+    else:
+        Multi_DRIVE = 'MultiDrive Upload 🔴'
+        buttons.sbutton('MultiDrive Deactive 🔴', f"leechset {user_id} mdxd")
 
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
@@ -65,6 +84,8 @@ def getleechinfo(from_user):
            f"<b>Random Name: </b>{Random}\n"\
            f"<b>Auto Delete: </b>{Autodelete}\n"\
            f"<b>Send Hash File: </b>{Hash}\n"\
+           f"<b>How2Send(CompleteMessage): </b>{How2Send}\n"\
+           f"<b>MultiDrive Uploading: </b>{Multi_DRIVE}\n"\
            f"Custom Thumbnail <b>{thumbmsg}</b>"
     return text, button
 
@@ -146,6 +167,25 @@ def setLeechType(update, context):
         if DB_URI is not None:
             DbManger().user_unhash(user_id)
         query.answer(text="Hash Deactivated!", show_alert=True)
+        editLeechType(message, query)
+    elif data[2] == "h2s":
+        how2send = int(data[3])
+        HOW2SEND_COMPLETE_MESSAGE[user_id] = how2send
+        if DB_URI is not None:
+            DbManger().set_how2send(user_id,how2send)
+        query.answer(text=f"Set To {how2send}!", show_alert=True)
+        editLeechType(message, query)
+    elif data[2] == 'mdxa':
+        MULTI_DRIVE_XI.add(user_id)
+        if DB_URI is not None:
+            DbManger().user_multidrive(user_id)
+        query.answer(text="MultiDrive Activated!", show_alert=True)
+        editLeechType(message, query)
+    elif data[2] == 'mdxd':
+        MULTI_DRIVE_XI.remove(user_id)
+        if DB_URI is not None:
+            DbManger().user_unmultidrive(user_id)
+        query.answer(text="MultiDrive Deactivated!", show_alert=True)
         editLeechType(message, query)
     else:
         query.answer()

@@ -14,7 +14,7 @@ import random
 
 import string
 
-from bot import AUTODELETE_USERS, HASH_USERS, Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
+from bot import AUTODELETE_USERS, HASH_USERS, HOW2SEND_COMPLETE_MESSAGE, MULTI_DRIVE_XI, Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app,MAX_SPLIT_SIZE
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha,VIDEO_SUFFIXES
@@ -455,38 +455,62 @@ class MirrorListener:
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
-                    backup_links = f"<a href='{share_url}'>Main Drive</a>"
-                    iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
-                    for i in range(1,len(link)):
-                        if 'drive.google' in link[i]:
-                            backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
-                            if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
-                                iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'        
-                            else:
-                                iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
+                    if self.message.from_user.id in MULTI_DRIVE_XI:
+                        How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
+                        if How2Send == 1:
+                            backup_links = f"<a href='{share_url}'>Main Drive</a>"
+                            iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
                         else:
-                            backup_links += f'\nDrive {i} : Error!'
-                            iran_backup_links += f'\nDrive {i} : Error!'
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
-                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                            backup_links = f"Main Drive : <code>{share_url}</code>"
+                            iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
+                        for i in range(1,len(link)):
+                            if 'drive.google' in link[i]:
+                                if How2Send == 1 or How2Send == 3:
+                                    backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
+                                else:
+                                    backup_links += f"\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>"
+                                if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
+                                    iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'        
+                                else:
+                                    if How2Send == 1 or How2Send == 3: 
+                                        iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
+                                    else:
+                                        iran_backup_links += f"\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>" 
+                            else:
+                                backup_links += f'\nDrive {i} : Error!'
+                                iran_backup_links += f'\nDrive {i} : Error!'
+                        msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
+                        msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
-                    iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
-                    backup_links = f"<a href='{share_url}'>Main Drive</a>"
-                    for i in range(1,len(link)):
-                        if 'drive.google' in link[i]:
-                            backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
-                            if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
-                                iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'
-                            else:
-                                iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
-                        else :
-                            backup_links += f'\nDrive {i} : Error!'
-                            iran_backup_links += f'\nDrive {i} : Error!'
-                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
-                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                    if self.message.from_user.id in MULTI_DRIVE_XI:
+                        How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
+                        if How2Send == 1:
+                            backup_links = f"<a href='{share_url}'>Main Drive</a>"
+                            iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
+                        else:
+                            backup_links = f"Main Drive : <code>{share_url}</code>"
+                            iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
+                        for i in range(1,len(link)):
+                            if 'drive.google' in link[i]:
+                                if How2Send == 1 or How2Send == 3:
+                                    backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
+                                else:
+                                    backup_links += f"\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>"
+                                if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
+                                    iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'
+                                else:
+                                    if How2Send == 1 or How2Send == 3: 
+                                        iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
+                                    else:
+                                        iran_backup_links += f"\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>" 
+                            else :
+                                backup_links += f'\nDrive {i} : Error!'
+                                iran_backup_links += f'\nDrive {i} : Error!'
+                        msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
+                        msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                     if VIEW_LINK:

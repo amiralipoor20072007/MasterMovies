@@ -125,6 +125,9 @@ EXTENSION_FILTER = set()
 WATCHCOMMANDUSED = []
 for i in range(20):
     WATCHCOMMANDUSED.append(i)
+CLONE_TO_OTHER_DRIVES = set()
+HOW2SEND_COMPLETE_MESSAGE = {}
+MULTI_DRIVE_XI = set()
 try:
     aid = getConfig('AUTHORIZED_CHATS')
     aid = aid.split()
