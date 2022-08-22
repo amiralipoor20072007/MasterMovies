@@ -64,12 +64,12 @@ class Multi_Telegram_GetIDs():
             Deliver.run()
 
 
-def Multi_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener):
+def Multi_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener,URLsFlag=False):
     help_msg=f"I Got It You Want To Zip Telegram Files/URLs\nSo To Do That Just Send Files To Group\n"
     help_msg += f"Then Send /{BotCommands.SetLastID} To Confirm Your Downloads And Start Downloading...\n"
     help_msg += f"Tnx For Using Our Group"
     sendMessage(help_msg, bot, message)
-    Litsener = Multi_Telegram_GetIDs(message.from_user.id,message.chat.id,uid,DOWNLOAD_DIR,message,name,listener)
+    Litsener = Multi_Telegram_GetIDs(message.from_user.id,message.chat.id,uid,DOWNLOAD_DIR,message,name,listener,URLsFlag)
     multizip_telegram_download_dict[message.from_user.id] = Litsener
 
 def SetLastID(update,context):
