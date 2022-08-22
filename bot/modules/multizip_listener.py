@@ -1,4 +1,5 @@
 from time import sleep
+from bot.helper.mirror_utils.download_utils.aria2_download import Multi_Zip_Function
 from telegram.ext import CommandHandler
 from bot import multizip_telegram_download_dict, app,dispatcher
 from bot.helper.mirror_utils.download_utils.telegram_downloader import MultiZip_Telegram
@@ -7,7 +8,7 @@ from bot.helper.telegram_helper.message_utils import deleteMessage, sendMessage
 
 class Multi_Telegram_GetIDs():
 
-    def __init__(self,user_id,chat_id,firstid,DOWNLOAD_DIR,message,name,listener) -> None:
+    def __init__(self,user_id,chat_id,firstid,DOWNLOAD_DIR,message,name,listener,URLsFlag=False) -> None:
         self.downloadIDs = []
         self.All_Messages = []
         self.user_id = user_id
@@ -19,6 +20,8 @@ class Multi_Telegram_GetIDs():
         self.message = message
         self.name = name
         self.listener = listener
+        self.UrlsFlag = URLsFlag
+        self.URLS = []
 
     def SetLastID(self,id):
         self.LastID = id
@@ -29,24 +32,39 @@ class Multi_Telegram_GetIDs():
     def Get_All_IDs(self):
         for i in range(self.FirstID+1,self.LastID):
             self.All_IDs.append(i)
-    
+
     def Get_Messages(self):
         self.All_Messages = app.get_messages(chat_id=self.chat_id,message_ids=self.All_IDs)
+        NoneUrls = []
         for message in self.All_Messages:
             media_array = [message.document, message.video, message.audio]
             if message.from_user.id == self.user_id :
                 for i in media_array:
                     if i is not None:
                         self.Add_id(message.id)
+                        if self.UrlsFlag:
+                            NoneUrls.append(message.id)
                         break
-    
+        if self.UrlsFlag:
+            for message in self.All_Messages:
+                if message.id in NoneUrls:
+                    pass
+                else:
+                    self.URLS.extend(message.text.split('\n'))
+            
     def Deliver_To_MultiZip(self):
-        Deliver = MultiZip_Telegram(self.DOWNLOAD_DIR,self.message,self.name,self.downloadIDs,self.listener)
-        Deliver.run()
+        if self.UrlsFlag:
+            if len(self.URLS) == 0:
+                self.listener.onDownloadError('You Give No URL')
+            else:
+                Multi_Zip_Function(self.URLS,f'{self.DOWNLOAD_DIR}{self.listener.uid}',self.listener)
+        else:
+            Deliver = MultiZip_Telegram(self.DOWNLOAD_DIR,self.message,self.name,self.downloadIDs,self.listener)
+            Deliver.run()
 
 
 def Multi_Listener_Telegram_Runner(message,uid,bot,DOWNLOAD_DIR,name,listener):
-    help_msg=f"I Got It You Want To Zip Telegram Files\nSo To Do That Just Send Files To Group\n"
+    help_msg=f"I Got It You Want To Zip Telegram Files/URLs\nSo To Do That Just Send Files To Group\n"
     help_msg += f"Then Send /{BotCommands.SetLastID} To Confirm Your Downloads And Start Downloading...\n"
     help_msg += f"Tnx For Using Our Group"
     sendMessage(help_msg, bot, message)

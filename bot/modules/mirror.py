@@ -103,7 +103,7 @@ def CheckPorn(path):
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,SoftSub=[[],False]):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=False,MultiUnZip=False,Extract_Audio=False,SoftSub=[[],False]):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -113,8 +113,8 @@ class MirrorListener:
         self.isLeech = isLeech
         self.pswd = pswd
         self.tag = tag
-        self.MultiZip = MultiZip[1]
-        self.MultiUnZip = MultiUnZip[1]
+        self.MultiZip = MultiZip
+        self.MultiUnZip = MultiUnZip
         self.Extract_Audio = Extract_Audio
         self.SoftSub = SoftSub
         self.seed = any([seed, QB_SEED])
@@ -461,7 +461,7 @@ class MirrorListener:
                         if 'drive.google' in link[i]:
                             backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
                             if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
-                                iran_backup_links += f"\n<a href='{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>"          
+                                iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'        
                             else:
                                 iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
                         else:
@@ -473,15 +473,15 @@ class MirrorListener:
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
-                    iran_backup_links = f'Main Drive : <code>{iran_url}</code>'
-                    backup_links = f'Main Drive : <code>{share_url}</code>'
+                    iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
+                    backup_links = f"<a href='{share_url}'>Main Drive</a>"
                     for i in range(1,len(link)):
                         if 'drive.google' in link[i]:
-                            backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}</code>'
+                            backup_links += f"\n<a href='{share_url.replace(INDEX_URL,INDEX_BACKUP[i-1])}'>Drive {i}</a>"
                             if IRAN_INDEX_BACKUP[i-1] == 'Nothing...':
-                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(share_url,IRAN_INDEX_BACKUP[i-1])}</code>'
+                                iran_backup_links += f'\nDrive {i} : <b>Nothing...</b>'
                             else:
-                                iran_backup_links += f'\nDrive {i} : <code>{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}</code>'
+                                iran_backup_links += f"\n<a href='{share_url.replace(INDEX_URL,IRAN_INDEX_BACKUP[i-1])}'>Drive {i}</a>" 
                         else :
                             backup_links += f'\nDrive {i} : Error!'
                             iran_backup_links += f'\nDrive {i} : Error!'
@@ -546,15 +546,11 @@ def message_deleter(user_id: int,message):
         sleep(2)
         message.delete()
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=[[],False],MultiUnZip=[[],False],Extract_Audio=False,SoftSub=[[],False],MultiTelegram=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=False,MultiUnZip=False,Extract_Audio=False,SoftSub=[[],False],MultiTelegram=False):
     idmustjoin = message.from_user.id
     if mustjoin(idmustjoin) == True:
         mesg = message.text.split('\n')
-        if MultiZip[1] == True :
-            MultiZip[0] = mesg[1:]
-        elif MultiUnZip[1] == True :
-            MultiUnZip[0] = mesg[1:]
-        elif SoftSub[1] == True :
+        if SoftSub[1] == True :
             SoftSub[0] = mesg[1:]
         message_args = mesg[0].split(maxsplit=1)
         name_args = mesg[0].split('|', maxsplit=1)
@@ -695,7 +691,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
             message_deleter(idmustjoin,message)
         else:
-            if MultiZip[1] == False and MultiUnZip[1] == False and SoftSub[1] == False:
+            if not MultiZip and not MultiUnZip and not SoftSub[1]:
                 if len(mesg) > 1:
                     try:
                         ussr = mesg[1]
@@ -711,12 +707,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     auth = ''
                 Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
                 message_deleter(idmustjoin,message)
-            elif MultiZip[1] == True:
-                MultiZip[0].append(link)
-                Thread(target=Multi_Zip_Function, args=(MultiZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
-            elif MultiUnZip[1] == True:
-                MultiUnZip[0].append(link)
-                Thread(target=Multi_Zip_Function, args=(MultiUnZip[0], f'{DOWNLOAD_DIR}{listener.uid}', listener)).start()
+            elif MultiZip:
+                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
+                return
+            elif MultiUnZip:
+                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
+                return
             elif SoftSub[1] == True:
                 SoftSub[0].append(link)
                 Thread(target=Multi_Zip_Function, args=(SoftSub[0], f'{DOWNLOAD_DIR}{listener.uid}', listener,True)).start()
@@ -746,28 +742,28 @@ def mirror(update, context):
     _mirror(context.bot, update.message)
 
 def multizip_mirror(update, context):
-    _mirror(context.bot, update.message,MultiZip=[[],True])
+    _mirror(context.bot, update.message,MultiZip=True)
 
 def multizip_leech(update, context):
-    _mirror(context.bot, update.message,isLeech=True,MultiZip=[[],True])
+    _mirror(context.bot, update.message,isLeech=True,MultiZip=True)
 
 def multiunzip_mirror(update, context):
-    _mirror(context.bot, update.message,MultiUnZip=[[],True])
+    _mirror(context.bot, update.message,MultiUnZip=True)
 
 def multiunzip_leech(update, context):
-    _mirror(context.bot, update.message,MultiUnZip=[[],True],isLeech=True)
+    _mirror(context.bot, update.message,MultiUnZip=True,isLeech=True)
 
 def multizip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiZip=[[],True],MultiTelegram=True)
+    _mirror(context.bot, update.message,MultiZip=True,MultiTelegram=True)
 
 def multizip_telegram_leech(update, context):
-    _mirror(context.bot, update.message,MultiZip=[[],True],MultiTelegram=True,isLeech=True)
+    _mirror(context.bot, update.message,MultiZip=True,MultiTelegram=True,isLeech=True)
 
 def multiunzip_telegram(update, context):
-    _mirror(context.bot, update.message,MultiUnZip=[[],True],MultiTelegram=True)
+    _mirror(context.bot, update.message,MultiUnZip=True,MultiTelegram=True)
 
 def multiunzip_telegram_leech(update, context):
-    _mirror(context.bot, update.message,MultiUnZip=[[],True],MultiTelegram=True,isLeech=True)
+    _mirror(context.bot, update.message,MultiUnZip=True,MultiTelegram=True,isLeech=True)
 
 def audioextract_mirror(update, context):
     _mirror(context.bot, update.message,Extract_Audio=True)
