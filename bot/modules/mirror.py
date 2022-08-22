@@ -708,10 +708,10 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
                 message_deleter(idmustjoin,message)
             elif MultiZip:
-                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
+                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener,True)).start()
                 return
             elif MultiUnZip:
-                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener)).start()
+                Thread(target=Multi_Listener_Telegram_Runner,args=(message,listener.uid,bot,DOWNLOAD_DIR,name,listener,True)).start()
                 return
             elif SoftSub[1] == True:
                 SoftSub[0].append(link)
