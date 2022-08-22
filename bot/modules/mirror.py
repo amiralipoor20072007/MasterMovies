@@ -655,7 +655,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         LOGGER.info(link)
 
         if not is_mega_link(link) and not isQbit and not MultiTelegram and not is_magnet(link) \
-            and not is_gdrive_link(link) and not link.endswith('.torrent'):
+            and not MultiZip and not MultiUnZip and not is_gdrive_link(link) and not link.endswith('.torrent'):
             content_type = get_content_type(link)
             if content_type is None or re_match(r'text/html|text/plain', content_type):
                 try:
