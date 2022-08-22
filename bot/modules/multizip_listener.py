@@ -1,7 +1,7 @@
 from time import sleep
 from bot.helper.mirror_utils.download_utils.aria2_download import Multi_Zip_Function
 from telegram.ext import CommandHandler
-from bot import multizip_telegram_download_dict, app,dispatcher
+from bot import LOGGER, multizip_telegram_download_dict, app,dispatcher
 from bot.helper.mirror_utils.download_utils.telegram_downloader import MultiZip_Telegram
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.message_utils import deleteMessage, sendMessage
@@ -57,6 +57,7 @@ class Multi_Telegram_GetIDs():
             if len(self.URLS) == 0:
                 self.listener.onDownloadError('You Give No URL')
             else:
+                LOGGER.info(f'URLs : {self.URLS}')
                 Multi_Zip_Function(self.URLS,f'{self.DOWNLOAD_DIR}{self.listener.uid}',self.listener)
         else:
             Deliver = MultiZip_Telegram(self.DOWNLOAD_DIR,self.message,self.name,self.downloadIDs,self.listener)
