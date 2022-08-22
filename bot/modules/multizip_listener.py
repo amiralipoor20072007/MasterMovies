@@ -30,7 +30,7 @@ class Multi_Telegram_GetIDs():
         self.downloadIDs.append(message_id)
     
     def Get_All_IDs(self):
-        for i in range(self.FirstID+1,self.LastID):
+        for i in range(self.FirstID+2,self.LastID):
             self.All_IDs.append(i)
 
     def Get_Messages(self):
