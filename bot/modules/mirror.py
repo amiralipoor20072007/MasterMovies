@@ -260,7 +260,6 @@ class MirrorListener:
                     path = f'{DOWNLOAD_DIR}{"ExtractedMulti" + str(self.uid)}'
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
-                    counter = 0
                     for dirpath, subdir, files in walk(original_path,topdown=False):
                         for file_ in files:
                             if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
@@ -275,7 +274,6 @@ class MirrorListener:
                                     return
                                 elif self.SubProc.returncode != 0:
                                     LOGGER.error('Unable to extract archive splits!')
-                                counter += 1
                         for file_ in files:
                             if file_.endswith((".rar", ".zip", ".7z")) or re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                 del_path = ospath.join(dirpath, file_)
