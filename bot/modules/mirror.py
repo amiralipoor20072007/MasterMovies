@@ -256,30 +256,26 @@ class MirrorListener:
                                 osremove(del_path)
                 elif self.MultiUnZip :
                     original_path = f'{DOWNLOAD_DIR}{self.uid}'
-                    mkdir(f'{DOWNLOAD_DIR}{"ExtractedMulti " + str(self.uid)}')
-                    path = f'{DOWNLOAD_DIR}{"ExtractedMulti " + str(self.uid)}'
-                    LOGGER.info(f"Extracting Multi: {name}")
+                    mkdir(f'{DOWNLOAD_DIR}{"ExtractedMulti" + str(self.uid)}')
+                    path = f'{DOWNLOAD_DIR}{"ExtractedMulti" + str(self.uid)}'
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
                     counter = 0
                     for dirpath, subdir, files in walk(original_path,topdown=False):
                         for file_ in files:
-                            LOGGER.info(file_)
-                            if counter < 1:
-                                LOGGER.info('counter < 1')
-                                if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
-                                    m_path = ospath.join(dirpath, file_)
-                                    LOGGER.info(f"Extracting : {m_path}")
-                                    if self.pswd is not None:
-                                        self.SubProc = Popen(["7z", "x",m_path,f'-o{path}',f'-p{self.pswd}'])
-                                    else:
-                                        self.SubProc = Popen(["7z", "x",m_path,f'-o{path}'])
-                                    self.SubProc.wait()
-                                    if self.SubProc.returncode == -9:
-                                        return
-                                    elif self.SubProc.returncode != 0:
-                                        LOGGER.error('Unable to extract archive splits!')
-                                    counter += 1
+                            if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
+                                m_path = ospath.join(dirpath, file_)
+                                LOGGER.info(f"Extracting : {m_path}")
+                                if self.pswd is not None:
+                                    self.SubProc = Popen(["7z", "x",m_path,f'-o{path}',f'-p{self.pswd}'])
+                                else:
+                                    self.SubProc = Popen(["7z", "x",m_path,f'-o{path}'])
+                                self.SubProc.wait()
+                                if self.SubProc.returncode == -9:
+                                    return
+                                elif self.SubProc.returncode != 0:
+                                    LOGGER.error('Unable to extract archive splits!')
+                                counter += 1
                         for file_ in files:
                             if file_.endswith((".rar", ".zip", ".7z")) or re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                 del_path = ospath.join(dirpath, file_)
@@ -304,7 +300,10 @@ class MirrorListener:
         else:
             path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         up_name = PurePath(path).name
-        up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+        if self.MultiUnZip:
+            up_path = f'{DOWNLOAD_DIR}{up_name}'
+        else:
+            up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
         if ospath.isfile(up_path):
             isfilexi = True
         else:
