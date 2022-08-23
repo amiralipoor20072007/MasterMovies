@@ -262,13 +262,12 @@ class MirrorListener:
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
                     counter = 0
-                    for dirpath, subdir, files in walk(original_path, topdown=False):
+                    for dirpath, subdir, files in walk(original_path,top):
                         for file_ in files:
                             LOGGER.info(file_)
                             if counter < 1:
                                 LOGGER.info('counter < 1')
-                                if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
-                                or file_.endswith(".rar"):
+                                if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
                                     m_path = ospath.join(dirpath, file_)
                                     LOGGER.info(f"Extracting : {m_path}")
                                     if self.pswd is not None:
