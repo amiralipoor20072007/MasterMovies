@@ -34,7 +34,7 @@ class DbManger:
                  autodeletexi boolean DEFAULT FALSE,
                  hashuser boolean DEFAULT FALSE,
                  howsend int DEFAULT 1,
-                 multidrivexi DEFAULT FALSE
+                 multidrivexi boolean DEFAULT FALSE
               )
               """
         self.cur.execute(sql)
