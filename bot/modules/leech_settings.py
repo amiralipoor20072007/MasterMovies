@@ -63,10 +63,10 @@ def getleechinfo(from_user):
     
     if user_id in MULTI_DRIVE_XI:
         Multi_DRIVE = 'MultiDrive Upload 🟢'
-        buttons.sbutton('MultiDrive Deactive 🔴', f"leechset {user_id} mdxa")
+        buttons.sbutton('MultiDrive Deactive 🔴', f"leechset {user_id} mdxd")
     else:
         Multi_DRIVE = 'MultiDrive Upload 🔴'
-        buttons.sbutton('MultiDrive Deactive 🔴', f"leechset {user_id} mdxd")
+        buttons.sbutton('MultiDrive Active 🟢', f"leechset {user_id} mdxa")
 
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
