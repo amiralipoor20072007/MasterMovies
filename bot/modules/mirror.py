@@ -262,7 +262,7 @@ class MirrorListener:
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
                     counter = 0
-                    for dirpath, subdir, files in walk(original_path,top):
+                    for dirpath, subdir, files in walk(original_path,topdown=False):
                         for file_ in files:
                             LOGGER.info(file_)
                             if counter < 1:
