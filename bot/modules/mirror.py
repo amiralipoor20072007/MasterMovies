@@ -2,7 +2,7 @@ from base64 import b64encode
 from requests import utils as rutils
 from re import T, match as re_match, search as re_search, split as re_split
 from time import sleep, time
-from os import path as ospath, remove as osremove, listdir, walk,rename
+from os import mkdir, path as ospath, remove as osremove, listdir, walk,rename
 from shutil import rmtree
 from threading import Thread
 from subprocess import run as srun,Popen
@@ -256,7 +256,8 @@ class MirrorListener:
                                 osremove(del_path)
                 elif self.MultiUnZip :
                     original_path = f'{DOWNLOAD_DIR}{self.uid}'
-                    path = f'{DOWNLOAD_DIR}{self.uid}'
+                    mkdir(f'{DOWNLOAD_DIR}{"ExtractedMulti " + str(self.uid)}')
+                    path = f'{DOWNLOAD_DIR}{"ExtractedMulti " + str(self.uid)}'
                     LOGGER.info(f"Extracting Multi: {name}")
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
@@ -271,12 +272,13 @@ class MirrorListener:
                                     if self.pswd is not None:
                                         self.SubProc = Popen(["bash", "pextract", m_path, self.pswd])
                                     else:
-                                        self.SubProc = Popen(["7z", "e",f"-o{original_path}", m_path])
+                                        self.SubProc = Popen(["7z", "x",m_path,f'-o{path}'])
                                     self.SubProc.wait()
                                     if self.SubProc.returncode == -9:
                                         return
                                     elif self.SubProc.returncode != 0:
                                         LOGGER.error('Unable to extract archive splits!')
+                                    counter += 1
                         for file_ in files:
                             if file_.endswith((".rar", ".zip", ".7z")) or re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                 del_path = ospath.join(dirpath, file_)
