@@ -219,11 +219,12 @@ class GoogleDriveHelper:
         download_url = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(drive_file.get('id'))
         return download_url
 
-    def upload(self, file_name: str):
+    def upload(self, file_name: str,file_path=None):
         self.is_downloading = False
         self.is_uploading = True
-        file_dir = f"{DOWNLOAD_DIR}{self.__listener.message.message_id}"
-        file_path = f"{file_dir}/{file_name}"
+        if file_path == None:
+            file_dir = f"{DOWNLOAD_DIR}{self.__listener.message.message_id}"
+            file_path = f"{file_dir}/{file_name}"
         IdOfDownloader = self.__listener.message.from_user.id
         size = get_readable_file_size(get_path_size(file_path))
         LOGGER.info("Uploading File: " + file_path)

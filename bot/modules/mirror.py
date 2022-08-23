@@ -372,12 +372,16 @@ class MirrorListener:
                 self.NameBeforeChange[-1] = True
             size = get_path_size(up_path)
             LOGGER.info(f"Upload Name: {up_name}")
+            LOGGER.info(f"Upload Path: {up_name}")
             drive = GoogleDriveHelper(up_name, self)
             upload_status = UploadStatus(drive, size, gid, self)
             with download_dict_lock:
                 download_dict[self.uid] = upload_status
             update_all_messages()
-            drive.upload(up_name)
+            if self.MultiUnZip:
+                drive.upload(up_name,up_path)
+            else:
+                drive.upload(up_name)
 
     def onDownloadError(self, error):
         error = error.replace('<', ' ').replace('>', ' ')
