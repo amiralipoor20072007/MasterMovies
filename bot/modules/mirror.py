@@ -268,11 +268,11 @@ class MirrorListener:
                             if counter < 1:
                                 LOGGER.info('counter < 1')
                                 if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
-                                or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
+                                or file_.endswith(".rar"):
                                     m_path = ospath.join(dirpath, file_)
                                     LOGGER.info(f"Extracting : {m_path}")
                                     if self.pswd is not None:
-                                        self.SubProc = Popen(["bash", "pextract", m_path, self.pswd])
+                                        self.SubProc = Popen(["7z", "x",m_path,f'-o{path}',f'-p{self.pswd}'])
                                     else:
                                         self.SubProc = Popen(["7z", "x",m_path,f'-o{path}'])
                                     self.SubProc.wait()
