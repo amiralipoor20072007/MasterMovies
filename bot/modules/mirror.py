@@ -455,14 +455,14 @@ class MirrorListener:
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
+                    How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
+                    if How2Send == 1:
+                        backup_links = f"<a href='{share_url}'>Main Drive</a>"
+                        iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
+                    else:
+                        backup_links = f"Main Drive : <code>{share_url}</code>"
+                        iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
                     if self.message.from_user.id in MULTI_DRIVE_XI:
-                        How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
-                        if How2Send == 1:
-                            backup_links = f"<a href='{share_url}'>Main Drive</a>"
-                            iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
-                        else:
-                            backup_links = f"Main Drive : <code>{share_url}</code>"
-                            iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
                         for i in range(1,len(link)):
                             if 'drive.google' in link[i]:
                                 if How2Send == 1 or How2Send == 3:
@@ -479,20 +479,20 @@ class MirrorListener:
                             else:
                                 backup_links += f'\nDrive {i} : Error!'
                                 iran_backup_links += f'\nDrive {i} : Error!'
-                        msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
-                        msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
+                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                 else:
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
+                    How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
+                    if How2Send == 1:
+                        backup_links = f"<a href='{share_url}'>Main Drive</a>"
+                        iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
+                    else:
+                        backup_links = f"Main Drive : <code>{share_url}</code>"
+                        iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
                     if self.message.from_user.id in MULTI_DRIVE_XI:
-                        How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
-                        if How2Send == 1:
-                            backup_links = f"<a href='{share_url}'>Main Drive</a>"
-                            iran_backup_links = f"<a href='{iran_url}'>Main Drive</a>"
-                        else:
-                            backup_links = f"Main Drive : <code>{share_url}</code>"
-                            iran_backup_links = f"Main Drive : <code>{iran_url}</code>"
                         for i in range(1,len(link)):
                             if 'drive.google' in link[i]:
                                 if How2Send == 1 or How2Send == 3:
@@ -509,8 +509,8 @@ class MirrorListener:
                             else :
                                 backup_links += f'\nDrive {i} : Error!'
                                 iran_backup_links += f'\nDrive {i} : Error!'
-                        msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
-                        msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
+                    msg += f'\n\n<b>🇩🇪 لینک تمام بها</b>\n\n{backup_links}\n\n<b>🇮🇷 نیم بها</b>\n\n{iran_backup_links}'
+                    msg += f'\n\n<b>cc: </b>{self.tag}\n\n<b>Thanks For Using Our Group</b>\n<b>Please also share this bot with your friends @MX_TR_Official</b>'
                     buttons.buildbutton("⚡ Server (🇩🇪)", share_url)
                     buttons.buildbutton("🇮🇷 نیم بها", iran_url)
                     if VIEW_LINK:
