@@ -263,10 +263,12 @@ class GoogleDriveHelper:
                 return
             elif self.is_errored:
                 return
-        link = [link]
         if self.__listener.message.from_user.id in MULTI_DRIVE_XI:
-            Download_Urls_XI = self.clone(link[0],CloneXi=True)
+            Download_Urls_XI = self.clone(link,CloneXi=True)
+            link = [link]
             link.extend(Download_Urls_XI)
+        else:
+            link = [link]
         self.__listener.onUploadComplete(link, size, self.__total_files, self.__total_folders, mime_type, self.name)
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
