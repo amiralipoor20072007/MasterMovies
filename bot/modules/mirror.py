@@ -463,6 +463,7 @@ class MirrorListener:
             if INDEX_URL is not None:
                 url_path = rutils.quote(f'{name}')
                 share_url = f'{INDEX_URL}/{url_path}'
+                #heb
                 if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}') or ospath.isdir(f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
