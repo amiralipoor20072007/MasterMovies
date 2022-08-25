@@ -261,7 +261,8 @@ class MirrorListener:
                             if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
                                 self.NameBeforeChange[0] = file_.replace(re_findall(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$',file_)[0],"")
                                 name = self.NameBeforeChange[0] 
-                    mkdir(f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}')
+                    mkdir(f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/')
+                    mkdir(f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}/')
                     path = f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}'
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
