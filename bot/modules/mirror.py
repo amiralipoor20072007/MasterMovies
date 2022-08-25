@@ -1,6 +1,6 @@
 from base64 import b64encode
 from requests import utils as rutils
-from re import T, match as re_match, search as re_search, split as re_split
+from re import T, match as re_match, search as re_search, split as re_split,findall as re_findall
 from time import sleep, time
 from os import mkdir, path as ospath, remove as osremove, listdir, walk,rename
 from shutil import rmtree
@@ -256,8 +256,13 @@ class MirrorListener:
                                 osremove(del_path)
                 elif self.MultiUnZip :
                     original_path = f'{DOWNLOAD_DIR}{self.uid}'
-                    mkdir(f'{DOWNLOAD_DIR}{"ExtractedMulti" + str(self.uid)}')
-                    path = f'{DOWNLOAD_DIR}{"ExtractedMulti" + str(self.uid)}'
+                    for dirpath, subdir, files in walk(original_path,topdown=False):
+                        for file_ in files:
+                            if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_):
+                                self.NameBeforeChange[0] = file_.replace(re_findall(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$',file_)[0],"")
+                                name = self.NameBeforeChange[0] 
+                    mkdir(f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}')
+                    path = f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}'
                     with download_dict_lock:
                         download_dict[self.uid] = ExtractStatus(name, original_path, path,gid,self)
                     for dirpath, subdir, files in walk(original_path,topdown=False):
@@ -299,7 +304,7 @@ class MirrorListener:
             path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         up_name = PurePath(path).name
         if self.MultiUnZip:
-            up_path = f'{DOWNLOAD_DIR}{up_name}'
+            up_path = f'{DOWNLOAD_DIR}{str(self.uid) + "Extracting"}/{name}'
         else:
             up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
         if ospath.isfile(up_path):
@@ -456,7 +461,7 @@ class MirrorListener:
             if INDEX_URL is not None:
                 url_path = rutils.quote(f'{name}')
                 share_url = f'{INDEX_URL}/{url_path}'
-                if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
+                if ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}') or ospath.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                     share_url += '/'
                     iran_url = share_url.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')
                     How2Send = HOW2SEND_COMPLETE_MESSAGE.get(self.message.from_user.id,1)
