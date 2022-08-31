@@ -135,7 +135,7 @@ class MirrorListener:
         if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().add_incomplete_task(self.message.chat.id, self.message.link, self.tag)
 
-    def onDownloadComplete(self,MultiZip_ErroredXI=None,MultiZip_Counter=0):
+    def onDownloadComplete(self,MultiZip_ErroredXI=None):
         if MultiZip_ErroredXI is not None:
             msg = f"{self.tag} You MultiZipping Process Got Error Wiht One/Many Downloading:\n"
             counter = 0

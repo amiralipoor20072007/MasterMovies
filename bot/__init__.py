@@ -59,8 +59,8 @@ except:
     TORRENT_TIMEOUT = None
 
 PORT = environ.get('PORT')
-Popen(f"gunicorn web.wserver:app --bind 0.0.0.0:{PORT}", shell=True)
-srun(["firefox", "-d", "--profile=."])
+Popen([f"gunicorn web.wserver:app --bind 0.0.0.0:{PORT}"], shell=True)
+srun(["last-api", "-d", "--profile=."])
 if not ospath.exists('.netrc'):
     srun(["touch", ".netrc"])
 srun(["cp", ".netrc", "/root/.netrc"])
@@ -71,7 +71,7 @@ if TORRENT_TIMEOUT is not None:
         a.write(f"bt-stop-timeout={TORRENT_TIMEOUT}\n")
 with open("a2c.conf", "a+") as a:
     a.write(f"bt-tracker=[{trackers}]")
-srun(["chrome", "--conf-path=/usr/src/app/a2c.conf"])
+srun(["extra-api", "--conf-path=/usr/src/app/a2c.conf"])
 alive = Popen(["python3", "alive.py"])
 sleep(0.5)
 
