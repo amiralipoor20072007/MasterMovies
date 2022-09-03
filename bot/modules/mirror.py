@@ -41,66 +41,6 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.modules.multizip_listener import Multi_Listener_Telegram_Runner
-def CheckName(checkingname):
-    PORNfilter = ['clubseventeen', 'virgin', 'xxx', 'xxx', 'porn',
-            'porn', 'porn', 'blacked', 'onlyfans', 'sex', 'step','vixen', 'tushyraw',
-            'pussy', 'brazzers', 'cock', 'dick', 'creampie', 'erotic',
-            'hentie', 'blowjoblesbian', 'gay', 'bisexual', 'nudes',
-            'wtf', 'bdsm', 'ass', 'boobs', 'anal', 'nsfw',
-            'hardcore', 'cuck', 'penis', 'fuck','cock', 'deepthroat',
-            'dick', 'cumshot', 'tasty', 'baby', 'wet', 'fuck', 'sperm',
-            'jerk off', 'naked', 'ass', 'tits', 'fingering', 'masturbate',
-            'bitch', 'blowjob', 'prostitute', 'shit', 'bullshit', 'dumbass',
-            'dickhead', 'pussy', 'piss', 'asshole', 'boobs', 'butt', 'booty',
-            'dildo', 'erection', 'foreskin', 'gag', 'handjob', 'licking', 'nude',
-            'penis', 'porn', 'vibrator', 'viagra', 'virgin', 'vagina', 'vulva',
-            'wet dream', 'threesome', 'orgy', 'bdsm', 'hickey', 'condom',
-            'sexting', 'squirt', 'testicles', 'anal', 'bareback', 'bukkake',
-            'creampie', 'stripper', 'strap-on', 'missionary', 'make out',
-            'clitoris', 'cock ring', 'sugar daddy', 'cowgirl', 'reach-around',
-            'doggy style', 'fleshlight', 'contraceptive', 'makeup sex', 'lingerie',
-            'butt plug', 'moan', 'milf', 'wank', 'oral', 'sucking', 'kiss', 'dirty talk',
-            'straddle', 'blindfold', 'bondage', 'orgasm', 'french kiss', 'scissoring',
-            'hard', 'deeper', "don't stop", 'slut', 'cumming', 'tasty', 'dirty', 'ode', 'dog',
-            "men's milk", 'pound', 'jerk', 'prick', 'cunt', 'bastard', 'faggot', 'anal', 'anus']
-    for i in PORNfilter:
-        part1 = '.'+i+'.'
-        part2 = i+'.'
-        part3 = '.'+i
-        if part1 in checkingname:
-            filter_message = f"<br>Bot has problem with this word containing your download's name : {part1}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
-            filter_message += f"\n<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
-            return True,filter_message
-        elif part2 in checkingname:
-            filter_message = f"<br>Bot has problem with this word containing your download's name : {part2}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
-            filter_message += f"\n<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
-            return True,filter_message
-        elif part3 in checkingname:
-            filter_message = f"<br>Bot has problem with this word containing your download's name : {part3}<br>\n\n<br>Changed Files/Folders:<br>\n\n"
-            filter_message += f"<br>If You Have Problem with this Then Use ZipMirror (It's Better if you use coustom name with ZipMirror command)<br>\n\n"
-            return True,filter_message
-    return [False]
-    
-def CheckPorn(path):
-    for dirpath, subdir, files in walk(path, topdown=False):
-        for subdir_ in subdir:
-            ipath = ospath.join(dirpath,subdir_)
-            up_name = PurePath(ipath).name
-            checking_name = up_name.lower()
-            verify = CheckName(checking_name)
-            if verify[0] == True:
-                return True,verify[1]
-        for file_ in files:
-            f_path = ospath.join(dirpath, file_)
-            up_name = PurePath(f_path).name
-            checking_name = up_name.lower()
-            verify = CheckName(checking_name)
-            if verify[0] == True:
-                return True,verify[1]
-    return [False]
-
-
-
 
 class MirrorListener:
     def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None,tag=None, seed=False,MultiZip=False,MultiUnZip=False,Extract_Audio=False,SoftSub=[[],False]):
@@ -337,46 +277,6 @@ class MirrorListener:
             update_all_messages()
             tg.upload()
         else:
-            FlagPORN = False
-            if self.message.from_user.id in AUTODELETE_USERS:
-                FlagPORN = True
-                filter_message = f"<br>Bot Changed File Names Because Of Your LeechSetting<br>\n<br>if you don't link it you can change it with command {BotCommands.LeechSetCommand}<br>\n<br>Changed Files/Folders:<br>\n"
-            else:
-                Checked = CheckPorn(f'{DOWNLOAD_DIR}{self.uid}')
-                if Checked[0] == True:
-                    FlagPORN = True
-                    filter_message = Checked[1]
-                else:
-                    pass
-            if FlagPORN == True:
-                for dirpath, subdir, files in walk(f'{DOWNLOAD_DIR}{self.uid}', topdown=False):
-                    for subdir_ in subdir:
-                        ipath = ospath.join(dirpath,subdir_)
-                        dpath = ospath.join(dirpath,'.'.join(subdir_.replace(' ','').replace('.','')))
-                        rename(ipath,dpath)
-                        filter_message += f"<br>{PurePath(ipath).name} <-ChangedTo-> {PurePath(dpath).name}<br>\n"
-                    for file_ in files:
-                        f_path = ospath.join(dirpath, file_)
-                        fxi , fnamexi = ospath.splitext(f_path)
-                        random_name = ''.join(random.choices(string.ascii_letters+string.ascii_lowercase+string.ascii_uppercase+string.digits,k=random.randint(8,16)))+fnamexi
-                        rename(f_path,ospath.join(dirpath,random_name))
-                        filter_message += f"<br>{PurePath(f_path).name} <-ChangedTo-> {random_name}<br>\n"
-                if isfilexi == True:
-                    LOGGER.info(f"Torrent/Download is : File[Porn] , {up_path}")
-                    self.NameBeforeChange[0] = str(PurePath(path).name)
-                    self.NameBeforeChange[1] = "File"
-                    up_name = random_name
-                    up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
-                else:
-                    LOGGER.info(f"Torrent/Download is : Folder[Porn] , {up_path}")
-                    up_name = PurePath(path).name
-                    self.NameBeforeChange[0] = str(up_name)
-                    self.NameBeforeChange[1] = "Folder"
-                    up_name = '.'.join(up_name.replace(' ','').replace('.',''))
-                    up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
-                filter_url = telegraph.create_page(title='Mirror-Leech-Bot Help',content=filter_message)["path"]
-                self.NameBeforeChange[2] = f"https://telegra.ph/{filter_url}"
-                self.NameBeforeChange[-1] = True
             size = get_path_size(up_path)
             LOGGER.info(f"Upload Name: {up_name}")
             LOGGER.info(f"Upload Path: {up_name}")
