@@ -6,8 +6,8 @@ from telegram import InlineKeyboardMarkup
 from bot import download_dict, download_dict_lock, BASE_URL, get_client, STOP_DUPLICATE, WEB_PINCODE, TORRENT_TIMEOUT, LOGGER
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, sendStatusMessage, update_all_messages
-from bot.helper.ext_utils.bot_utils import SendSearchMessage, get_readable_time, setInterval
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, sendStatusMessage, update_all_messages,sendSearchMessage
+from bot.helper.ext_utils.bot_utils import get_readable_time, setInterval
 from bot.helper.ext_utils.fs_utils import clean_unwanted, get_base_name
 from bot.helper.telegram_helper import button_build
 
@@ -128,7 +128,7 @@ class QbDownloader:
                         search_list, f_name = GoogleDriveHelper().drive_list(qbname, True)
                         if search_list:
                             self.__onDownloadError("File/Folder is already available in Drive.")
-                            SendSearchMessage(self.__listener.message,self.__listener.bot,search_list,f_name)
+                            sendSearchMessage(self.__listener.message,self.__listener.bot,search_list,f_name)
                     self.__dupChecked = True
             elif tor_info.state == "stalledDL":
                 if not self.__rechecked and 0.99989999999999999 < tor_info.progress < 1:
