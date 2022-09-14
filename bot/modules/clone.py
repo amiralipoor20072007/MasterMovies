@@ -10,7 +10,7 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
 from bot import dispatcher, LOGGER, STOP_DUPLICATE, download_dict, download_dict_lock, Interval
-from bot.helper.ext_utils.bot_utils import is_gdrive_link, new_thread
+from bot.helper.ext_utils.bot_utils import SendSearchMessage, is_gdrive_link, new_thread
 
 
 def _clone(message, bot, multi=0):
@@ -40,10 +40,10 @@ def _clone(message, bot, multi=0):
             return sendMessage(res, bot, message)
         if STOP_DUPLICATE:
             LOGGER.info('Checking File/Folder if already in Drive...')
-            smsg, button = gd.drive_list(name, True, True)
-            if smsg:
-                msg3 = "File/Folder is already available in Drive.\nHere are the search results:"
-                return sendMarkup(msg3, bot, message, button)
+            search_list, f_name = gd.drive_list(name, True, True)
+            if search_list:
+                SendSearchMessage(message,bot,search_list,f_name)
+                return
         if multi > 1:
             sleep(4)
             nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
