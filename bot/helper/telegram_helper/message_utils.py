@@ -3,8 +3,9 @@ from telegram import InlineKeyboardMarkup
 from telegram.message import Message
 from telegram.error import RetryAfter
 from pyrogram.errors import FloodWait
+from os import remove
 
-from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER,LOGGING_CHAT, status_reply_dict, status_reply_dict_lock, \
+from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER, status_reply_dict, status_reply_dict_lock, \
                 Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, RSS_CHAT_ID, bot, rss_session
 from bot.helper.ext_utils.bot_utils import get_readable_message, setInterval
 
@@ -13,36 +14,11 @@ def sendMessage(text: str, bot, message: Message):
     try:
         return bot.sendMessage(message.chat_id,
                             reply_to_message_id=message.message_id,
-                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
+                            text=text, allow_sending_without_reply=True, parse_mode='HTML', disable_web_page_preview=True)
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
         return sendMessage(text, bot, message)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
-def LogXi(text: str, bot):
-    try:
-        return bot.sendMessage(LOGGING_CHAT,
-                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return LogXi(text, bot)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
-def LogXi_S(text: str, bot, message: Message):
-    try:
-        return bot.sendMessage(LOGGING_CHAT,
-                            reply_to_message_id=message.message_id,
-                            text=text, allow_sending_without_reply=True, parse_mode='HTMl', disable_web_page_preview=True)
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return LogXi_S(text, bot, message)
     except Exception as e:
         LOGGER.error(str(e))
         return
@@ -52,7 +28,7 @@ def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMar
         return bot.sendMessage(message.chat_id,
                             reply_to_message_id=message.message_id,
                             text=text, reply_markup=reply_markup, allow_sending_without_reply=True,
-                            parse_mode='HTMl', disable_web_page_preview=True)
+                            parse_mode='HTML', disable_web_page_preview=True)
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
@@ -61,24 +37,11 @@ def sendMarkup(text: str, bot, message: Message, reply_markup: InlineKeyboardMar
         LOGGER.error(str(e))
         return
 
-def sendMarkupLog(text: str, bot, message: Message, reply_markup: InlineKeyboardMarkup):
-    try:
-        return bot.sendMessage(LOGGING_CHAT,
-                            text=text, reply_markup=reply_markup, allow_sending_without_reply=True,
-                            reply_to_message_id=message.message_id,parse_mode='HTMl', disable_web_page_preview=True)
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return sendMarkupLog(text, bot, message, reply_markup)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
 def editMessage(text: str, message: Message, reply_markup=None):
     try:
         bot.editMessageText(text=text, message_id=message.message_id,
                               chat_id=message.chat.id,reply_markup=reply_markup,
-                              parse_mode='HTMl', disable_web_page_preview=True)
+                              parse_mode='HTML', disable_web_page_preview=True)
     except RetryAfter as r:
         LOGGER.warning(str(r))
         sleep(r.retry_after * 1.5)
@@ -87,36 +50,10 @@ def editMessage(text: str, message: Message, reply_markup=None):
         LOGGER.error(str(e))
         return str(e)
 
-def copyLeechToPv(bot, message: Message,original):
-    try:
-        return bot.copyMessage(message.from_user.id,from_chat_id = int('-100'+str(original[-2])),
-                            message_id = int(original[-1]),
-                            allow_sending_without_reply=True, parse_mode='HTMl')
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return copyLeechToPv(bot, message,original)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
-def copyMessageToPv(bot, message: Message,original: Message):
-    try:
-        return bot.copyMessage(message.from_user.id,from_chat_id = original.chat.id ,
-                            message_id = original.message_id,
-                            allow_sending_without_reply=True, parse_mode='HTMl')
-    except RetryAfter as r:
-        LOGGER.warning(str(r))
-        sleep(r.retry_after * 1.5)
-        return copyLeechToPv(bot, message,original)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
 def sendRss(text: str, bot):
     if rss_session is None:
         try:
-            return bot.sendMessage(RSS_CHAT_ID, text, parse_mode='HTMl', disable_web_page_preview=True)
+            return bot.sendMessage(RSS_CHAT_ID, text, parse_mode='HTML', disable_web_page_preview=True)
         except RetryAfter as r:
             LOGGER.warning(str(r))
             sleep(r.retry_after * 1.5)
@@ -136,20 +73,6 @@ def sendRss(text: str, bot):
             LOGGER.error(str(e))
             return
 
-
-async def sendRss_pyro(text: str):
-    rss_session = Client(name='rss_session', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_STRING_SESSION, parse_mode=enums.ParseMode.HTML)
-    await rss_session.start()
-    try:
-        return await rss_session.send_message(RSS_CHAT_ID, text, disable_web_page_preview=True)
-    except FloodWait as e:
-        LOGGER.warning(str(e))
-        await asleep(e.value * 1.5)
-        return await sendRss(text)
-    except Exception as e:
-        LOGGER.error(str(e))
-        return
-
 def deleteMessage(bot, message: Message):
     try:
         bot.deleteMessage(chat_id=message.chat.id,
@@ -162,6 +85,21 @@ def sendLogFile(bot, message: Message):
         bot.sendDocument(document=f, filename=f.name,
                           reply_to_message_id=message.message_id,
                           chat_id=message.chat_id)
+
+def sendFile(bot, message: Message, name: str, caption=""):
+    try:
+        with open(name, 'rb') as f:
+            bot.sendDocument(document=f, filename=f.name, reply_to_message_id=message.message_id,
+                             caption=caption, parse_mode='HTML',chat_id=message.chat_id)
+        remove(name)
+        return
+    except RetryAfter as r:
+        LOGGER.warning(str(r))
+        sleep(r.retry_after * 1.5)
+        return sendFile(bot, message, name, caption)
+    except Exception as e:
+        LOGGER.error(str(e))
+        return
 
 def auto_delete_message(bot, cmd_message: Message, bot_message: Message):
     if AUTO_DELETE_MESSAGE_DURATION != -1:
@@ -184,10 +122,14 @@ def delete_all_messages():
 
 def update_all_messages(force=False):
     with status_reply_dict_lock:
-        if not force and (not status_reply_dict or not Interval or time() - list(status_reply_dict.values())[0][1] < 2):
+        if not force and (not status_reply_dict or not Interval or time() - list(status_reply_dict.values())[0][1] < 3):
             return
+        for chat_id in status_reply_dict:
+            status_reply_dict[chat_id][1] = time()
 
     msg, buttons = get_readable_message()
+    if msg is None:
+        return
     with status_reply_dict_lock:
         for chat_id in status_reply_dict:
             if status_reply_dict[chat_id] and msg != status_reply_dict[chat_id][0].text:
@@ -203,6 +145,8 @@ def update_all_messages(force=False):
 
 def sendStatusMessage(msg, bot):
     progress, buttons = get_readable_message()
+    if progress is None:
+        return
     with status_reply_dict_lock:
         if msg.chat.id in status_reply_dict:
             message = status_reply_dict[msg.chat.id][0]
@@ -215,3 +159,23 @@ def sendStatusMessage(msg, bot):
         status_reply_dict[msg.chat.id] = [message, time()]
         if not Interval:
             Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
+
+def SendSearchMessage(message,bot,search_list:list,f_name:str):
+    msg = f"Here are the search results for {f_name}:"
+    fmsg = ''
+    for index,dictionary in enumerate(search_list, start=1):
+        index_link = dictionary.get('Index Link',False)
+        Drive_link = dictionary.get('Drive Link')
+        View_link = dictionary.get('View Link',False)
+        Name = dictionary.get('Name')
+        fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
+        if index_link:
+            fmsg += f"|<a href='{index_link}'>Index Link</a>'"
+        if View_link:
+            fmsg += f"|<a href='{View_link}'>View Link</a>'"
+        if len(fmsg.encode() + msg.encode()) > 4000:
+            sendMessage(msg + fmsg, bot, message)
+            sleep(1)
+            fmsg = ''
+    if fmsg != '':
+        sendMessage(msg + fmsg, bot, message)
