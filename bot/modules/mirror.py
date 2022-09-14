@@ -36,7 +36,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage,copyMessageToPv, sendMarkup,sendMarkupLog,copyLeechToPv, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.telegraph_helper import telegraph
@@ -338,20 +338,17 @@ class MirrorListener:
                     original = link.split('/')
                     LOGGER.info(('-100'+str(original[-2])))
                     LOGGER.info(original[-1])
-                    copyLeechToPv(self.bot, self.message,original)
                 fmsg = ''
                 for index, (link, name) in enumerate(files.items(), start=1):
                     fmsg += f"{index}. <a href='{link}'>{name}</a>\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
                         copy = sendMessage(msg + fmsg, self.bot, self.message)
                         #Send Complete Message To PV
-                        copyMessageToPv(self.bot,self.message, copy)
                         sleep(1)
                         fmsg = ''
                 if fmsg != '':
                     copy = sendMessage(msg + fmsg, self.bot, self.message)
                     #Send Complete Message To PV
-                    copyMessageToPv(self.bot,self.message, copy)
         else:
             msg += f'\n\n<b>Type: </b>{typ}'
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
@@ -428,7 +425,6 @@ class MirrorListener:
                     if VIEW_LINK:
                         share_urls = f'{INDEX_URL}/{url_path}?a=view'
                         buttons.buildbutton("🌐 View Link", share_urls)
-            sendMarkup(msg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
             if self.isQbit and self.seed and not self.extract:
                 if self.isZip:
                     try:
