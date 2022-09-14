@@ -160,7 +160,7 @@ def sendStatusMessage(msg, bot):
         if not Interval:
             Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
 
-def SendSearchMessage(message,bot,search_list:list,f_name:str):
+def sendSearchMessage(message,bot,search_list:list,f_name:str):
     msg = f"Here are the search results for {f_name}:"
     fmsg = ''
     for index,dictionary in enumerate(search_list, start=1):
