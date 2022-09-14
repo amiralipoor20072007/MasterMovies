@@ -171,9 +171,9 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
         Name = dictionary.get('Name')
         fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
         if index_link:
-            fmsg += f"|<a href='{index_link}'>Index Link</a>'"
+            fmsg += f"|<a href='{index_link}'>Index Link</a>"
         if View_link:
-            fmsg += f"|<a href='{View_link}'>View Link</a>'"
+            fmsg += f"|<a href='{View_link}'>View Link</a>"
         if len(fmsg.encode() + msg.encode()) > 4000:
             sendMessage(msg + fmsg, bot, message)
             sleep(1)
