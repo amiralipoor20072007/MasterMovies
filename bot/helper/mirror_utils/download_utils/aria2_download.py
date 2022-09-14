@@ -4,7 +4,7 @@ from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, LOGGER
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.bot_utils import is_magnet, getDownloadByGid, new_thread
 from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus,get_download
-from bot.helper.telegram_helper.message_utils import sendMarkup, sendStatusMessage, sendMessageوsendSearchMessage
+from bot.helper.telegram_helper.message_utils import sendMarkup, sendStatusMessage, sendMessage,sendSearchMessage
 from bot.helper.ext_utils.fs_utils import get_base_name
 from os import path as ospath
 from subprocess import run as srun
