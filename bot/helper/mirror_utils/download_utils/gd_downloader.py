@@ -2,6 +2,7 @@ from random import SystemRandom
 from string import ascii_letters, digits
 
 from bot import download_dict, download_dict_lock, LOGGER, STOP_DUPLICATE
+from bot.helper.ext_utils.bot_utils import SendSearchMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.status_utils.gd_download_status import GdDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendMarkup
@@ -22,10 +23,10 @@ def add_gd_download(link, listener):
             except:
                 gname = None
         if gname is not None:
-            gmsg, button = GoogleDriveHelper().drive_list(gname, True)
-            if gmsg:
-                msg = "File/Folder is already available in Drive.\nHere are the search results:"
-                return sendMarkup(msg, listener.bot, listener.message, button)
+            search_list, f_name = GoogleDriveHelper().drive_list(gname, True)
+            if search_list:
+                SendSearchMessage(listener.message,listener.bot,search_list,f_name)
+                return 
     LOGGER.info(f"Download Name: {name}")
     drive = GoogleDriveHelper(name, listener)
     gid = ''.join(SystemRandom().choices(ascii_letters + digits, k=12))
