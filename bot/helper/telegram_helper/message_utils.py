@@ -161,6 +161,7 @@ def sendStatusMessage(msg, bot):
             Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
 
 def sendSearchMessage(message,bot,search_list:list,f_name:str):
+    LOGGER.info(f'{search_list}')
     msg = f"Here are the search results for {f_name}:"
     fmsg = ''
     for index,dictionary in enumerate(search_list, start=1):
