@@ -5,12 +5,12 @@ from threading import Thread
 from time import sleep
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage,sendSearchMessage
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
 from bot import dispatcher, LOGGER, STOP_DUPLICATE, download_dict, download_dict_lock, Interval
-from bot.helper.ext_utils.bot_utils import SendSearchMessage, is_gdrive_link, new_thread
+from bot.helper.ext_utils.bot_utils import is_gdrive_link, new_thread
 
 
 def _clone(message, bot, multi=0):
@@ -42,7 +42,7 @@ def _clone(message, bot, multi=0):
             LOGGER.info('Checking File/Folder if already in Drive...')
             search_list, f_name = gd.drive_list(name, True, True)
             if search_list:
-                SendSearchMessage(message,bot,search_list,f_name)
+                sendSearchMessage(message,bot,search_list,f_name)
                 return
         if multi > 1:
             sleep(4)
