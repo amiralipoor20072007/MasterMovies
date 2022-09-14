@@ -2,10 +2,9 @@ from random import SystemRandom
 from string import ascii_letters, digits
 
 from bot import download_dict, download_dict_lock, LOGGER, STOP_DUPLICATE
-from bot.helper.ext_utils.bot_utils import SendSearchMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.status_utils.gd_download_status import GdDownloadStatus
-from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendMarkup
+from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendMarkup,sendSearchMessage
 from bot.helper.ext_utils.fs_utils import get_base_name
 
 
@@ -25,7 +24,7 @@ def add_gd_download(link, listener):
         if gname is not None:
             search_list, f_name = GoogleDriveHelper().drive_list(gname, True)
             if search_list:
-                SendSearchMessage(listener.message,listener.bot,search_list,f_name)
+                sendSearchMessage(listener.message,listener.bot,search_list,f_name)
                 return 
     LOGGER.info(f"Download Name: {name}")
     drive = GoogleDriveHelper(name, listener)
