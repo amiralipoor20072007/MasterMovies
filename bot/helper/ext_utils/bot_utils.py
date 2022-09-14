@@ -1,6 +1,6 @@
 from re import match as re_match, findall as re_findall
 from threading import Thread, Event
-from time import time
+from time import time,sleep
 from math import ceil
 from html import escape
 from psutil import virtual_memory, cpu_percent, disk_usage
@@ -11,6 +11,27 @@ from telegram import InlineKeyboardMarkup
 from bot import LOGGER, download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
+from bot.helper.telegram_helper.message_utils import sendMessage
+
+def SendSearchMessage(message,bot,search_list:list,f_name:str):
+    msg = f"Here are the search results for {f_name}:"
+    fmsg = ''
+    for index,dictionary in enumerate(search_list, start=1):
+        index_link = dictionary.get('Index Link',False)
+        Drive_link = dictionary.get('Drive Link')
+        View_link = dictionary.get('View Link',False)
+        Name = dictionary.get('Name')
+        fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
+        if index_link:
+            fmsg += f"|<a href='{index_link}'>Index Link</a>'"
+        if View_link:
+            fmsg += f"|<a href='{View_link}'>View Link</a>'"
+        if len(fmsg.encode() + msg.encode()) > 4000:
+            sendMessage(msg + fmsg, bot, message)
+            sleep(1)
+            fmsg = ''
+    if fmsg != '':
+        sendMessage(msg + fmsg, bot, message)
 
 MAGNET_REGEX = r"magnet:\?xt=urn:btih:[a-zA-Z0-9]*"
 
@@ -285,4 +306,3 @@ def get_content_type(link: str) -> str:
         except:
             content_type = None
     return content_type
-
