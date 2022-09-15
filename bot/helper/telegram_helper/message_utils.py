@@ -6,7 +6,7 @@ from pyrogram.errors import FloodWait
 from os import remove
 
 from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER, status_reply_dict, status_reply_dict_lock, \
-                Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, RSS_CHAT_ID, bot, rss_session
+                Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, RSS_CHAT_ID, bot, rss_session,INDEX_URL
 from bot.helper.ext_utils.bot_utils import get_readable_message, setInterval
 
 
@@ -187,6 +187,7 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
             Name = dictionary.get('Name')
             fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
             if index_link:
+                fmsg += f"|<a href='{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}'>Link Nimbaha</a>"
                 fmsg += f"|<a href='{index_link}'>Index Link</a>"
             if View_link:
                 fmsg += f"|<a href='{View_link}'>View Link</a>"
@@ -206,6 +207,7 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
                 Name = dictionary.get('Name')
                 fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
                 if index_link:
+                    fmsg += f"|<a href='{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}'>Link Nimbaha</a>"
                     fmsg += f"|<a href='{index_link}'>Index Link</a>"
                 if View_link:
                     fmsg += f"|<a href='{View_link}'>View Link</a>"
