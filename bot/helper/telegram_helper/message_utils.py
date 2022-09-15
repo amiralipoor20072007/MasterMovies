@@ -207,10 +207,10 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
                 Name = dictionary.get('Name')
                 fmsg += f"\n\n{index}:{Name}\nDrive Link:{Drive_link}"
                 if index_link:
-                    fmsg += f"|Link Nimbaha:{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}"
-                    fmsg += f"|Index Link:{index_link}"
+                    fmsg += f"\nLink Nimbaha:{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}"
+                    fmsg += f"\nIndex Link:{index_link}"
                 if View_link:
-                    fmsg += f"|View Link:{View_link}"
+                    fmsg += f"\nView Link:{View_link}"
             file.write(fmsg)
             file.close()
         sendFile(bot,message,fileeee_nameeee,f"Here are the search results for {f_name}:")
