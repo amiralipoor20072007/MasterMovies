@@ -197,7 +197,8 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
         if fmsg != '':
             sendMessage(msg + fmsg, bot, message)
     else:
-        with open(f'{f_name}_{time()}','a') as file:
+        fileeee_nameeee = f'{f_name}_{time()}.txt'
+        with open(fileeee_nameeee,'a') as file:
             for index,dictionary in enumerate(search_list, start=1):
                 index_link = dictionary.get('Index Link',False)
                 Drive_link = dictionary.get('Drive Link')
@@ -210,4 +211,4 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
                     fmsg += f"|<a href='{View_link}'>View Link</a>"
             file.write(fmsg)
             file.close()
-        sendFile(bot,message,f'{f_name}_{time()}.txt',f"Here are the search results for {f_name}:")
+        sendFile(bot,message,fileeee_nameeee,f"Here are the search results for {f_name}:")
