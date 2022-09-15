@@ -179,19 +179,35 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
     LOGGER.info(f'{search_list}')
     msg = f"Here are the search results for {f_name}:"
     fmsg = ''
-    for index,dictionary in enumerate(search_list, start=1):
-        index_link = dictionary.get('Index Link',False)
-        Drive_link = dictionary.get('Drive Link')
-        View_link = dictionary.get('View Link',False)
-        Name = dictionary.get('Name')
-        fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
-        if index_link:
-            fmsg += f"|<a href='{index_link}'>Index Link</a>"
-        if View_link:
-            fmsg += f"|<a href='{View_link}'>View Link</a>"
-        if len(fmsg.encode() + msg.encode()) > 4000:
+    if len(search_list) <10:
+        for index,dictionary in enumerate(search_list, start=1):
+            index_link = dictionary.get('Index Link',False)
+            Drive_link = dictionary.get('Drive Link')
+            View_link = dictionary.get('View Link',False)
+            Name = dictionary.get('Name')
+            fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
+            if index_link:
+                fmsg += f"|<a href='{index_link}'>Index Link</a>"
+            if View_link:
+                fmsg += f"|<a href='{View_link}'>View Link</a>"
+            if len(fmsg.encode() + msg.encode()) > 4000:
+                sendMessage(msg + fmsg, bot, message)
+                sleep(1)
+                fmsg = ''
+        if fmsg != '':
             sendMessage(msg + fmsg, bot, message)
-            sleep(1)
-            fmsg = ''
-    if fmsg != '':
-        sendMessage(msg + fmsg, bot, message)
+    else:
+        with open(f'{f_name}_{time()}','a') as file:
+            for index,dictionary in enumerate(search_list, start=1):
+                index_link = dictionary.get('Index Link',False)
+                Drive_link = dictionary.get('Drive Link')
+                View_link = dictionary.get('View Link',False)
+                Name = dictionary.get('Name')
+                fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
+                if index_link:
+                    fmsg += f"|<a href='{index_link}'>Index Link</a>"
+                if View_link:
+                    fmsg += f"|<a href='{View_link}'>View Link</a>"
+            file.write(fmsg)
+            file.close()
+        sendFile(bot,message,f'{f_name}_{time()}.txt',f"Here are the search results for {f_name}:")
