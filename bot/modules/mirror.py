@@ -481,7 +481,7 @@ def message_deleter(user_id: int,message):
 
 def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=False,MultiUnZip=False,Extract_Audio=False,SoftSub=[[],False],MultiTelegram=False):
     idmustjoin = message.from_user.id
-    if mustjoin(idmustjoin) == True:
+    if mustjoin(idmustjoin) == True or idmustjoin == -1001727312001:
         mesg = message.text.split('\n')
         if SoftSub[1] == True :
             SoftSub[0] = mesg[1:]
