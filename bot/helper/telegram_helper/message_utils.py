@@ -205,12 +205,12 @@ def sendSearchMessage(message,bot,search_list:list,f_name:str):
                 Drive_link = dictionary.get('Drive Link')
                 View_link = dictionary.get('View Link',False)
                 Name = dictionary.get('Name')
-                fmsg += f"\n\n{index}:{Name}\n<a href='{Drive_link}'>Drive Link</a>"
+                fmsg += f"\n\n{index}:{Name}\nDrive Link:{Drive_link}"
                 if index_link:
-                    fmsg += f"|<a href='{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}'>Link Nimbaha</a>"
-                    fmsg += f"|<a href='{index_link}'>Index Link</a>"
+                    fmsg += f"|Link Nimbaha:{index_link.replace(INDEX_URL,'https://dl1.mxfile-irani.ga/0:')}"
+                    fmsg += f"|Index Link:{index_link}"
                 if View_link:
-                    fmsg += f"|<a href='{View_link}'>View Link</a>"
+                    fmsg += f"|View Link:{View_link}"
             file.write(fmsg)
             file.close()
         sendFile(bot,message,fileeee_nameeee,f"Here are the search results for {f_name}:")
