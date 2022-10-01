@@ -144,7 +144,7 @@ class TelegramDownloadHelper:
                         search_list, f_name = GoogleDriveHelper().drive_list(name, True, True)
                         if search_list:
                             sendSearchMessage(self.__listener.message,self.__listener.bot,search_list,f_name)
-                            return
+                            sendMessage(f'Please Cancell Download If it is what you want',self.__listener.message,self.__listener.bot)
                     self.__onDownloadStart(name, size, media.file_unique_id)
                     LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
                     self.__download(_dmsg, path)
