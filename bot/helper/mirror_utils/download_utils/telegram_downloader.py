@@ -139,12 +139,18 @@ class TelegramDownloadHelper:
 
                 if download:
                     size = media.file_size
+                    if dl.__listener.isZip:
+                        sname = sname + ".zip"
+                    elif dl.__listener.extract:
+                        try:
+                            sname = get_base_name(sname)
+                        except:
+                            sname = None
                     if STOP_DUPLICATE and not self.__listener.isLeech:
                         LOGGER.info('Checking File/Folder if already in Drive...')
-                        search_list, f_name = GoogleDriveHelper().drive_list(name, True, True)
+                        search_list, f_name = GoogleDriveHelper().drive_list(sname, True, True)
                         if search_list:
                             sendSearchMessage(self.__listener.message,self.__listener.bot,search_list,f_name)
-                            sendMessage(f'Please Cancell Download If it is what you want',self.__listener.bot,self.__listener.message)
                     self.__onDownloadStart(name, size, media.file_unique_id)
                     LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
                     self.__download(_dmsg, path)
