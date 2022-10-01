@@ -139,6 +139,7 @@ class TelegramDownloadHelper:
 
                 if download:
                     size = media.file_size
+                    sname = name
                     if dl.__listener.isZip:
                         sname = sname + ".zip"
                     elif dl.__listener.extract:
