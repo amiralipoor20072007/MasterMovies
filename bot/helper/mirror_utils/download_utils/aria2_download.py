@@ -34,6 +34,7 @@ def __onDownloadStarted(api, gid):
                     sname = get_base_name(sname)
                 except:
                     sname = None
+            LOGGER.info(f'Checking File/Folder if already in Drive... : {sname}')
             if sname is not None:
                 search_list, f_name = GoogleDriveHelper().drive_list(sname, True)
                 if search_list:
