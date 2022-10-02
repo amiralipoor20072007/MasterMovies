@@ -14,7 +14,7 @@ import random
 
 import string
 
-from bot import AUTODELETE_USERS, HASH_USERS, HOW2SEND_COMPLETE_MESSAGE, MULTI_DRIVE_XI, Interval,AUTHORIZED_CHATS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
+from bot import AUTODELETE_USERS, HASH_USERS, HOW2SEND_COMPLETE_MESSAGE, MULTI_DRIVE_XI, Interval,AUTHORIZED_CHATS,SUDO_USERS, INDEX_URL,INDEX_BACKUP,IRAN_INDEX_BACKUP, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER,app,MAX_SPLIT_SIZE
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download,get_path_md5_sha,VIDEO_SUFFIXES
@@ -483,6 +483,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
     idmustjoin = message.from_user.id
     LOGGER.info(f'Request : {idmustjoin},Type : {type(idmustjoin)}')
     owner_iddddd = [str(-1087968824),str(1087968824),-1087968824,1087968824]
+    owner_iddddd.extend(SUDO_USERS)
     if mustjoin(idmustjoin) == True or idmustjoin in owner_iddddd:
         mesg = message.text.split('\n')
         if SoftSub[1] == True :
