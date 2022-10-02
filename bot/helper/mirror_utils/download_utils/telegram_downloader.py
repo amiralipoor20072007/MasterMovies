@@ -140,9 +140,9 @@ class TelegramDownloadHelper:
                 if download:
                     size = media.file_size
                     sname = name
-                    if dl.__listener.isZip:
+                    if self.__listener.isZip:
                         sname = sname + ".zip"
-                    elif dl.__listener.extract:
+                    elif self.__listener.extract:
                         try:
                             sname = get_base_name(sname)
                         except:
