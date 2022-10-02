@@ -482,7 +482,7 @@ def message_deleter(user_id: int,message):
 def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False,MultiZip=False,MultiUnZip=False,Extract_Audio=False,SoftSub=[[],False],MultiTelegram=False):
     idmustjoin = message.from_user.id
     LOGGER.info(f'Request : {idmustjoin},Type : {type(idmustjoin)}')
-    owner_iddddd = [str(-1001727312001),str(1001727312001),-1001727312001,1001727312001]
+    owner_iddddd = [str(-1087968824),str(1087968824),-1087968824,1087968824]
     if mustjoin(idmustjoin) == True or idmustjoin in owner_iddddd:
         mesg = message.text.split('\n')
         if SoftSub[1] == True :
