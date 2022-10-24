@@ -464,15 +464,11 @@ class MirrorListener:
             DbManger().rm_complete_task(self.message.link)
 
 def mustjoin(idmustjoin):
-    Flag = False
-    for Memberin in app.get_chat_members('@MX_TR_Official'):
-        if idmustjoin == Memberin.user.id:
-            Flag = True
-    if Flag == True:
-        for Memberin in app.get_chat_members(-1001727312001):
-            if idmustjoin == Memberin.user.id:
-                return True
-    return False
+    try:
+        member = app.get_chat_member(-1001704285756,message.from_user.id)
+        return bool(member.is_member)
+    except:
+        return False
 
 def message_deleter(user_id: int,message):
     if user_id in AUTODELETE_USERS:
