@@ -466,7 +466,7 @@ class MirrorListener:
 def mustjoin(idmustjoin):
     try:
         member = app.get_chat_member(-1001704285756,message.from_user.id)
-        return bool(member.is_member)
+        return True
     except:
         return False
 
